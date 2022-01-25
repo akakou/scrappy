@@ -1,0 +1,13 @@
+version: "3.3"
+services:
+  app:
+    user: "attestation"
+    build: "./container"
+    working_dir: "/home/attestation/attestation/"
+    volumes:
+      - ./:/home/attestation/attestation/:z
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    environment:                                                            
+      - EDITOR=vim  
+      - DISPLAY=${DISPLAY}
+    command: sh -c "/home/attestation/attestation/container/run.sh"
