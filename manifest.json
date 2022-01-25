@@ -3,15 +3,12 @@
     "description": "Practically secure \"Not DoS Attack\" attestation.",
     "version": "0.1",
     "manifest_version": 2,
-    "content_scripts": [
-        {
-            "matches": [
-                "http://*/*",
-                "https://*/*"
-            ],
-            "js": [
-                "./index.js"
-            ]
-        }
+    "background": {
+        "scripts": [
+            "extention/background.js"
+        ]
+    },
+    "permissions": [
+        "nativeMessaging"
     ]
 }
