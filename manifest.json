@@ -3,6 +3,17 @@
     "description": "Practically secure \"Not DoS Attack\" attestation.",
     "version": "0.1",
     "manifest_version": 2,
+    "content_scripts": [
+        {
+            "matches": [
+                "https://*/*",
+                "http://*/*"
+            ],
+            "js": [
+                "extention/frontend.js"
+            ]
+        }
+    ],
     "background": {
         "scripts": [
             "extention/background.js"
