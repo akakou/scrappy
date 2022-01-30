@@ -1,19 +1,12 @@
 FROM --platform=linux/amd64 ubuntu
 
-RUN apt-get update && apt-get install -y wget tzdata 
-RUN apt-get install -y gnupg
+RUN apt-get update
+RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y wget tzdata gnupg python3 cmake pkg-config m4 libtool automake autoconf libtss2-dev tpm2-tools git lsb-release 
+ADD build_chrome.sh /home/attestation/build_chrome.sh
+RUN sh /home/attestation/build_chrome.sh
+ADD build_ecdaa.sh /home/attestation/build_ecdaa.sh
+RUN sh /home/attestation/build_ecdaa.sh
 
-RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -
-RUN echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' | tee /etc/apt/sources.list.d/google-chrome.list
-RUN apt-get update && apt-get install -y google-chrome-stable
-
-RUN apt-get install -y python3 python3-pip
-#RUN pip3 install selenium chromedriver-binary sqlalchemy
-RUN apt-get install gcc
-
-RUN useradd -m -u 1000 attestation
-RUN mkdir -p /home/attestation
-RUN chown attestation /home/attestation -R
 USER attestation
 
 

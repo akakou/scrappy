@@ -6,8 +6,16 @@ services:
     working_dir: "/home/attestation/attestation/"
     volumes:
       - ./:/home/attestation/attestation/:z
+      - /sys/class/tpm/tpm0/:/sys/class/tpm/tpm0/
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - /dev/tpm0:/dev/tpm0
+      - /dev/tpmrm0:/dev/tpmrm0
     environment:                                                            
       - EDITOR=vim  
       - DISPLAY=${DISPLAY}
+      - ECDAA_CURVES=FP256BN
+      - TPM2TOOLS_TCTI="device:/dev/tpm0"
+
     command: sh -c "/home/attestation/attestation/container/run.sh"
+    privileged: true
