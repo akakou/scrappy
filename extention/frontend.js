@@ -7,5 +7,5 @@ setTimeout( ()=> {
 
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log("result", message);
+    console.log("attest", message);
 });

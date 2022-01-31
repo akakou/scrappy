@@ -1,7 +1,8 @@
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    console.log(request.domain)
     chrome.runtime.sendNativeMessage(
         "com.akakou.attestation",
-        { message: "msg" }, 
+        { nonce: "hoge", domain: request.domain },
         (response) => {
             console.log("Messaging host sais: ", response);
             console.log("ERROR: ", chrome.runtime.lastError);
