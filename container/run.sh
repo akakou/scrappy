@@ -1,7 +1,9 @@
+### build
+cd /attestation/
+
 ### Chrome
-mkdir -p /home/attestation/.config/google-chrome/NativeMessagingHosts
-cp /home/attestation/attestation/app/attestation.json /home/attestation/.config/google-chrome/NativeMessagingHosts/com.akakou.attestation.json
-chmod +x /home/attestation/.config/google-chrome/NativeMessagingHosts/com.akakou.attestation.json
+cd /attestation/client/app
+make install
 google-chrome --no-sandbox -user-data-dir="/home/attestation/.config/google-chrome"
 
 

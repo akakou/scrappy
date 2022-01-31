@@ -3,15 +3,15 @@ services:
   app:
     user: "attestation"
     build: "./container"
-    working_dir: "/home/attestation/attestation/"
+    working_dir: "/attestation/"
     volumes:
-      - ./:/home/attestation/attestation/:z
+      - ./:/attestation/:z
       - /sys/class/tpm/tpm0/:/sys/class/tpm/tpm0/
       - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
       - /tmp/.X11-unix:/tmp/.X11-unix
       - /dev/tpm0:/dev/tpm0
       - /dev/tpmrm0:/dev/tpmrm0
-      - /home/attestation/attestation/thirdparty/
+      - /home/attestation/thirdparty/
     environment:                                                            
       - EDITOR=vim  
       - DISPLAY=${DISPLAY}
@@ -19,5 +19,5 @@ services:
       - TPM2TOOLS_TCTI="device:/dev/tpm0"
       - LD_LIBRARY_PATH=/usr/local/lib/
 
-    command: sh -c "/home/attestation/attestation/container/run.sh"
+    command: sh -c "/attestation/container/run.sh"
     privileged: true

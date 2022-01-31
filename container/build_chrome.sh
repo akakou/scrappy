@@ -8,5 +8,5 @@ apt-get install -y python3 python3-pip
 apt-get install gcc
 
 useradd -m -u 1000 attestation
-mkdir -p /home/attestation
-chown attestation /home/attestation -R
+mkdir -p /attestation
+chown attestation /attestation -R

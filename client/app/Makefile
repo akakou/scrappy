@@ -7,4 +7,4 @@ build:
 test_build: 
 	mkdir -p bin && gcc $(INPUT) -o ./bin/sign $(FLAGS)
 install: ./attest.py ./bin/sign
-	install ./attestation.json ~/.config/google-chrome/NativeMessagingHosts/com.akakou.attestation.json
+	cp ./attestation.json ~/.config/google-chrome/NativeMessagingHosts/com.akakou.attestation.json
