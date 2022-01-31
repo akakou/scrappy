@@ -30,4 +30,5 @@
 *.exe
 *.out
 *.app
-app/attestation
+**/bin/
+ignored_workspace
