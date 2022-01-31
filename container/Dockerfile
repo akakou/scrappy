@@ -6,7 +6,7 @@ ADD build_chrome.sh /home/attestation/build_chrome.sh
 RUN sh /home/attestation/build_chrome.sh
 ADD build_ecdaa.sh /home/attestation/build_ecdaa.sh
 RUN sh /home/attestation/build_ecdaa.sh
-
+RUN pip3 install nativemessaging
 USER attestation
 
 
