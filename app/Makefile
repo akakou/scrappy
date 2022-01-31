@@ -1,4 +1,10 @@
-build: 
-	mkdir -p bin && gcc ./sign/*.c -o ./bin/sign `pkg-config ecdaa --libs --cflags`
+FLAGS = `pkg-config ecdaa --libs --cflags`
+INPUT = ./sign/*.c
+SHARED_TARGET = ./bin
+
+build:
+	mkdir -p bin && gcc $(INPUT) -o ./bin/libsign.so $(FLAGS) -shared -fPIC 
+test_build: 
+	mkdir -p bin && gcc $(INPUT) -o ./bin/sign $(FLAGS)
 install: ./attest.py ./bin/sign
 	install ./attestation.json ~/.config/google-chrome/NativeMessagingHosts/com.akakou.attestation.json

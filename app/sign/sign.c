@@ -18,7 +18,9 @@
 #define ERROR_SIGNING 5
 #define OK 0
 
-int attest(uint8_t buffer[1024], uint8_t *message, int msg_len, char *basename, int basename_len, char *secret_key_path, char *credential_path)
+#define MAX_SIZE 512
+
+int sign(uint8_t buffer[MAX_SIZE], uint8_t *message, int msg_len, char *basename, int basename_len, char *secret_key_path, char *credential_path)
 {
     struct ecdaa_member_secret_key_FP256BN sk;
     struct ecdaa_credential_FP256BN cred;
@@ -69,7 +71,7 @@ void print(uint8_t *buffer, size_t len)
 
 int main(int argc, uint8_t *argv[])
 {
-    uint8_t buffer[1024];
+    uint8_t buffer[MAX_SIZE];
     memset(buffer, 0x00, sizeof(buffer));
 
     uint8_t message[] = "hogehoge";
@@ -77,7 +79,7 @@ int main(int argc, uint8_t *argv[])
     char secret_key_path[] = "./ignored_workspace/member_private.bin";
     char credential_path[] = "./ignored_workspace/member_credential.bin";
 
-    int status = attest(buffer, message, sizeof(message), basename, sizeof(basename), secret_key_path, credential_path);
+    int status = sign(buffer, message, sizeof(message), basename, sizeof(basename), secret_key_path, credential_path);
     if (status) 
         fprintf(stderr, "Error: status %d", status);
     else
