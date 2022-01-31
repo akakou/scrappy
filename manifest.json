@@ -10,13 +10,13 @@
                 "http://*/*"
             ],
             "js": [
-                "extention/frontend.js"
+                "extension/frontend.js"
             ]
         }
     ],
     "background": {
         "scripts": [
-            "extention/background.js"
+            "extension/background.js"
         ]
     },
     "permissions": [
