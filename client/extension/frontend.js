@@ -1,11 +1,27 @@
-setTimeout( ()=> {
-    const c = confirm("attest to this page?")
-    if (!c) return;
+var attestation = null;
+var state = 'ok'; 
 
-    chrome.runtime.sendMessage({ domain: document.domain }, function (response) {});
-}, 1000)
+const period = 24 * 60 * 60 * 1000
 
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log("attest", message);
+window.onload = async (_) => {
+    await cookieStore.delete('attestation')
+    chrome.runtime.sendMessage({ domain: document.domain }, function (response) { });
+}
+
+window.onsubmit = async () => {
+    const answer = confirm('Attest not attacking?')
+
+    if (answer)
+        await cookieStore.set({
+            name: "attestation",
+            value: attestation,
+            expires: Date.now() + period,
+        })
+}
+
+chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+    console.log(sender)
+    console.log("attestation", message)
+    attestation = encodeURI(message)
 });
