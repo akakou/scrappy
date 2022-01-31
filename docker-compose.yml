@@ -21,3 +21,5 @@ services:
 
     command: sh -c "/attestation/container/run.sh"
     privileged: true
+    ports:
+      - 5000:5000
