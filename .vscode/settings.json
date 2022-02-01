@@ -9,6 +9,7 @@
         "revocations_fp256bn.h": "c",
         "file_io.h": "c",
         "errors.h": "c",
-        "issuer_keypair_fp256bn.h": "c"
+        "issuer_keypair_fp256bn.h": "c",
+        "ecp_fp256bn.h": "c"
     }
 }

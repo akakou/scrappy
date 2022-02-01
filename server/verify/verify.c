@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#define MAX_SIZE 512
+#define MAX_SIZE 1024
 #define HAS_BASENAME 0
 
 #define ERROR_DESRIALIZE_SIG 1
@@ -33,6 +33,8 @@
 #define ERROR_DESRIALIZE_GPK 3
 #define ERROR_SIGNING 4
 #define OK 0
+
+#define ECP_FP256BN_LENGTH (2 * MODBYTES_256_56 + 1)
 
 int verify(u_int8_t raw_sig[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH], uint8_t *message, int msg_len, uint8_t *basename, int basename_len, char *gpk_path)
 {
@@ -72,12 +74,29 @@ int verify(u_int8_t raw_sig[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH], uint8_t *m
     return OK;
 }
 
+void print(uint8_t *buffer, size_t len)
+{
+    for (int i = 0; i < len; i++)
+        printf("[%d] %02x\n", i, buffer[i]);
+}
+
+
+int parse_k(u_int8_t k[ECP_FP256BN_LENGTH], u_int8_t raw_sig[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH])
+{
+    int padding = 3 * MODBYTES_256_56 + 4 * ECP_FP256BN_LENGTH;
+    memcpy(k, raw_sig + padding, ECP_FP256BN_LENGTH);
+
+    return OK;
+}
+
 int main(int argc, char *argv[])
 {
     uint8_t sig[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH];
+    u_int8_t k[ECP_FP256BN_LENGTH];
+    memset(k, 0x00, sizeof(k));
 
     fread(sig, sizeof(uint8_t), ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH, stdin);
-    
+
     uint8_t message[] = "hogehoge";
     char basename[] = "hogehoge";
     char gpk_path[] = "/attestation/ignored_workspace/group_public.bin";
@@ -85,8 +104,15 @@ int main(int argc, char *argv[])
     int status = verify(sig, message, sizeof(message), basename, sizeof(basename), gpk_path);
 
     if (status)
-        fprintf(stderr, "Error: status %d", status);
+        fprintf(stderr, "Error: status on verify (%d)", status);
     else
         printf("result: %d\n", status);
+
+    status = parse_k(k, sig);
+
+    if (status)
+        fprintf(stderr, "Error: status on parase k (%d)", status);
+    else
+        print(k, ECP_FP256BN_LENGTH);
 }
 
