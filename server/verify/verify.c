@@ -28,11 +28,12 @@
 #define MAX_SIZE 1024
 #define HAS_BASENAME 0
 
-#define ERROR_DESRIALIZE_SIG 1
-#define ERROR_READING_GPK 2
-#define ERROR_DESRIALIZE_GPK 3
-#define ERROR_SIGNING 4
 #define OK 0
+#define WRONG 1
+#define ERROR_DESRIALIZE_SIG 2
+#define ERROR_READING_GPK 3
+#define ERROR_DESRIALIZE_GPK 4
+#define ERROR_SIGNING 5
 
 #define ECP_FP256BN_LENGTH (2 * MODBYTES_256_56 + 1)
 
@@ -69,9 +70,9 @@ int verify(u_int8_t raw_sig[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH], uint8_t *m
 
     // Verify signature
     if (0 != ecdaa_signature_FP256BN_verify(&sig, &gpk, &revocations, message, msg_len, basename, basename_len))
-        printf("Signature successfully verified!\n");
-
-    return OK;
+        return OK;
+    else 
+        return WRONG;
 }
 
 void print(uint8_t *buffer, size_t len)
