@@ -1,5 +1,14 @@
 {
     "files.associations": {
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "stddef.h": "c",
+        "string.h": "c",
+        "ecdaa.h": "c",
+        "rand.h": "c",
+        "signature_fp256bn.h": "c",
+        "revocations_fp256bn.h": "c",
+        "file_io.h": "c",
+        "errors.h": "c",
+        "issuer_keypair_fp256bn.h": "c"
     }
 }

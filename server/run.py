@@ -11,6 +11,7 @@ def get_index():
 
 @app.route("/slow", methods=['GET'])
 def post_index():
+    
     time.sleep(3)
     return render_template('index.html', name=name)
 
