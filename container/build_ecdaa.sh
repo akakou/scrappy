@@ -11,9 +11,9 @@ make -j
 make install
 
 
-git clone https://github.com/xaptum/ecdaa/ /attestation/attestation/thirdparty/ecdaa
-mkdir -p /attestation/attestation/thirdparty/ecdaa/build
-cd /attestation/attestation/thirdparty/ecdaa/build
+git clone https://github.com/xaptum/ecdaa/ /attestation/thirdparty/ecdaa
+mkdir -p /attestation/thirdparty/ecdaa/build
+cd /attestation/thirdparty/ecdaa/build
 ../.travis/install-amcl.sh ./amcl ${CMAKE_PREFIX_PATH} ${ECDAA_CURVES}
 cmake .. -DCMAKE_BUILD_TYPE=Release -DECDAA_CURVES=FP256BN
 cmake --build . --target install

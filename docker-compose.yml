@@ -11,7 +11,7 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - /dev/tpm0:/dev/tpm0
       - /dev/tpmrm0:/dev/tpmrm0
-      - /home/attestation/thirdparty/
+      - /attestation/thirdparty/ecdaa
     environment:                                                            
       - EDITOR=vim  
       - DISPLAY=${DISPLAY}
