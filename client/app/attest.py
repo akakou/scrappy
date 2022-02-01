@@ -7,9 +7,9 @@ import sys
 nonce = "hoge".encode('utf-8')
 basename = "hoge".encode('utf-8')
 
-SECRET_KEY_PATH = "./ignored_workspace/member_private.bin".encode('utf-8')
-CREDENTIAL_PATH = "./ignored_workspace/member_credential.bin".encode('utf-8')
-MAX_SIZE = 512
+SECRET_KEY_PATH = "/attestation/ignored_workspace/member_private.bin".encode('utf-8')
+CREDENTIAL_PATH = "/attestation/ignored_workspace/member_credential.bin".encode('utf-8')
+MAX_SIZE = 421
 
 char_ptr = ctypes.POINTER(ctypes.c_char)
 send_native_message = lambda x: nativemessaging.send_message(nativemessaging.encode_message(x))
