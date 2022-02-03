@@ -13,7 +13,6 @@ from wrapper import verify, parse_k, MAX_COUNTER
 ORIGIN = "http://localhost:5000"
 
 app = Flask(__name__)
-name = 'taro'
 
 app.permanent_session_lifetime = timedelta(minutes=5) 
 app.secret_key = 'hogehogehoge'
@@ -41,7 +40,6 @@ def verify_attest():
         return False
 
     nonce = session["nonce"].encode('utf-8')
-    # print("nonce:", nonce)
 
     now = datetime.now()
     now = now.replace(hour=now.hour, minute=now.minute, second=0, microsecond=0)
@@ -78,7 +76,7 @@ def verify_attest():
     
     print('has_exist: ', has_exist)
 
-    return result and not False
+    return result and not has_exist
 
 @app.route("/", methods=['GET'])
 def index():
