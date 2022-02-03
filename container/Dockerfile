@@ -7,6 +7,7 @@ RUN sh /attestation/build_chrome.sh
 ADD build_ecdaa.sh /attestation/build_ecdaa.sh
 RUN sh /attestation/build_ecdaa.sh
 RUN pip3 install nativemessaging sqlalchemy flask
+RUN apt-get install -y sqlite3
 USER attestation
 
 
