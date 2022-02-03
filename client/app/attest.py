@@ -40,10 +40,6 @@ def libsign():
 
 sign = libsign()
 
-# domain = 'google.com'
-# attestation_log = AttestationLog.gen_attestation_log(domain)
-# attestation_log.save_attestation_log(attestation)
-
 
 def main_loop():
     message = nativemessaging.get_message()
@@ -60,7 +56,6 @@ def main_loop():
         send_native_message("[error] domain must needed")
         return
     
-
     
     try:
         attestation_log = AttestationLog.gen_attestation_log(domain)

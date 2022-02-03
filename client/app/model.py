@@ -11,7 +11,9 @@ handler.setLevel(logging.ERROR)
 logging.getLogger('sqlalchemy').addHandler(handler)
 
 
-MAX = 10
+MODE_ATTACK = False
+
+MAX_COUNTER = 5
 TERM_LEN = 50
 
 ENGINE = create_engine('sqlite:////attestation/ignored_workspace/db.sqlite3', echo=False)
@@ -27,15 +29,6 @@ session = scoped_session(
 ERRORS = {
     "HAVE_USED_ALL_COUNTER": 1
 }
-
-
-# logger = logging.getLogger('sqlalchemy')
-# logger.propagate = False
-
-# handler = logging.FileHandler('/attestation/ignored_workspace/client.log')
-# handler.setLevel(logging.ERROR)
-# logger.addHandler(handler)
-
 
 class AttestationLog(Base):
     __tablename__ = 'attestation_logs'
@@ -56,13 +49,15 @@ class AttestationLog(Base):
         return list(map(lambda x: x.domain, attestation_logs))
 
     def gen_new_counter(domain, now):
-        counters = AttestationLog.select_counters_by_domain_and_datetime(domain, now) 
-        
-        if len(counters) >= MAX - 1:
+        if MODE_ATTACK:
+            counters = AttestationLog.select_counters_by_domain_and_datetime(domain, now) 
+            return random.randint(1, MAX_COUNTER)
+
+        if len(counters) >= MAX_COUNTER - 1:
             return None
 
         while True:
-            counter = random.randint(1, MAX)
+            counter = random.randint(1, MAX_COUNTER)
             
             if counter not in counters:
                 return counter
@@ -93,7 +88,7 @@ class AttestationLog(Base):
 Base.metadata.create_all(ENGINE)
 
 if __name__ == '__main__':
-    MAX = 5
+    MAX_COUNTER = 5
 
     attestation_log = AttestationLog.gen_attestation_log('example.com')
     print("--- attestation_log ---\n", attestation_log)

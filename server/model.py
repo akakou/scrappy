@@ -4,7 +4,6 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from datetime import datetime
 import random
 
-MAX = 20
 TERM_LEN = 50
 
 ENGINE = create_engine('sqlite:////attestation/ignored_workspace/server_db.sqlite3', echo=True)
@@ -33,7 +32,7 @@ class AttestationLogForVerifier(Base):
 
     def exist(attestation_log):
         attestation_logs = AttestationLogForVerifier.count(attestation_log)
-        return attestation_logs == 0
+        return attestation_logs > 0
 
     def save(attestation_log):
         session.add(attestation_log)
