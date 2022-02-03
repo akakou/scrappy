@@ -16,17 +16,23 @@
  *
  *****************************************************************************/
 
-#include "file_utils.h"
-
-#include <ecdaa.h>
 
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <ecdaa.h>
+#define DEBUG 1
+
+#ifdef DEBUG
+#include "../../client/app/sign/sign.c"
+#else
+#include "file_utils.h"
+#endif
+
 
 #define MAX_SIZE 1024
-#define HAS_BASENAME 0
+#define HAS_BASENAME 1
 
 #define OK 0
 #define WRONG 1
@@ -36,6 +42,8 @@
 #define ERROR_SIGNING 5
 
 #define ECP_FP256BN_LENGTH (2 * MODBYTES_256_56 + 1)
+
+#include "examples_rand.h"
 
 int verify(u_int8_t raw_sig[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH], uint8_t *message, int msg_len, uint8_t *basename, int basename_len, char *gpk_path)
 {
@@ -70,16 +78,19 @@ int verify(u_int8_t raw_sig[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH], uint8_t *m
 
     // Verify signature
     if (0 != ecdaa_signature_FP256BN_verify(&sig, &gpk, &revocations, message, msg_len, basename, basename_len))
-        return OK;
-    else 
+    {
+        printf("test:%d\n", ecdaa_signature_FP256BN_verify(&sig, &gpk, &revocations, message, msg_len, basename, basename_len));
         return WRONG;
+    }
+
+    return OK;
 }
 
-void print(uint8_t *buffer, size_t len)
-{
-    for (int i = 0; i < len; i++)
-        printf("[%d] %02x\n", i, buffer[i]);
-}
+// void print(uint8_t *buffer, size_t len)
+// {
+//     for (int i = 0; i < len; i++)
+//         printf("[%d] %02x\n", i, buffer[i]);
+// }
 
 
 int parse_k(u_int8_t k[ECP_FP256BN_LENGTH], u_int8_t raw_sig[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH])
@@ -93,16 +104,22 @@ int parse_k(u_int8_t k[ECP_FP256BN_LENGTH], u_int8_t raw_sig[ECDAA_SIGNATURE_FP2
 int main(int argc, char *argv[])
 {
     uint8_t sig[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH];
+    memset(sig, 0x00, sizeof(sig));
+
+    uint8_t message[] = "hogehoge";
+
+    char basename[] = "hogehoge";
+    char secret_key_path[] = "/attestation/ignored_workspace/member_private.bin";
+    char credential_path[] = "/attestation/ignored_workspace/member_credential.bin";
+    char gpk_path[] = "/attestation/ignored_workspace/group_public.bin";
+
+    int status = sign(sig, message, sizeof(message), basename, sizeof(basename), secret_key_path, credential_path);
+
     u_int8_t k[ECP_FP256BN_LENGTH];
     memset(k, 0x00, sizeof(k));
 
-    fread(sig, sizeof(uint8_t), ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH, stdin);
-
-    uint8_t message[] = "hogehoge";
-    char basename[] = "hogehoge";
-    char gpk_path[] = "/attestation/ignored_workspace/group_public.bin";
-
-    int status = verify(sig, message, sizeof(message), basename, sizeof(basename), gpk_path);
+    status = verify(sig, message, sizeof(message), basename, sizeof(basename), gpk_path);
+    printf("status: %d\n", status);
 
     if (status)
         fprintf(stderr, "Error: status on verify (%d)", status);
@@ -113,7 +130,10 @@ int main(int argc, char *argv[])
 
     if (status)
         fprintf(stderr, "Error: status on parase k (%d)", status);
-    else
-        print(k, ECP_FP256BN_LENGTH);
+    // else
+    //     print(k, ECP_FP256BN_LENGTH);
+
+    status = verify(sig, "hello", sizeof("hello"), basename, sizeof(basename), gpk_path);
+    printf("failed status: %d\n", status);
 }
 

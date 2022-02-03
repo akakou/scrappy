@@ -39,7 +39,7 @@ static int write_buffer_to_file(const char *filename, uint8_t *buffer, size_t by
 
     ptr = fopen(filename, "wb");
     if (NULL == ptr)
-        return -1;
+        return -1000;
 
     size_t bytes_written = fwrite(buffer, 1, bytes_to_write, ptr);
 

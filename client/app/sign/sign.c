@@ -17,8 +17,9 @@
 #define ERROR_SIGNING 5
 #define OK 0
 
-int sign(uint8_t buffer[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH], uint8_t *message, int msg_len, char *basename, int basename_len, char *secret_key_path, char *credential_path)
+int sign(uint8_t raw_sig[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH], uint8_t *message, int msg_len, char *basename, int basename_len, char *secret_key_path, char *credential_path)
 {
+    uint8_t buffer[1024];
     struct ecdaa_member_secret_key_FP256BN sk;
     struct ecdaa_credential_FP256BN cred;
 
@@ -28,6 +29,7 @@ int sign(uint8_t buffer[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH], uint8_t *messa
         fprintf(stderr, "Error reading member secret key file: \"%s\"\n", secret_key_path);
         return ERROR_READING_SECRET;
     }
+
     if (0 != ecdaa_member_secret_key_FP256BN_deserialize(&sk, buffer))
     {
         fputs("Error deserializing member secret key\n", stderr);
@@ -40,6 +42,7 @@ int sign(uint8_t buffer[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH], uint8_t *messa
         fprintf(stderr, "Error reading member credential file: \"%s\"\n", credential_path);
         return ERROR_READING_CRED;
     }
+
     if (0 != ecdaa_credential_FP256BN_deserialize(&cred, buffer))
     {
         fputs("Error deserializing member credential\n", stderr);
@@ -55,7 +58,7 @@ int sign(uint8_t buffer[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH], uint8_t *messa
         return ERROR_SIGNING;
     }
 
-    ecdaa_signature_FP256BN_serialize(buffer, &sig, HAS_BASENAME);
+    ecdaa_signature_FP256BN_serialize(raw_sig, &sig, HAS_BASENAME);
 
     return OK;
 }
@@ -65,6 +68,8 @@ void print(uint8_t *buffer, size_t len)
     for (int i = 0; i < len; i++)
         printf("[%d] %02x\n", i, buffer[i]);
 }
+
+#ifdef MAIN_IS_SIGN
 
 int main(int argc, uint8_t *argv[])
 {
@@ -91,3 +96,4 @@ int main(int argc, uint8_t *argv[])
     }
 }
 
+#endif
