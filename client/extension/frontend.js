@@ -27,7 +27,6 @@ window.onsubmit = async () => {
     }
 
     console.log('cookie: ', document.cookie)
-    alert(1)
 }
 
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {

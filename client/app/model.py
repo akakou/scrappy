@@ -32,22 +32,22 @@ class AttestationLog(Base):
     __tablename__ = 'attestation_logs'
 
     _id = Column('id', Integer, primary_key = True)
-    domain = Column('domain', Text)
+    origin = Column('origin', Text)
     counter = Column('counter', Text)
     created_at = Column(DateTime, default=datetime.now)
 
-    def find_by_domain_and_datetime(domain, datetime):
+    def find_by_origin_and_datetime(origin, datetime):
         attestation_logs = session.query(AttestationLog) \
-                .filter(AttestationLog.domain == domain, AttestationLog.created_at == datetime)
+                .filter(AttestationLog.origin == origin, AttestationLog.created_at == datetime)
 
         return attestation_logs
 
-    def select_counters_by_domain_and_datetime(domain, datetime):
-        attestation_logs = AttestationLog.find_by_domain_and_datetime(domain, datetime)
-        return list(map(lambda x: x.domain, attestation_logs))
+    def select_counters_by_origin_and_datetime(origin, datetime):
+        attestation_logs = AttestationLog.find_by_origin_and_datetime(origin, datetime)
+        return list(map(lambda x: x.origin, attestation_logs))
 
-    def gen_new_counter(domain, now):
-        counters = AttestationLog.select_counters_by_domain_and_datetime(domain, now) 
+    def gen_new_counter(origin, now):
+        counters = AttestationLog.select_counters_by_origin_and_datetime(origin, now) 
         
         if MODE_ATTACK:
             return random.randint(1, MAX_COUNTER)
@@ -61,15 +61,15 @@ class AttestationLog(Base):
             if counter not in counters:
                 return counter
         
-    def gen_attestation_log(domain):
+    def gen_attestation_log(origin):
         now = datetime.now()
         now = now.replace(hour=now.hour, minute=now.minute, second=0, microsecond=0)
 
         attestation_log = AttestationLog()
-        attestation_log.domain = domain
+        attestation_log.origin = origin
         attestation_log.created_at = now
 
-        attestation_log.counter = AttestationLog.gen_new_counter(domain, now)
+        attestation_log.counter = AttestationLog.gen_new_counter(origin, now)
 
         if attestation_log.counter is None:
             return None
@@ -81,7 +81,7 @@ class AttestationLog(Base):
         session.commit()
     
     def __str__(self):
-        return f'{self.domain}@{self.created_at}@{self.counter}' 
+        return f'{self.origin}@{self.created_at}@{self.counter}' 
 
 
 Base.metadata.create_all(ENGINE)

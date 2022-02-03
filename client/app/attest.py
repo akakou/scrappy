@@ -23,14 +23,14 @@ def main_loop():
         send_native_message("[error] nonce must needed")
         return 
 
-    if "domain" in message:
-        domain = message['domain']
+    if "origin" in message:
+        origin = message['origin']
     else:
-        send_native_message("[error] domain must needed")
+        send_native_message("[error] origin must needed")
         return
     
     try:
-        attestation_log = AttestationLog.gen_attestation_log(domain)
+        attestation_log = AttestationLog.gen_attestation_log(origin)
     except Exception as e:
         send_native_message(f"[error] siging error : {str(e)}")
         return

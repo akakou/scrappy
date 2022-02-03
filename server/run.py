@@ -9,7 +9,7 @@ sys.path.append('/attestation/common/')
 from wrapper import verify, parse_k, MAX_COUNTER
 
 
-DOMAIN = "localhost"
+ORIGIN = "http://localhost:5000"
 
 app = Flask(__name__)
 name = 'taro'
@@ -51,7 +51,7 @@ def verify_attest():
         return False
 
     signature = signature.encode('utf-8')
-    basename = f"{DOMAIN}@{now}@{counter}".encode('utf-8')
+    basename = f"{ORIGIN}@{now}@{counter}".encode('utf-8')
 
     result = verify(signature, nonce, basename)
     k = parse_k(signature)
