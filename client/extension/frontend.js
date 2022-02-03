@@ -4,40 +4,24 @@ var state = 'ok';
 const period = 24 * 60 * 60 * 1000
 
 
-window.onload = async () => {
-    nonce = await cookieStore.get('nonce')
-    chrome.runtime.sendMessage({ domain: document.domain, nonce: nonce.value }, function (response) { });
-}
-
-window.onsubmit = async () => {
+document.addEventListener('onAttest', function (e) {
     const answer = confirm('Attest not attacking?')
+    if (!answer) return;
 
-    if (answer){
-        await cookieStore.set({
-            name: "signature",
-            value: attestation.signature,
-            expires: Date.now() + period,
-        })
+    nonce = document.getElementById('nonce').value
+    console.log('nonce:', nonce)
 
-        await cookieStore.set({
-            name: "counter",
-            value: attestation.counter,
-            expires: Date.now() + period,
-        })
-    }
+    chrome.runtime.sendMessage({ domain: document.domain, nonce: nonce }, function (response) {
+        if (!response.signature || !response.counter)
+            alert(response)
 
-    console.log('cookie: ', document.cookie)
-}
+        console.log("attestation", response)
+        attestation = {
+            signature: encodeURI(response.signature),
+            counter: encodeURI(response.counter)
+        }
 
-chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-    if (!message.signature || !message.counter) {
-        alert(message)
-    };
+        e.target.value = JSON.stringify(attestation)
+    })
+})
 
-    console.log(sender)
-    console.log("attestation", message)
-    attestation = { 
-        signature: encodeURI(message.signature), 
-        counter: encodeURI(message.counter)
-    }
-});

@@ -4,6 +4,7 @@ import sys
 from datetime import datetime, timedelta
 from model import AttestationLogForVerifier
 import secrets
+import json
 
 sys.path.append('/attestation/common/')
 from wrapper import verify, parse_k, MAX_COUNTER
@@ -18,17 +19,24 @@ app.permanent_session_lifetime = timedelta(minutes=5)
 app.secret_key = 'hogehogehoge'
 
 
-def setup_nonce(body):
+def make_nonce():
     session.permanent = True
     nonce = secrets.token_urlsafe(32)
     session["nonce"] = nonce
 
-    resp = make_response(body)
-    resp.set_cookie('nonce', nonce)
-    return resp
+    return nonce
 
 
 def verify_attest():
+    if "attestation" not in request.form:
+        return False
+    
+    attestation = request.form["attestation"]
+    if not len(attestation):
+        return False
+    
+    attestation = json.loads(attestation)
+
     if "nonce" not in session:
         return False
 
@@ -38,10 +46,10 @@ def verify_attest():
     now = datetime.now()
     now = now.replace(hour=now.hour, minute=now.minute, second=0, microsecond=0)
 
-    signature = request.cookies.get('signature', None)
+    signature = attestation['signature']
     print("signature: ", signature)
 
-    counter = request.cookies.get('counter', None)
+    counter = attestation['counter']
     print("counter: ", counter)
 
     if signature is None or counter is None :
@@ -74,10 +82,11 @@ def verify_attest():
 
 @app.route("/", methods=['GET'])
 def get_index():
-    body = render_template('index.html', name=name)
-    return setup_nonce(body)
+    nonce = make_nonce()
+    body = render_template('index.html', name=name, nonce=nonce)
+    return body
 
-@app.route("/slow", methods=['GET'])
+@app.route("/slow", methods=['POST'])
 def post_index():
     if not verify_attest():
         return "error"
@@ -85,8 +94,8 @@ def post_index():
     # something heavy
     time.sleep(5)
 
-    body = render_template('index.html', name=name)
-    return setup_nonce(body)
+    nonce = make_nonce()
+    return render_template('index.html', name=name, nonce=nonce)
 
 if __name__ == "__main__":
     app.run(
