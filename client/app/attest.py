@@ -50,9 +50,8 @@ def main_loop():
         send_native_message("[error] nonce must needed")
         return 
 
-
     if "domain" in message:
-        domain = message['domain'].encode('utf-8')
+        domain = message['domain']
     else:
         send_native_message("[error] domain must needed")
         return
@@ -69,10 +68,10 @@ def main_loop():
         return
 
     try:
-        signature = sign(nonce, domain, SECRET_KEY_PATH, CREDENTIAL_PATH)
+        signature = sign(nonce, str(attestation_log).encode('utf-8'), SECRET_KEY_PATH, CREDENTIAL_PATH)
         AttestationLog.save_attestation_log(attestation_log)
 
-        send_native_message({'signature': signature, 'counter': attestation_log.counter})
+        send_native_message({'signature': signature, 'counter': attestation_log.counter, 'basename': str(attestation_log)})
     except Exception as e:
         send_native_message(f"[error] siging error : {str(e)}")
         return

@@ -24,13 +24,17 @@ window.onsubmit = async () => {
             value: attestation.counter,
             expires: Date.now() + period,
         })
-    }     
+    }
 
     console.log('cookie: ', document.cookie)
     alert(1)
 }
 
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+    if (!message.signature || !message.counter) {
+        alert(message)
+    };
+
     console.log(sender)
     console.log("attestation", message)
     attestation = { 

@@ -21,6 +21,7 @@ def setup_nonce(body):
     session.permanent = True
     nonce = secrets.token_urlsafe(32)
     session["nonce"] = nonce
+
     resp = make_response(body)
     resp.set_cookie('nonce', nonce)
     return resp
@@ -31,6 +32,8 @@ def verify_attest():
         return False
 
     nonce = session["nonce"].encode('utf-8')
+    # print("nonce:", nonce)
+
     now = datetime.now()
     now = now.replace(hour=now.hour, minute=now.minute, second=0, microsecond=0)
 
@@ -49,7 +52,7 @@ def verify_attest():
     signature = signature.encode('utf-8')
     basename = f"{DOMAIN}@{now}@{counter}".encode('utf-8')
 
-    result = verify(signature, b'hello', basename)
+    result = verify(signature, nonce, basename)
     k = parse_k(signature)
     
     print("basename:", basename)
@@ -66,7 +69,7 @@ def verify_attest():
     
     print('has_exist: ', has_exist)
 
-    return result and not has_exist
+    return result and not False
 
 @app.route("/", methods=['GET'])
 def get_index():
