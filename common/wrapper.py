@@ -1,14 +1,40 @@
 import ctypes
 import base64
 
-char_ptr = ctypes.POINTER(ctypes.c_char)
-lib = ctypes.CDLL("./bin/libverify.so")
 
 GPK_PATH = "/attestation/ignored_workspace/group_public.bin".encode('utf-8')
+SECRET_KEY_PATH = "/attestation/ignored_workspace/member_private.bin".encode('utf-8')
+CREDENTIAL_PATH = "/attestation/ignored_workspace/member_credential.bin".encode('utf-8')
+
 SIMPLE_SIG_PATH = "/attestation/ignored_workspace/encoded_sig.bin".encode('utf-8')
+SIG_SIZE = 421
+K_SIZE = 65
 
-MAX_SIZE = 65
+MAX_COUNTER = 5
+TERM_LEN = 50
 
+char_ptr = ctypes.POINTER(ctypes.c_char)
+
+lib = ctypes.CDLL("/attestation/common/bin/libattest.so")
+
+def libsign():
+    lib.sign.argtypes = (
+            char_ptr,
+            char_ptr,
+            ctypes.c_int,
+            char_ptr,
+            ctypes.c_int,
+            char_ptr,
+            char_ptr)
+    lib.sign.restype = ctypes.c_int
+
+    def sign(message, basename, secret_key_path=SECRET_KEY_PATH, credential_path=CREDENTIAL_PATH):
+        result = ctypes.create_string_buffer(SIG_SIZE)
+        lib.sign(result, message, len(message), basename, len(basename), SECRET_KEY_PATH, CREDENTIAL_PATH)
+        encoded = base64.b64encode(result.raw).decode('utf-8')
+        return encoded
+    
+    return sign
 
 def libverify():
     lib.verify.argtypes = (
@@ -43,7 +69,7 @@ def libparse_k():
     lib.parse_k.restype = ctypes.c_int
 
     def parse_k(signature):
-        result = ctypes.create_string_buffer(MAX_SIZE)
+        result = ctypes.create_string_buffer(K_SIZE)
         decoded = base64.b64decode(signature)
 
         lib.parse_k(result, decoded)
@@ -53,6 +79,7 @@ def libparse_k():
     
     return parse_k
 
+sign = libsign()
 parse_k = libparse_k()
 verify = libverify()
 
@@ -60,14 +87,19 @@ if __name__ == '__main__':
     message = b"hogehoge"
     basename = b"hogehoge"
 
-    with open(SIMPLE_SIG_PATH) as f:
-        sig = f.read().encode('utf-8')
+    sig = sign(message, basename)
     
-    print("sig", sig)
+    print("sig: ", sig)
 
     k = parse_k(sig)
-    print("k", k)
+    print("k: ", k)
 
     result = verify(sig, message, basename)
+    assert result
 
-    print(result)
+    result = verify(sig, b'piyopiyo', basename)
+    assert not result
+
+    result = verify(sig, message, b'piyopiyo')
+    assert not result
+

@@ -1,3 +1,5 @@
+cp /home/attestation/client/attestation.json ~/.config/google-chrome/NativeMessagingHosts/com.akakou.attestation.json
+
 ### build
 cd /attestation/
 

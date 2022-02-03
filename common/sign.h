@@ -2,7 +2,6 @@
 #include "file_utils.h"
 
 #include <ecdaa.h>
-
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,38 +61,3 @@ int sign(uint8_t raw_sig[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH], uint8_t *mess
 
     return OK;
 }
-
-void print(uint8_t *buffer, size_t len)
-{
-    for (int i = 0; i < len; i++)
-        printf("[%d] %02x\n", i, buffer[i]);
-}
-
-#ifdef MAIN_IS_SIGN
-
-int main(int argc, uint8_t *argv[])
-{
-    uint8_t buffer[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH];
-    memset(buffer, 0x00, sizeof(buffer));
-
-    uint8_t message[] = "hogehoge";
-    char basename[] = "hogehoge";
-    char secret_key_path[] = "/attestation/ignored_workspace/member_private.bin";
-    char credential_path[] = "/attestation/ignored_workspace/member_credential.bin";
-
-
-    int status = sign(buffer, message, sizeof(message), basename, sizeof(basename), secret_key_path, credential_path);
-
-    fwrite(buffer, sizeof(uint8_t), ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH, stdout);
-    fflush(stdout);
-
-
-    if (status)
-        fprintf(stderr, "\nError: status %d", status);
-    else if (argc > 1){
-        puts("");
-        print(buffer, sizeof(buffer));
-    }
-}
-
-#endif

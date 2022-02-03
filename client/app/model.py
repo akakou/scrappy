@@ -2,9 +2,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, Integer, Text, Float, DateTime
 from sqlalchemy.orm import scoped_session, sessionmaker
 from datetime import datetime
-import random
-import logging
+import random, sys, logging
 
+sys.path.append('/attestation/common/')
+from wrapper import TERM_LEN, MAX_COUNTER
 
 handler = logging.FileHandler('/attestation/ignored_workspace/client.log')
 handler.setLevel(logging.ERROR)
@@ -12,9 +13,6 @@ logging.getLogger('sqlalchemy').addHandler(handler)
 
 
 MODE_ATTACK = False
-
-MAX_COUNTER = 5
-TERM_LEN = 50
 
 ENGINE = create_engine('sqlite:////attestation/ignored_workspace/db.sqlite3', echo=False)
 Base = declarative_base()

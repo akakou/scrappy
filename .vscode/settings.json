@@ -11,6 +11,9 @@
         "errors.h": "c",
         "issuer_keypair_fp256bn.h": "c",
         "ecp_fp256bn.h": "c",
-        "ecp2_fp256bn.h": "c"
+        "ecp2_fp256bn.h": "c",
+        "sign.c": "cpp",
+        "sign.h": "c",
+        "examples_rand.h": "c"
     }
 }

@@ -1,3 +1,5 @@
+#pragma once
+
 /******************************************************************************
  *
  * Copyright 2017 Xaptum, Inc.
@@ -16,35 +18,13 @@
  *
  *****************************************************************************/
 
-#include <stdint.h>
-#include <stdio.h>
+#ifndef ECDAA_EXAMPLES_RAND_H
+#define ECDAA_EXAMPLES_RAND_H
+#pragma once
 
-static int read_file_into_buffer(uint8_t *buffer, size_t bytes_to_read, const char *filename) {
-    FILE *ptr;
+#include <stddef.h>
 
-    ptr = fopen(filename, "rb");
-    if (NULL == ptr)
-        return -1;
+void examples_rand(void *buf, size_t buflen);
 
-    size_t bytes_read = fread(buffer, 1, bytes_to_read, ptr);
+#endif
 
-    (void)fclose(ptr);
-
-    return (int)bytes_read;
-}
-
-static int write_buffer_to_file(const char *filename, uint8_t *buffer, size_t bytes_to_write)
-{
-    FILE *ptr;
-
-    ptr = fopen(filename, "wb");
-    if (NULL == ptr)
-        return -1;
-
-    size_t bytes_written = fwrite(buffer, 1, bytes_to_write, ptr);
-
-    (void)fclose(ptr);
-
-
-    return (int)bytes_written;
-}

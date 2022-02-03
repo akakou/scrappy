@@ -2,9 +2,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, Integer, Text, Float, DateTime
 from sqlalchemy.orm import scoped_session, sessionmaker
 from datetime import datetime
-import random
-
-TERM_LEN = 50
+import random, sys
 
 ENGINE = create_engine('sqlite:////attestation/ignored_workspace/server_db.sqlite3', echo=True)
 Base = declarative_base()

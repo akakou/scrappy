@@ -4,16 +4,17 @@ import sys
 from datetime import datetime, timedelta
 from model import AttestationLogForVerifier
 import secrets
-from c_lib import parse_k, verify
+
+sys.path.append('/attestation/common/')
+from wrapper import verify, parse_k, MAX_COUNTER
+
 
 DOMAIN = "localhost"
-MAX_COUNTER = 5
 
 app = Flask(__name__)
 name = 'taro'
 
 app.permanent_session_lifetime = timedelta(minutes=5) 
-
 app.secret_key = 'hogehogehoge'
 
 
