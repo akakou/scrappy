@@ -5,8 +5,8 @@ const period = 24 * 60 * 60 * 1000
 
 
 window.onload = async () => {
-    await cookieStore.delete('attestation')
-    chrome.runtime.sendMessage({ domain: document.domain }, function (response) { });
+    nonce = await cookieStore.get('nonce')
+    chrome.runtime.sendMessage({ domain: document.domain, nonce: nonce.value }, function (response) { });
 }
 
 window.onsubmit = async () => {

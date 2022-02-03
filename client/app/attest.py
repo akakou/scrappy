@@ -45,27 +45,23 @@ def main_loop():
     message = nativemessaging.get_message()
     
     if "nonce" in message:
-        nonce = message['nonce']
+        nonce = message['nonce'].encode('utf-8')
     else:
         send_native_message("[error] nonce must needed")
         return 
 
+
     if "domain" in message:
-        domain = message['domain']
+        domain = message['domain'].encode('utf-8')
     else:
         send_native_message("[error] domain must needed")
         return
-    
     
     try:
         attestation_log = AttestationLog.gen_attestation_log(domain)
     except Exception as e:
         send_native_message(f"[error] siging error : {str(e)}")
         return
-    
-
-    nonce = nonce.encode('utf-8')
-    domain = domain.encode('utf-8')
 
 
     if attestation_log is None:

@@ -49,8 +49,9 @@ class AttestationLog(Base):
         return list(map(lambda x: x.domain, attestation_logs))
 
     def gen_new_counter(domain, now):
+        counters = AttestationLog.select_counters_by_domain_and_datetime(domain, now) 
+        
         if MODE_ATTACK:
-            counters = AttestationLog.select_counters_by_domain_and_datetime(domain, now) 
             return random.randint(1, MAX_COUNTER)
 
         if len(counters) >= MAX_COUNTER - 1:
