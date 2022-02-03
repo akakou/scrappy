@@ -1,23 +1,36 @@
 from flask import Flask, request, render_template
 import time
 import sys
+from datetime import datetime
 
 from c_lib import parse_k, verify
+
+DOMAIN = "localhost"
 
 app = Flask(__name__)
 name = 'taro'
 
 def verify_attest():
-    attestation = request.cookies.get('attestation', None)
-    print("attestation", attestation)
+    now = datetime.now()
+    now = now.replace(hour=now.hour, minute=now.minute, second=0, microsecond=0)
 
-    if attestation is None:
+    signature = request.cookies.get('signature', None)
+    print("signature: ", signature)
+
+    counter = request.cookies.get('counter', None)
+    print("counter: ", counter)
+
+    if signature is None or counter is None :
         return False
     
-    encoded = attestation.encode('utf-8')
+    signature = signature.encode('utf-8')
+    basename = f"{DOMAIN}@{now}@{counter}".encode('utf-8')
 
-    result = verify(encoded, b"hogehoge", b"hogehoge")
-    k = parse_k(encoded)
+    result = verify(signature, b"hoge", basename)
+    k = parse_k(signature)
+    
+    print("basename:", basename)
+
     print("result:", result)
     print("k:", k)
 
