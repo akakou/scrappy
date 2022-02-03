@@ -4,7 +4,7 @@ var state = 'ok';
 const period = 24 * 60 * 60 * 1000
 
 
-window.onload = async (_) => {
+window.onload = async () => {
     await cookieStore.delete('attestation')
     chrome.runtime.sendMessage({ domain: document.domain }, function (response) { });
 }
@@ -12,16 +12,29 @@ window.onload = async (_) => {
 window.onsubmit = async () => {
     const answer = confirm('Attest not attacking?')
 
-    if (answer)
+    if (answer){
         await cookieStore.set({
-            name: "attestation",
-            value: attestation,
+            name: "signature",
+            value: attestation.signature,
             expires: Date.now() + period,
         })
+
+        await cookieStore.set({
+            name: "counter",
+            value: attestation.counter,
+            expires: Date.now() + period,
+        })
+    }     
+
+    console.log('cookie: ', document.cookie)
+    alert(1)
 }
 
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     console.log(sender)
     console.log("attestation", message)
-    attestation = encodeURI(message)
+    attestation = { 
+        signature: encodeURI(message.signature), 
+        counter: encodeURI(message.counter)
+    }
 });
