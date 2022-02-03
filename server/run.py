@@ -81,13 +81,19 @@ def verify_attest():
     return result and not False
 
 @app.route("/", methods=['GET'])
-def get_index():
+def index():
     nonce = make_nonce()
-    body = render_template('index.html', name=name, nonce=nonce)
+    body = render_template('index.html', nonce=nonce)
     return body
 
+@app.route("/fast", methods=['GET'])
+def index_fast():
+    body = render_template('hello.html')
+    return body
+
+
 @app.route("/slow", methods=['POST'])
-def post_index():
+def index_slow():
     if not verify_attest():
         return "error"
 
@@ -95,7 +101,7 @@ def post_index():
     time.sleep(5)
 
     nonce = make_nonce()
-    return render_template('index.html', name=name, nonce=nonce)
+    return render_template('hello.html')
 
 if __name__ == "__main__":
     app.run(

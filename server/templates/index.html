@@ -1,9 +1,11 @@
-<p>Hello, {{name}}!</p>
-<p>fast load (without attestation)</p>
-<form action='/' method='get'>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+
+<h1>Hello!</h1>
+<p>Fast load (without attestation)</p>
+<form action='/fast' method='get'>
     <input type='submit'></input>
 </form>
-<p>slow load without attestation</p>
+<p>Slow load without attestation</p>
 <form action='/slow' method='post' >
     <input id="attestation" name='attestation' type='hidden'></input>
     <input id="nonce" name='nonce' type='hidden' value={{nonce}}></input>
