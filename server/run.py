@@ -83,29 +83,32 @@ def verify_attest():
 @app.route("/", methods=['GET'])
 def index():
     nonce = make_nonce()
-    body = render_template('index.html', nonce=nonce)
-    return body
+    return render_template('index.html', nonce=nonce)
 
 @app.route("/fast", methods=['GET'])
 def index_fast():
-    body = render_template('hello.html')
-    return body
+    return render_template('hello.html')
 
 
-@app.route("/slow", methods=['POST'])
-def index_slow():
+@app.route("/slow_without_attest", methods=['POST'])
+def index_with_slow():
+    # something heavy
+    time.sleep(5)
+    return render_template('hello.html')   
+
+@app.route("/slow_with_attest", methods=['POST'])
+def index_without_slow():
     if not verify_attest():
-        return "error"
+        return render_template('error.html')
 
     # something heavy
     time.sleep(5)
 
-    nonce = make_nonce()
     return render_template('hello.html')
 
 if __name__ == "__main__":
     app.run(
-        threaded=True,
+        threaded=False,
         debug=True,
         host="0.0.0.0",
         port=5000)

@@ -5,13 +5,21 @@
 <form action='/fast' method='get'>
     <input type='submit'></input>
 </form>
+
 <p>Slow load without attestation</p>
-<form action='/slow' method='post' >
+<form action='/slow_without_attest' method='post'>
+    <input type='submit' id='submit'></input>
+</form>
+
+<p>Slow load with attestation</p>
+<form action='/slow_with_attest' method='post' >
     <input id="attestation" name='attestation' type='hidden'></input>
     <input id="nonce" name='nonce' type='hidden' value={{nonce}}></input>
     <input type='button' id='attest_button' value="Attest"></input>
     <input type='submit' id='submit'></input>
 </form>
+
+
 <script>
     const button = document.getElementById('attest_button')
     button.onclick = () => {
@@ -21,7 +29,3 @@
         some_element.dispatchEvent(evt);
     }
 </script>
-<!-- <p>slow load with attestation</p>
-<form action='/slow' method='get'>
-    <input type='submit'></input>
-</form> -->
