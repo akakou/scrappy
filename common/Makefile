@@ -1,4 +1,4 @@
-FLAGS = `pkg-config ecdaa --libs --cflags`
+FLAGS = `pkg-config ecdaa --libs --cflags` `pkg-config ecdaa-tpm --libs --cflags`
 INPUT = ./*.h ./*.c
 SHARED_TARGET = ./bin
 
