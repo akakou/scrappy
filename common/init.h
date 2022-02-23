@@ -11,7 +11,6 @@
 #define ISSUER_PRIV_KEY_PATH "/attestation/ignored_workspace/issuer_private.bin"
 #define CRED_PATH "/attestation/ignored_workspace/member_credential.bin"
 #define TPM_PATH "/dev/tpm0"
-#define KEY_HANDLE 81010000
 
 #define PUBKEY_NUF_LEN 65
 
@@ -60,3 +59,56 @@ int ecdaa_init(struct ecdaa_tpm_context *ecdaa_ctx, TPM2_HANDLE key_handle, uint
     return 0;
 }
 
+int read_public_key(uint8_t *public_key, const char *pub_key_filename){
+    int ret = 0;
+
+    FILE *pub_key_file_ptr = fopen(pub_key_filename, "r");
+    if (NULL == pub_key_file_ptr)
+        return -1;
+    do
+    {
+        for (unsigned i = 0; i < 65; i++)
+        {
+            unsigned byt;
+            if (fscanf(pub_key_file_ptr, "%02X", &byt) != 1)
+            {
+                ret = -1;
+                break;
+            }
+            public_key[i] = (uint8_t)byt;
+        }
+    } while (0);
+    (void)fclose(pub_key_file_ptr);
+    if (0 != ret)
+        return -1;
+
+    return ret;
+}
+
+int read_key_handle(TPM2_HANDLE *key_handle,
+                    const char *handle_filename)
+{
+    int ret = 0;
+
+    FILE *handle_file_ptr = fopen(handle_filename, "r");
+    if (NULL == handle_file_ptr)
+        return -1;
+    do
+    {
+        for (int i = (sizeof(TPM2_HANDLE) - 1); i >= 0; i--)
+        {
+            unsigned byt;
+            if (fscanf(handle_file_ptr, "%02X", &byt) != 1)
+            {
+                ret = -1;
+                break;
+            }
+            *key_handle += byt << (i * 8);
+        }
+        if (0 != ret)
+            break;
+    } while (0);
+    (void)fclose(handle_file_ptr);
+
+    return ret;
+}

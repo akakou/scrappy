@@ -19,11 +19,17 @@ int main() {
     uint8_t serialized_public_key[PUBKEY_NUF_LEN];
 
     int ret = 0;
-    TPM2_HANDLE key_handle;
+    TPM2_HANDLE key_handle = 0;
 
-    if (0 != read_public_key_from_files(serialized_public_key, &key_handle, PUB_KEY_PATH, HANDLE_FILE_PATH))
+    if (0 != read_public_key(serialized_public_key, PUB_KEY_PATH))
     {
-        printf("Error: error reading in public key files '%s' and '%s'\n", PUB_KEY_PATH, HANDLE_FILE_PATH);
+        printf("Error: error reading in public key file '%s'\n", PUB_KEY_PATH);
+        return 1;
+    }
+
+    if (0 != read_key_handle(&key_handle, HANDLE_FILE_PATH))
+    {
+        printf("Error: error reading in handle file '%s'\n", HANDLE_FILE_PATH);
         return 1;
     }
 
@@ -72,52 +78,3 @@ int main() {
 }
 
 
-int read_public_key_from_files(uint8_t *public_key,
-                               TPM2_HANDLE *key_handle,
-                               const char *pub_key_filename,
-                               const char *handle_filename)
-{
-    int ret = 0;
-
-    FILE *pub_key_file_ptr = fopen(pub_key_filename, "r");
-    if (NULL == pub_key_file_ptr)
-        return -1;
-    do
-    {
-        for (unsigned i = 0; i < 65; i++)
-        {
-            unsigned byt;
-            if (fscanf(pub_key_file_ptr, "%02X", &byt) != 1)
-            {
-                ret = -1;
-                break;
-            }
-            public_key[i] = (uint8_t)byt;
-        }
-    } while (0);
-    (void)fclose(pub_key_file_ptr);
-    if (0 != ret)
-        return -1;
-
-    FILE *handle_file_ptr = fopen(handle_filename, "r");
-    if (NULL == handle_file_ptr)
-        return -1;
-    do
-    {
-        for (int i = (sizeof(TPM2_HANDLE) - 1); i >= 0; i--)
-        {
-            unsigned byt;
-            if (fscanf(handle_file_ptr, "%02X", &byt) != 1)
-            {
-                ret = -1;
-                break;
-            }
-            *key_handle += byt << (i * 8);
-        }
-        if (0 != ret)
-            break;
-    } while (0);
-    (void)fclose(handle_file_ptr);
-
-    return ret;
-}
