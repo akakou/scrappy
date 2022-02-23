@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   app:
-    user: "attestation"
+    user: root
     build: "./container"
     working_dir: "/attestation/"
     volumes:
@@ -19,7 +19,8 @@ services:
       - TPM2TOOLS_TCTI="device:/dev/tpm0"
       - LD_LIBRARY_PATH=/usr/local/lib/
 
-    command: sh -c "/attestation/container/run.sh"
+    command: sleep infinity 
+    # sh -c "/attestation/container/run.sh"
     privileged: true
     ports:
       - 5000:5000
