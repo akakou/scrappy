@@ -9,9 +9,6 @@ int read_public_key_from_files(uint8_t *public_key,
 
 int ecdaa_init(struct ecdaa_tpm_context *ecdaa_ctx, TPM2_HANDLE key_handle, uint8_t tcti_buffer[256], size_t tcti_buffer_size)
 {
-    const char *mssim_conf = "host=localhost,port=2321";
-    const char *device_conf = "/dev/tpm0";
-
     memset(tcti_buffer, 0, tcti_buffer_size);
 
     int ret = 0;
@@ -19,7 +16,7 @@ int ecdaa_init(struct ecdaa_tpm_context *ecdaa_ctx, TPM2_HANDLE key_handle, uint
     TSS2_TCTI_CONTEXT *tcti_ctx = (TSS2_TCTI_CONTEXT *)tcti_buffer;
 
     size_t size;
-    ret = Tss2_Tcti_Device_Init(NULL, &size, device_conf);
+    ret = Tss2_Tcti_Device_Init(NULL, &size, TPM_PATH);
     if (TSS2_RC_SUCCESS != ret)
     {
         printf("Failed to get allocation size for tcti context\n");
@@ -30,7 +27,7 @@ int ecdaa_init(struct ecdaa_tpm_context *ecdaa_ctx, TPM2_HANDLE key_handle, uint
         printf("Error: device TCTI context size larger than pre-allocated buffer\n");
         return 3;
     }
-    ret = Tss2_Tcti_Device_Init(tcti_ctx, &size, device_conf);
+    ret = Tss2_Tcti_Device_Init(tcti_ctx, &size, TPM_PATH);
     if (TSS2_RC_SUCCESS != ret)
     {
         printf("Error: Unable to initialize device TCTI context\n");

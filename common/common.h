@@ -13,6 +13,7 @@
 #define PUB_KEY_PATH "/attestation/ignored_workspace/pub_key.txt"
 #define ISSUER_PRIV_KEY_PATH "/attestation/ignored_workspace/issuer_private.bin"
 #define CRED_PATH "/attestation/ignored_workspace/member_credential.bin"
+#define GPK_PATH "/attestation/ignored_workspace/group_public.bin"
 #define TPM_PATH "/dev/tpm0"
 
 #define HAS_BASENAME 1

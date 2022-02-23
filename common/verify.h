@@ -22,7 +22,7 @@
 #define ERROR_SIGNING 5
 
 
-int verify(u_int8_t raw_sig[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH], uint8_t *message, int msg_len, uint8_t *basename, int basename_len, char *gpk_path)
+int verify(u_int8_t raw_sig[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH], uint8_t *message, int msg_len, uint8_t *basename, int basename_len)
 {
     uint8_t buffer[MAX_SIZE];
 
@@ -42,9 +42,9 @@ int verify(u_int8_t raw_sig[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH], uint8_t *m
 
     // Read group public key from disk
     struct ecdaa_group_public_key_FP256BN gpk;
-    if (ECDAA_GROUP_PUBLIC_KEY_FP256BN_LENGTH != read_file_into_buffer(buffer, ECDAA_GROUP_PUBLIC_KEY_FP256BN_LENGTH, gpk_path))
+    if (ECDAA_GROUP_PUBLIC_KEY_FP256BN_LENGTH != read_file_into_buffer(buffer, ECDAA_GROUP_PUBLIC_KEY_FP256BN_LENGTH, GPK_PATH))
     {
-        fprintf(stderr, "Error reading group public key file: \"%s\"\n", gpk_path);
+        fprintf(stderr, "Error reading group public key file: \"%s\"\n", GPK_PATH);
         return ERROR_READING_GPK;
     }
     if (0 != ecdaa_group_public_key_FP256BN_deserialize(&gpk, buffer))

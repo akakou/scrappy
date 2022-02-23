@@ -4,7 +4,7 @@
 #include "../../attestation/common/common.h"
 #include "../../attestation/common/init.h"
 
-int main() {
+int main() {    
     struct ecdaa_issuer_secret_key_FP256BN isk;
     struct ecdaa_credential_FP256BN cred;
     struct ecdaa_credential_FP256BN_signature cred_sig;
