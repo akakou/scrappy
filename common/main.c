@@ -21,11 +21,10 @@ int main(int argc, char *argv[])
     uint8_t message[] = "hogehoge";
 
     char basename[] = "hogehoge";
-    char secret_key_path[] = "/attestation/ignored_workspace/member_private.bin";
     char credential_path[] = "/attestation/ignored_workspace/member_credential.bin";
     char gpk_path[] = "/attestation/ignored_workspace/group_public.bin";
 
-    int status = sign(sig, message, sizeof(message), basename, sizeof(basename), secret_key_path, credential_path);
+    int status = sign(sig, message, sizeof(message), basename, sizeof(basename), credential_path);
 
     u_int8_t k[ECP_FP256BN_LENGTH];
     memset(k, 0x00, sizeof(k));
@@ -43,8 +42,8 @@ int main(int argc, char *argv[])
     if (status)
         fprintf(stderr, "Error: status on parase k (%d)", status);
     // else
-    //     print(k, ECP_FP256BN_LENGTH);
+        // print(k, ECP_FP256BN_LENGTH);
 
     status = verify(sig, "hello", sizeof("hello"), basename, sizeof(basename), gpk_path);
-    printf("failed status: %d\n", status);
+    printf("non valid status: %d\n", status);
 }
