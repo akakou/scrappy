@@ -1,18 +1,7 @@
-#include "examples_rand.h"
-#include "file_utils.h"
+#pragma once
+
 #include "init.h"
-
-#include <ecdaa.h>
-#include <ecdaa-tpm.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <tss2/tss2_tcti.h>
-#include <tss2/tss2_sys.h>
-#include <tss2/tss2_tcti_device.h>
-
-#define HAS_BASENAME 1
+#include "common.h"
 
 #define ERROR_READING_SECRET 1
 #define ERROR_DESRIALIZE_SECRET 2
@@ -21,10 +10,7 @@
 #define ERROR_SIGNING 5
 #define ERROR_INIT_TPM 6
 #define ERROR_INIT_TPMECDAA 7
-#define KEY_HANDLE 81010000
 #define OK 0
-#define TPM_PATH "/dev/tpm0"
-
 
 int sign(uint8_t raw_sig[ECDAA_SIGNATURE_FP256BN_WITH_NYM_LENGTH], uint8_t *message, int msg_len, char *basename, int basename_len, char *credential_path)
 {

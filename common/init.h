@@ -1,18 +1,6 @@
-#include <string.h>
-#include <ecdaa.h>
-#include <ecdaa-tpm.h>
-#include <tss2/tss2_tcti.h>
-#include <tss2/tss2_sys.h>
-#include <tss2/tss2_tcti_device.h>
-#include "../../attestation/common/examples_rand.h"
+#pragma once
 
-#define HANDLE_FILE_PATH "/attestation/ignored_workspace/handle.txt"
-#define PUB_KEY_PATH "/attestation/ignored_workspace/pub_key.txt"
-#define ISSUER_PRIV_KEY_PATH "/attestation/ignored_workspace/issuer_private.bin"
-#define CRED_PATH "/attestation/ignored_workspace/member_credential.bin"
-#define TPM_PATH "/dev/tpm0"
-
-#define PUBKEY_NUF_LEN 65
+#include "common.h"
 
 int read_public_key_from_files(uint8_t *public_key,
                                TPM2_HANDLE *key_handle,

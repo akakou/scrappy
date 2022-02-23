@@ -1,9 +1,7 @@
 #include <string.h>
 
-#include "examples_rand.h"
-#include "file_utils.h"
+#include "common.h"
 
-#include <ecdaa.h>
 #include "verify.h"
 #include "sign.h"
 

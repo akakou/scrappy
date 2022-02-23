@@ -1,12 +1,8 @@
 #include <string.h>
 #include <ecdaa.h>
 #include <ecdaa-tpm.h>
-#include <tss2/tss2_tcti.h>
-#include <tss2/tss2_sys.h>
-#include <tss2/tss2_tcti_device.h>
-#include "../../attestation/common/examples_rand.h"
+#include "../../attestation/common/common.h"
 #include "../../attestation/common/init.h"
-
 
 int main() {
     struct ecdaa_issuer_secret_key_FP256BN isk;
