@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
-import nativemessaging
 import ctypes
 import base64
 import sys
 
+import json
+
+import subprocess
+import nativemessaging
 from model import AttestationLog
 
-sys.path.append('/attestation/common/')
-from wrapper import sign
+message = b"hogehoge"
+basename = b"hogehoge"
 
-nonce = "hoge".encode('utf-8')
-basename = "hoge".encode('utf-8')
+# todo: escape
+def sign(message, basename):
+    return subprocess.getoutput(f'python3 /attestation/client/app/interface.py {message} {basename}')
+
 
 send_native_message = lambda x: nativemessaging.send_message(nativemessaging.encode_message(x))
 
@@ -51,7 +56,12 @@ def main_loop():
 
 
 if __name__ == '__main__':
-    print(sign(nonce, basename))
+    # message = b"hogehoge"
+    # basename = b"hogehoge"
+
+    # sig = sign(message, basename)
+    
+    # print("sig: ", sig)
 
     while True:
         try:
@@ -59,3 +69,4 @@ if __name__ == '__main__':
         except Exception as e:
             send_native_message(f"[error] other error : {str(e)}")
 
+#

@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
+import sys
 import ctypes
 import base64
+
+import time
 
 SIG_SIZE = 421
 K_SIZE = 65
@@ -25,9 +28,9 @@ def libsign():
     lib.sign.restype = ctypes.c_int
 
     def sign(message, basename):
-        result = ctypes.create_string_buffer(SIG_SIZE)
+        result = b'\x00' * 421
         lib.sign(result, message, len(message), basename, len(basename))
-        encoded = base64.b64encode(result.raw).decode('utf-8')
+        encoded = base64.b64encode(result).decode('utf-8')
 
         return encoded
     
@@ -91,6 +94,8 @@ if __name__ == '__main__':
     print("k: ", k)
 
     result = verify(sig, message, basename)
+    print("result: ", result)
+
     assert result
 
     result = verify(sig, b'piyopiyo', basename)
