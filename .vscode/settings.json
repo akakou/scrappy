@@ -14,6 +14,10 @@
         "ecp2_fp256bn.h": "c",
         "sign.c": "cpp",
         "sign.h": "c",
-        "examples_rand.h": "c"
+        "examples_rand.h": "c",
+        "functional": "c",
+        "memory": "c",
+        "optional": "c",
+        "sstream": "c"
     }
 }

@@ -8,6 +8,8 @@ ADD build_ecdaa.sh /attestation/build_ecdaa.sh
 RUN sh /attestation/build_ecdaa.sh
 RUN pip3 install nativemessaging sqlalchemy flask
 RUN apt-get install -y sqlite3
+# ADD /dev/tpm0
+# RUN chmod 777 /dev/tpm0
 USER attestation
 
 

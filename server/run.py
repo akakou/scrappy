@@ -7,7 +7,7 @@ import secrets
 import json
 
 sys.path.append('/attestation/common/')
-from wrapper import verify, parse_k, MAX_COUNTER
+from wrapper import verify, parse_k
 
 
 ORIGIN = "http://localhost:5000"
@@ -42,29 +42,27 @@ def verify_attest():
     nonce = session["nonce"].encode('utf-8')
 
     now = datetime.now()
-    now = now.replace(hour=now.hour, minute=now.minute, second=0, microsecond=0)
+    now = now.replace(hour=now.hour, minute=now.minute, second=now.second // 20, microsecond=0)
+    now = now.timestamp()
+    now = int(now)
 
     signature = attestation['signature']
     print("signature: ", signature)
 
-    counter = attestation['counter']
-    print("counter: ", counter)
-
-    if signature is None or counter is None :
-        return False
-    
-    if int(counter) > MAX_COUNTER:
+    if signature is None:
         return False
 
     signature = signature.encode('utf-8')
-    basename = f"{ORIGIN}@{now}@{counter}".encode('utf-8')
-
-    result = verify(signature, nonce, basename)
+    
+    basename = f"{ORIGIN}@{now}".encode('utf-8')
+    
+    result = verify(signature, basename)
     k = parse_k(signature)
     
     print("basename:", basename)
-
     print("result:", result)
+    return result
+
     print("k:", k)
 
     attestation_log = AttestationLogForVerifier()
@@ -74,7 +72,7 @@ def verify_attest():
     has_exist = AttestationLogForVerifier.exist(attestation_log) 
     AttestationLogForVerifier.save(attestation_log)
     
-    print('has_exist: ', has_exist)
+    print('has_exist: ', has_exist) 
 
     return result and not has_exist
 
