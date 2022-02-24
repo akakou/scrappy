@@ -13,8 +13,8 @@ message = b"hogehoge"
 basename = b"hogehoge"
 
 # todo: escape
-def sign(message, basename):
-    return subprocess.getoutput(f'python3 /attestation/client/app/interface.py {message} {basename}')
+def sign(basename):
+    return subprocess.getoutput(f'python3 /attestation/client/app/interface.py {basename}')
 
 
 send_native_message = lambda x: nativemessaging.send_message(nativemessaging.encode_message(x))
@@ -46,10 +46,11 @@ def main_loop():
         return
 
     try:
-        signature = sign(nonce, str(attestation_log).encode('utf-8'))
+        basename = str(attestation_log)
+        signature = sign(basename)
         AttestationLog.save_attestation_log(attestation_log)
 
-        send_native_message({'signature': signature, 'counter': attestation_log.counter, 'basename': str(attestation_log)})
+        send_native_message({'signature': signature, 'basename': str(attestation_log)})
     except Exception as e:
         send_native_message(f"[error] siging error : {str(e)}")
         return

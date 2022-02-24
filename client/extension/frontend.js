@@ -12,8 +12,10 @@ document.addEventListener('onAttest', function (e) {
     console.log('nonce:', nonce)
 
     chrome.runtime.sendMessage({ domain: document.domain, nonce: nonce }, function (response) {
-        if (!response.signature || !response.counter)
+        if (!response.signature) {
             alert(response)
+            return;
+        }
 
         console.log("attestation", response)
         attestation = {
