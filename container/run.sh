@@ -3,6 +3,8 @@ cp /attestation/client/app/attestation.json /home/attestation/.config/google-chr
 chown attestation /home/attestation/.config/google-chrome/NativeMessagingHosts/com.akakou.attestation.json
 
 ### build
+export PATH=$PATH:/usr/local/go/bin
+
 
 ### Chrome
 chown attestation /dev/tpm0
