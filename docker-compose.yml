@@ -12,14 +12,14 @@ services:
       - /dev/tpm0:/dev/tpm0
       - /dev/tpmrm0:/dev/tpmrm0
       - /attestation/thirdparty/ecdaa
-    environment:                                                            
-      - EDITOR=vim  
+    environment:
+      - EDITOR=vim
       - DISPLAY=${DISPLAY}
       - ECDAA_CURVES=FP256BN
       - TPM2TOOLS_TCTI="device:/dev/tpm0"
       - LD_LIBRARY_PATH=/usr/local/lib/
 
-    command: sleep infinity 
+    command: sleep infinity
     # sh -c "/attestation/container/run.sh"
     privileged: true
     cap_add:
