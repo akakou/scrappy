@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,10 @@ func main() {
 	})
 
 	r.POST("/slow_with_attest", func(c *gin.Context) {
+		attestation := c.PostForm("attestation")
+
+		fmt.Printf("attestation=%v\n", attestation)
+
 		c.HTML(http.StatusOK, "hello.html", gin.H{})
 	})
 
