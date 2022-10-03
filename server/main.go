@@ -8,10 +8,23 @@ import (
 
 func main() {
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
+	r.LoadHTMLGlob("templates/*.html")
+
+	r.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", gin.H{})
 	})
-	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+
+	r.GET("/fast", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "hello.html", gin.H{})
+	})
+
+	r.POST("/slow_without_attest", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "hello.html", gin.H{})
+	})
+
+	r.POST("/slow_with_attest", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "hello.html", gin.H{})
+	})
+
+	r.Run()
 }
