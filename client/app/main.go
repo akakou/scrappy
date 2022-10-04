@@ -5,13 +5,12 @@ import (
 	"core"
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	"io"
 	"os"
 )
 
 type Request struct {
-	Time   string `json:"time"`
+	Period int    `json:"period"`
 	Origin string `json:"origin"`
 }
 
@@ -64,9 +63,9 @@ func main() {
 		return
 	}
 
-	core.CONFIG_PATH = "../../config.json"
-	basename := fmt.Sprintf("%s_%s", req.Origin, req.Time)
-	signature, err := core.Sign(basename)
+	core.CONFIG_PATH = "/attestation/config.json"
+
+	signature, err := core.Sign(req.Origin, req.Period)
 
 	if err != nil {
 		resp.Status = "error"
