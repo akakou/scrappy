@@ -11,7 +11,8 @@ import (
 
 const PASSWORD = "password"
 const TPM_PATH = "/dev/tpm0"
-const CONFIG_PATH = "../config.json"
+
+var CONFIG_PATH = "../config.json"
 
 type Config struct {
 	Cred       *ecdaa.MiddleEncodedCredential
@@ -115,7 +116,7 @@ func Setup() error {
 	return nil
 }
 
-func Sign(period string) (string, error) {
+func Sign(basename string) (string, error) {
 	rng := ecdaa.InitRandom()
 
 	tpm, err := ecdaa.OpenTPM([]byte(PASSWORD), TPM_PATH)
@@ -147,7 +148,7 @@ func Sign(period string) (string, error) {
 
 	signature, err := member.Sign(
 		[]byte{},
-		[]byte(period),
+		[]byte(basename),
 		config.Cred.Decode(),
 		rng,
 	)

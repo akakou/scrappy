@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"core"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -20,10 +21,9 @@ type Response struct {
 	Error     string `json:"error"`
 }
 
-func main() {
+func read() (*Request, error) {
 	var inLength uint32
 	var req Request
-	var resp Response
 
 	stdin := bufio.NewReader(os.Stdin)
 	binary.Read(stdin, binary.LittleEndian, &inLength)
@@ -32,20 +32,10 @@ func main() {
 
 	err := json.Unmarshal(buf, &req)
 
-	if err != nil {
-		resp = Response{
-			Status:    "error",
-			Signature: "",
-			Error:     err.Error(),
-		}
-	} else {
-		resp = Response{
-			Status:    "ok",
-			Signature: fmt.Sprintf("signature for %s", req.Time),
-			Error:     "",
-		}
-	}
+	return &req, err
+}
 
+func write(resp *Response) error {
 	payload, _ := json.Marshal(&resp)
 
 	stdout := bufio.NewWriter(os.Stdout)
@@ -58,4 +48,35 @@ func main() {
 	}
 
 	stdout.Flush()
+
+	return nil
+}
+
+func main() {
+	var resp Response
+
+	req, err := read()
+
+	if err != nil {
+		resp.Status = "error"
+		resp.Error = err.Error()
+		write(&resp)
+		return
+	}
+
+	core.CONFIG_PATH = "../../config.json"
+	basename := fmt.Sprintf("%s_%s", req.Origin, req.Time)
+	signature, err := core.Sign(basename)
+
+	if err != nil {
+		resp.Status = "error"
+		resp.Error = err.Error()
+		write(&resp)
+		return
+	}
+
+	resp.Status = "ok"
+	resp.Signature = signature
+
+	write(&resp)
 }

@@ -18,8 +18,6 @@ type Config struct {
 	Handle []byte
 }
 
-
-
 func main() {
 	secret := []byte("secret")
 	r := gin.Default()
