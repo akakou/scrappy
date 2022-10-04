@@ -3,7 +3,8 @@ package core
 import "testing"
 
 func TestAll(t *testing.T) {
-	basename := "aaa"
+	origin := "aaa"
+	period := 1000
 
 	err := Setup()
 
@@ -11,13 +12,13 @@ func TestAll(t *testing.T) {
 		t.Fatalf("%v: ", err)
 	}
 
-	signatuere, err := Sign(basename)
+	signatuere, err := Sign(origin, period)
 
 	if err != nil {
 		t.Fatalf("%v: ", err)
 	}
 
-	err = Verify(signatuere, basename)
+	err = Verify(signatuere, origin, period)
 
 	if err != nil {
 		t.Fatalf("%v: ", err)

@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 
 	"github.com/akakou/ecdaa"
@@ -116,8 +117,10 @@ func Setup() error {
 	return nil
 }
 
-func Sign(basename string) (string, error) {
+func Sign(origin string, period int) (string, error) {
 	rng := ecdaa.InitRandom()
+
+	basename := fmt.Sprintf("%s_%d", origin, period)
 
 	tpm, err := ecdaa.OpenTPM([]byte(PASSWORD), TPM_PATH)
 	if err != nil {
@@ -167,8 +170,10 @@ func Sign(basename string) (string, error) {
 
 }
 
-func Verify(base64Signature, period string) error {
+func Verify(base64Signature, origin string, period int) error {
 	var signature ecdaa.MiddleEncodedSignature
+
+	basename := fmt.Sprintf("%s_%v", origin, period)
 
 	config, err := readConfig()
 
@@ -181,6 +186,7 @@ func Verify(base64Signature, period string) error {
 	if err != nil {
 		return err
 	}
+
 	err = json.Unmarshal(attestBuf, &signature)
 
 	if err != nil {
@@ -189,7 +195,7 @@ func Verify(base64Signature, period string) error {
 
 	err = ecdaa.Verify(
 		[]byte{},
-		[]byte(period),
+		[]byte(basename),
 		signature.Decode(),
 		config.Ipk.Decode(),
 	)
