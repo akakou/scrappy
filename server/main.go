@@ -1,13 +1,9 @@
 package main
 
 import (
-	"encoding/base64"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
+	"core"
 
 	"github.com/akakou/ecdaa"
 	"github.com/gin-contrib/sessions"
@@ -22,20 +18,9 @@ type Config struct {
 	Handle []byte
 }
 
+
+
 func main() {
-	var config Config
-	configBuf, err := ioutil.ReadFile("../init/config.json ")
-
-	if err != nil {
-		log.Fatal("error:", err)
-	}
-
-	err = json.Unmarshal(configBuf, &config)
-
-	if err != nil {
-		log.Fatal("error:", err)
-	}
-
 	secret := []byte("secret")
 	r := gin.Default()
 
@@ -65,33 +50,12 @@ func main() {
 	})
 
 	r.POST("/slow_with_attest", func(c *gin.Context) {
-		var signature ecdaa.MiddleEncodedSignature
 		session := sessions.Default(c)
 		period := session.Get("period").(string)
 
 		attestation := c.PostForm("attestation")
 
-		attestBuf, err := base64.StdEncoding.DecodeString(attestation)
-		if err != nil {
-			log.Fatal("error:", err)
-			c.HTML(http.StatusOK, "err.html", gin.H{})
-		}
-
-		err = json.Unmarshal(attestBuf, &signature)
-
-		if err != nil {
-			log.Fatal("error:", err)
-		}
-
-		fmt.Printf("attestation=%v\n", attestation)
-		fmt.Printf("period=%v\n", period)
-
-		err = ecdaa.Verify(
-			[]byte{},
-			[]byte(period),
-			signature.Decode(),
-			config.Ipk.Decode(),
-		)
+		err := core.Verify(attestation, period)
 
 		if err != nil {
 			c.HTML(http.StatusOK, "err.html", gin.H{})
