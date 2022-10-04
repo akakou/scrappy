@@ -4,20 +4,21 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 
 	"github.com/akakou/ecdaa"
+	"github.com/google/go-tpm/tpm2"
 )
 
 const PASSWORD = "password"
 const TPM_PATH = "/dev/tpm0"
-const CONFIG_PATH = "../init/config.json"
+const CONFIG_PATH = "../config.json"
 
 type Config struct {
-	Cred   *ecdaa.MiddleEncodedCredential
-	Isk    *ecdaa.MiddleEncodedISK
-	Ipk    *ecdaa.MiddleEncodedIPK
-	Handle []byte
+	Cred       *ecdaa.MiddleEncodedCredential
+	Isk        *ecdaa.MiddleEncodedISK
+	Ipk        *ecdaa.MiddleEncodedIPK
+	HandleName []byte
+	HandleNum  uint32
 }
 
 func readConfig() (*Config, error) {
@@ -40,14 +41,9 @@ func readConfig() (*Config, error) {
 func Setup() error {
 	rng := ecdaa.InitRandom()
 
-	tpm, err := ecdaa.OpenTPM([]byte(PASSWORD), TPM_PATH)
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
-
 	issuer := ecdaa.RandomIssuer(rng)
 
-	err = ecdaa.VerifyIPK(&issuer.Ipk)
+	err := ecdaa.VerifyIPK(&issuer.Ipk)
 	if err != nil {
 		return err
 	}
@@ -57,20 +53,25 @@ func Setup() error {
 		return err
 	}
 
+	tpm, err := ecdaa.OpenTPM([]byte(PASSWORD), TPM_PATH)
+
+	if err != nil {
+		return err
+	}
+
+	defer tpm.Close()
+
 	member := ecdaa.NewMember(tpm)
 	req, memberSession, err := member.GenReqForJoin(seed, rng)
 	if err != nil {
 		return err
 	}
 
-	tpm.Close()
-
 	cipherCred, err := issuer.MakeCred(req, issuerSession, rng)
 	if err != nil {
 		return err
 	}
 
-	tpm, err = ecdaa.OpenTPM([]byte(PASSWORD), TPM_PATH)
 	if err != nil {
 		return err
 	}
@@ -89,13 +90,14 @@ func Setup() error {
 
 	iskBin := issuer.Isk.Encode()
 	ipkBin := issuer.Ipk.Encode()
-	handle := member.KeyHandles.Handle.Name.Buffer
+	handle := member.KeyHandles.Handle
 
 	config := Config{
-		Cred:   credBin,
-		Isk:    iskBin,
-		Ipk:    ipkBin,
-		Handle: handle,
+		Cred:       credBin,
+		Isk:        iskBin,
+		Ipk:        ipkBin,
+		HandleNum:  handle.HandleValue(),
+		HandleName: handle.Name.Buffer,
 	}
 
 	buf, err := json.Marshal(&config)
@@ -116,22 +118,35 @@ func Setup() error {
 func Sign(period string) (string, error) {
 	rng := ecdaa.InitRandom()
 
+	tpm, err := ecdaa.OpenTPM([]byte(PASSWORD), TPM_PATH)
+	if err != nil {
+		return "", err
+	}
+
+	defer tpm.Close()
+
 	config, err := readConfig()
 
 	if err != nil {
 		return "", err
 	}
 
-	tpm, err := ecdaa.OpenTPM([]byte(PASSWORD), TPM_PATH)
-	if err != nil {
-		return "", err
+	handle := tpm2.AuthHandle{
+		Handle: tpm2.TPMHandle(config.HandleNum),
+		Name: tpm2.TPM2BName{
+			Buffer: config.HandleName,
+		},
+		Auth: tpm2.PasswordAuth([]byte(PASSWORD)),
 	}
 
 	member := ecdaa.NewMember(tpm)
-	// todo: set handle
+
+	member.KeyHandles = &ecdaa.KeyHandles{
+		Handle: &handle,
+	}
 
 	signature, err := member.Sign(
-		[]byte("test"),
+		[]byte{},
 		[]byte(period),
 		config.Cred.Decode(),
 		rng,
