@@ -1,9 +1,9 @@
 package main
 
 import (
+	"core"
 	"net/http"
 	"time"
-	"core"
 
 	"github.com/akakou/ecdaa"
 	"github.com/gin-contrib/sessions"

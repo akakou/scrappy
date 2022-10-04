@@ -5,11 +5,10 @@ import (
 	"log"
 )
 
-func main()  {
+func main() {
 	err := core.Setup()
 
 	if err != nil {
 		log.Fatalf("%v: ", err)
 	}
 }
-
