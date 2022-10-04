@@ -1,7 +1,6 @@
 var attestation = null;
 var state = 'ok';
 
-// const period = 24 * 60 * 60 * 1000
 const origin = window.location.origin
 
 
@@ -20,14 +19,7 @@ document.addEventListener('onAttest', function (e) {
 
         console.log("attestation", response)
 
-        // attestation = {
-        // signature: encodeURI(response.signature),
-        // counter: encodeURI(response.counter)
-        // }
-
         e.target.value = response.signature
-        // encodeURI(response.signature)
-        // JSON.stringify(attestation)
     })
 })
 
