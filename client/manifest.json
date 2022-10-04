@@ -6,7 +6,7 @@
     "content_scripts": [
         {
             "matches": [
-                "http://localhost:5000/*"
+                "http://localhost:8080/*"
             ],
             "js": [
                 "extension/frontend.js"
