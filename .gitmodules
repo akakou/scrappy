@@ -1,0 +1,3 @@
+[submodule "thirdparty/ecdaa-go"]
+	path = thirdparty/ecdaa-go
+	url = git@github.com:akakou/ecdaa-go.git

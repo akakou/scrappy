@@ -12,10 +12,10 @@
 </form>
 
 <p>Slow load with attestation</p>
-<form action='/slow_with_attest' method='post' >
+<form action='/slow_with_attest' method='post'>
     <input id="attestation" name='attestation' type='hidden'></input>
-    <input id="nonce" name='nonce' type='hidden' value={{nonce}}></input>
-    <input type='button' id='attest_button' value="Attest"></input>
+    <input id="period" name='period' type='hidden' value="{{.period}}"></input>
+    <input type='button' id='attest_button' value="attest"></input>
     <input type='submit' id='submit'></input>
 </form>
 

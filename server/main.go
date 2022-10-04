@@ -1,0 +1,73 @@
+package main
+
+import (
+	"core"
+	"net/http"
+	"time"
+
+	"github.com/akakou/ecdaa"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-gonic/gin"
+)
+
+type Config struct {
+	Cred   *ecdaa.MiddleEncodedCredential
+	Isk    *ecdaa.MiddleEncodedISK
+	Ipk    *ecdaa.MiddleEncodedIPK
+	Handle []byte
+}
+
+const HOST_NAME = "http://localhost:8080"
+
+func main() {
+	secret := []byte("secret")
+	r := gin.Default()
+
+	store := cookie.NewStore(secret)
+	r.Use(sessions.Sessions("mysession", store))
+
+	r.LoadHTMLGlob("templates/*.html")
+
+	r.GET("/", func(c *gin.Context) {
+		period := time.Now()
+		period = time.Date(period.Year(), period.Month(), period.Day(), period.Hour(), period.Minute(), 0, 0, time.UTC)
+		unixPeriod := period.Unix()
+
+		session := sessions.Default(c)
+
+		session.Set("period", unixPeriod)
+		session.Save()
+
+		c.HTML(http.StatusOK, "index.html", gin.H{
+			"period": unixPeriod,
+		})
+	})
+
+	r.GET("/fast", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "hello.html", gin.H{})
+	})
+
+	r.POST("/slow_without_attest", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "hello.html", gin.H{})
+	})
+
+	r.POST("/slow_with_attest", func(c *gin.Context) {
+		session := sessions.Default(c)
+		period := session.Get("period").(int64)
+
+		attestation := c.PostForm("attestation")
+
+		err := core.Verify(attestation, HOST_NAME, int(period))
+
+		if err != nil {
+			c.HTML(http.StatusOK, "error.html", gin.H{
+				"error": err.Error(),
+			})
+		} else {
+			c.HTML(http.StatusOK, "hello.html", gin.H{})
+		}
+	})
+
+	r.Run()
+}

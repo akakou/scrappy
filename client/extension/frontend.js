@@ -1,29 +1,33 @@
 var attestation = null;
-var state = 'ok'; 
+var state = 'ok';
 
-const period = 24 * 60 * 60 * 1000
+// const period = 24 * 60 * 60 * 1000
+const origin = window.location.origin
 
 
 document.addEventListener('onAttest', function (e) {
-    const answer = confirm('Attest not attacking?')
+    const answer = confirm('Do you want to attest?')
     if (!answer) return;
 
-    nonce = document.getElementById('nonce').value
-    console.log('nonce:', nonce)
+    period = document.getElementById('period').value
+    console.log('period:', period)
 
-    chrome.runtime.sendMessage({ domain: document.domain, nonce: nonce }, function (response) {
+    chrome.runtime.sendMessage({ origin, period }, function (response) {
         if (!response.signature) {
             alert(response)
             return;
         }
 
         console.log("attestation", response)
-        attestation = {
-            signature: encodeURI(response.signature),
-            counter: encodeURI(response.counter)
-        }
 
-        e.target.value = JSON.stringify(attestation)
+        // attestation = {
+        // signature: encodeURI(response.signature),
+        // counter: encodeURI(response.counter)
+        // }
+
+        e.target.value = response.signature
+        // encodeURI(response.signature)
+        // JSON.stringify(attestation)
     })
 })
 

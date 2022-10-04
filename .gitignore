@@ -17,7 +17,7 @@
 *.dll
 
 # Fortran module files
-*.mod
+# *.mod
 *.smod
 
 # Compiled Static libraries
@@ -186,3 +186,8 @@ cython_debug/
 #.idea/
 
 ignored_workspace
+client/app/m
+init/config.json
+init/m
+server/m
+config.json

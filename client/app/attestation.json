@@ -1,7 +1,7 @@
 {
     "name": "com.akakou.attestation",
     "description": "Practically secure \"Not DoS Attack\" attestation.",
-    "path": "/attestation/client/app/attest.py",
+    "path": "/attestation/client/app/m",
     "type": "stdio",
     "allowed_origins": [
         "chrome-extension://npkajhoamfigdkefhkfglcopnjnomeli/"
