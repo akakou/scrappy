@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 
 	"github.com/akakou/ecdaa"
 )
@@ -34,6 +35,82 @@ func readConfig() (*Config, error) {
 	}
 
 	return &config, nil
+}
+
+func Setup() error {
+	rng := ecdaa.InitRandom()
+
+	tpm, err := ecdaa.OpenTPM([]byte(PASSWORD), TPM_PATH)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
+	issuer := ecdaa.RandomIssuer(rng)
+
+	err = ecdaa.VerifyIPK(&issuer.Ipk)
+	if err != nil {
+		return err
+	}
+
+	seed, issuerSession, err := issuer.GenSeedForJoin(rng)
+	if err != nil {
+		return err
+	}
+
+	member := ecdaa.NewMember(tpm)
+	req, memberSession, err := member.GenReqForJoin(seed, rng)
+	if err != nil {
+		return err
+	}
+
+	tpm.Close()
+
+	cipherCred, err := issuer.MakeCred(req, issuerSession, rng)
+	if err != nil {
+		return err
+	}
+
+	tpm, err = ecdaa.OpenTPM([]byte(PASSWORD), TPM_PATH)
+	if err != nil {
+		return err
+	}
+
+	tmp := member
+	member = ecdaa.NewMember(tpm)
+	member.KeyHandles = tmp.KeyHandles
+
+	cred, err := member.ActivateCredential(cipherCred, memberSession, &issuer.Ipk)
+
+	if err != nil {
+		return err
+	}
+
+	credBin := cred.Encode()
+
+	iskBin := issuer.Isk.Encode()
+	ipkBin := issuer.Ipk.Encode()
+	handle := member.KeyHandles.Handle.Name.Buffer
+
+	config := Config{
+		Cred:   credBin,
+		Isk:    iskBin,
+		Ipk:    ipkBin,
+		Handle: handle,
+	}
+
+	buf, err := json.Marshal(&config)
+
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(CONFIG_PATH, buf, 0644)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func Sign(period string) (string, error) {
