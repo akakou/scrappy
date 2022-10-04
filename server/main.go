@@ -2,6 +2,7 @@ package main
 
 import (
 	"core"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -11,6 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const LOOP_NUM = 1000000000
+
 type Config struct {
 	Cred   *ecdaa.MiddleEncodedCredential
 	Isk    *ecdaa.MiddleEncodedISK
@@ -19,6 +22,17 @@ type Config struct {
 }
 
 const HOST_NAME = "http://localhost:8080"
+
+func somethingHeavy() int {
+	num := 0
+
+	for i := 0; i < LOOP_NUM; i++ {
+		num *= i
+		num %= LOOP_NUM
+	}
+
+	return num
+}
 
 func main() {
 	secret := []byte("secret")
@@ -49,6 +63,8 @@ func main() {
 	})
 
 	r.POST("/slow_without_attest", func(c *gin.Context) {
+		fmt.Printf("%v", somethingHeavy())
+
 		c.HTML(http.StatusOK, "hello.html", gin.H{})
 	})
 
@@ -65,6 +81,7 @@ func main() {
 				"error": err.Error(),
 			})
 		} else {
+			fmt.Printf("%v", somethingHeavy())
 			c.HTML(http.StatusOK, "hello.html", gin.H{})
 		}
 	})
