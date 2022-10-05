@@ -4,7 +4,6 @@ import (
 	"core"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/akakou/ecdaa"
 	"github.com/gin-contrib/sessions"
@@ -45,17 +44,15 @@ func main() {
 	r.LoadHTMLGlob("templates/*.html")
 
 	r.GET("/", func(c *gin.Context) {
-		period := time.Now()
-		period = time.Date(period.Year(), period.Month(), period.Day(), period.Hour(), period.Minute(), 0, 0, time.UTC)
-		unixPeriod := period.Unix()
+		period := core.Now()
 
 		session := sessions.Default(c)
 
-		session.Set("period", unixPeriod)
+		session.Set("period", period)
 		session.Save()
 
 		c.HTML(http.StatusOK, "index.html", gin.H{
-			"period": unixPeriod,
+			"period": period,
 		})
 	})
 
