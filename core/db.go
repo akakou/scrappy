@@ -7,10 +7,11 @@ import (
 )
 
 const CLIENT_DB_PATH = "./client.db"
+const SERVER_DB_PATH = "./server.db"
+const TEST_DB_PATH = ":memory:"
 
 func SetupDB(path string) (*sql.DB, error) {
-	if path != ":memory:" {
-		// todo: fix
+	if path != TEST_DB_PATH {
 		exec.Command("touch", path).Run()
 	}
 

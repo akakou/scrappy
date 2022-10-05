@@ -6,8 +6,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const TEST_DB_PATH = ":memory:"
-
 func TestDB(t *testing.T) {
 	origin := "aaa"
 	period := 1000
