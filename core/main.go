@@ -7,7 +7,7 @@ func Setup() error {
 }
 
 func Sign(origin string, period int) (string, error) {
-	db, err := SetupDB(CLIENT_DB_PATH)
+	db, err := SetupDB(SIGNER_DB_PATH)
 
 	if err != nil {
 		return "", err

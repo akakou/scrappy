@@ -6,7 +6,7 @@ import (
 	"os/exec"
 )
 
-const CLIENT_DB_PATH = "./client.db"
+const SIGNER_DB_PATH = "./signer.db"
 const VERIFIER_DB_PATH = "./verifier.db"
 const TEST_DB_PATH = ":memory:"
 
