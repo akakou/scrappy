@@ -1,10 +1,13 @@
 package core
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestAll(t *testing.T) {
 	origin := "aaa"
-	period := 1000
+	period := Now()
 
 	err := Setup()
 
@@ -20,7 +23,7 @@ func TestAll(t *testing.T) {
 
 	_, err = Sign(origin, period)
 
-	if err.Error() != "basename aaa with period 1000 already exists" {
+	if err.Error() != fmt.Sprintf("basename %v with period %d already exists", origin, period) {
 		t.Fatalf("%v: ", "failed to check basename deplication")
 	}
 
@@ -32,7 +35,7 @@ func TestAll(t *testing.T) {
 
 	err = Verify(signatuere, origin, period)
 
-	if err.Error() != "basename aaa with period 1000 already exists" {
+	if err.Error() != fmt.Sprintf("basename %v with period %d already exists", origin, period) {
 		t.Fatalf("%v: ", "failed to check basename deplication")
 	}
 }
