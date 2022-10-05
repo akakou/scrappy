@@ -2,23 +2,23 @@ package core
 
 import "testing"
 
-func TestAll(t *testing.T) {
+func TestCrypto(t *testing.T) {
 	origin := "aaa"
 	period := 1000
 
-	err := Setup()
+	err := CryptoSetup()
 
 	if err != nil {
 		t.Fatalf("%v: ", err)
 	}
 
-	signatuere, err := Sign(origin, period)
+	signatuere, err := CryptoSign(origin, period)
 
 	if err != nil {
 		t.Fatalf("%v: ", err)
 	}
 
-	err = Verify(signatuere, origin, period)
+	err = CryptoVerify(signatuere, origin, period)
 
 	if err != nil {
 		t.Fatalf("%v: ", err)

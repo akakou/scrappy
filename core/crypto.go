@@ -40,7 +40,7 @@ func readConfig() (*Config, error) {
 	return &config, nil
 }
 
-func Setup() error {
+func CryptoSetup() error {
 	rng := ecdaa.InitRandom()
 
 	issuer := ecdaa.RandomIssuer(rng)
@@ -117,7 +117,7 @@ func Setup() error {
 	return nil
 }
 
-func Sign(origin string, period int) (string, error) {
+func CryptoSign(origin string, period int) (string, error) {
 	rng := ecdaa.InitRandom()
 
 	basename := fmt.Sprintf("%s_%d", origin, period)
@@ -170,7 +170,7 @@ func Sign(origin string, period int) (string, error) {
 
 }
 
-func Verify(base64Signature, origin string, period int) error {
+func CryptoVerify(base64Signature, origin string, period int) error {
 	var signature ecdaa.MiddleEncodedSignature
 
 	basename := fmt.Sprintf("%s_%v", origin, period)
