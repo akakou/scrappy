@@ -186,10 +186,8 @@ cython_debug/
 #.idea/
 
 ignored_workspace
-client/app/m
 init/config.json
-init/m
-server/m
 config.json
-**/client.db
-**/server.db
+
+**/m
+***/*.db

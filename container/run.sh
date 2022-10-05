@@ -24,7 +24,7 @@ chown attestation -R /attestation/
 cd /attestation/
 su attestation -c 'google-chrome --no-sandbox -user-data-dir="/home/attestation/.config/google-chrome" http://localhost:8080  &'
 
-cd /attestation/server/
+cd /attestation/verifier/
 go build && go run main.go
 
 
