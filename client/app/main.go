@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"io"
 	"os"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type Request struct {

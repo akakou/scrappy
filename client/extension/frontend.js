@@ -13,7 +13,7 @@ document.addEventListener('onAttest', function (e) {
 
     chrome.runtime.sendMessage({ origin, period }, function (response) {
         if (!response.signature) {
-            alert(response)
+            alert(response.error)
             return;
         }
 

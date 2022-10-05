@@ -2,14 +2,17 @@ package main
 
 import (
 	"core"
+	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/akakou/ecdaa"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	_ "github.com/mattn/go-sqlite3"
 )
+
+const LOOP_NUM = 1000000000
 
 type Config struct {
 	Cred   *ecdaa.MiddleEncodedCredential
@@ -19,6 +22,17 @@ type Config struct {
 }
 
 const HOST_NAME = "http://localhost:8080"
+
+func somethingHeavy() int {
+	num := 0
+
+	for i := 0; i < LOOP_NUM; i++ {
+		num *= i
+		num %= LOOP_NUM
+	}
+
+	return num
+}
 
 func main() {
 	secret := []byte("secret")
@@ -30,17 +44,15 @@ func main() {
 	r.LoadHTMLGlob("templates/*.html")
 
 	r.GET("/", func(c *gin.Context) {
-		period := time.Now()
-		period = time.Date(period.Year(), period.Month(), period.Day(), period.Hour(), period.Minute(), 0, 0, time.UTC)
-		unixPeriod := period.Unix()
+		period := core.Now()
 
 		session := sessions.Default(c)
 
-		session.Set("period", unixPeriod)
+		session.Set("period", period)
 		session.Save()
 
 		c.HTML(http.StatusOK, "index.html", gin.H{
-			"period": unixPeriod,
+			"period": period,
 		})
 	})
 
@@ -49,6 +61,8 @@ func main() {
 	})
 
 	r.POST("/slow_without_attest", func(c *gin.Context) {
+		fmt.Printf("%v", somethingHeavy())
+
 		c.HTML(http.StatusOK, "hello.html", gin.H{})
 	})
 
@@ -65,6 +79,7 @@ func main() {
 				"error": err.Error(),
 			})
 		} else {
+			fmt.Printf("%v", somethingHeavy())
 			c.HTML(http.StatusOK, "hello.html", gin.H{})
 		}
 	})

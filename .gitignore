@@ -191,3 +191,5 @@ init/config.json
 init/m
 server/m
 config.json
+**/client.db
+**/server.db
