@@ -23,5 +23,4 @@ func TestCrypto(t *testing.T) {
 	if err != nil {
 		t.Fatalf("%v: ", err)
 	}
-
 }
