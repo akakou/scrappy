@@ -15,7 +15,7 @@ func TestDB(t *testing.T) {
 		panic(err)
 	}
 
-	err = InsertIfItDoesNotExist(db, basename)
+	err = InsertIfItHasNotExist(db, basename)
 
 	if err != nil {
 		t.Fatalf("%v", err)

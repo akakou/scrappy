@@ -7,10 +7,6 @@ func Setup() error {
 }
 
 func Sign(origin string, period int) (string, error) {
-	if !IsValidPeriod(period) {
-		return "", fmt.Errorf("invalid period %d, but now %d", period, Now())
-	}
-
 	db, err := SetupDB(CLIENT_DB_PATH)
 
 	if err != nil {
@@ -19,20 +15,33 @@ func Sign(origin string, period int) (string, error) {
 
 	defer db.Close()
 
-	err = InsertIfItDoesNotExist(db, origin, period)
+	if !IsValidPeriod(period) {
+		return "", fmt.Errorf("invalid period %d, but now %d", period, Now())
+	}
+
+	signature, err := CryptoSign(origin, period)
 
 	if err != nil {
 		return "", err
 	}
 
-	return CryptoSign(origin, period)
+	K, err := GetK(signature)
+
+	if err != nil {
+		return "", err
+	}
+
+	err = InsertIfItHasNotExist(db, K)
+
+	if err != nil {
+		return "", err
+	}
+
+	return signature, nil
+
 }
 
 func Verify(signature, origin string, period int) error {
-	if !IsValidPeriod(period) {
-		return fmt.Errorf("invalid period %d, but now %d", period, Now())
-	}
-
 	db, err := SetupDB(SERVER_DB_PATH)
 
 	if err != nil {
@@ -41,11 +50,23 @@ func Verify(signature, origin string, period int) error {
 
 	defer db.Close()
 
-	err = InsertIfItDoesNotExist(db, origin, period)
+	if !IsValidPeriod(period) {
+		return fmt.Errorf("invalid period %d, but now %d", period, Now())
+	}
+
+	err = CryptoVerify(signature, origin, period)
 
 	if err != nil {
 		return err
 	}
 
-	return CryptoVerify(signature, origin, period)
+	K, err := GetK(signature)
+
+	if err != nil {
+		return err
+	}
+
+	err = InsertIfItHasNotExist(db, K)
+
+	return err
 }

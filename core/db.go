@@ -10,6 +10,8 @@ const CLIENT_DB_PATH = "./client.db"
 const SERVER_DB_PATH = "./server.db"
 const TEST_DB_PATH = ":memory:"
 
+const HAS_EXIST_ERROR = "k %v already exists"
+
 func SetupDB(path string) (*sql.DB, error) {
 	if path != TEST_DB_PATH {
 		exec.Command("touch", path).Run()
@@ -22,7 +24,7 @@ func SetupDB(path string) (*sql.DB, error) {
 	}
 
 	_, err = db.Exec(
-		`CREATE TABLE IF NOT EXISTS "BASENAMES" ("BASENAME" VARCHAR(1024));`,
+		`CREATE TABLE IF NOT EXISTS "BASENAMES" ("K" VARCHAR(1024));`,
 	)
 
 	if err != nil {
@@ -32,12 +34,12 @@ func SetupDB(path string) (*sql.DB, error) {
 	return db, nil
 }
 
-func HasExist(db *sql.DB, basename string) (bool, error) {
+func HasExist(db *sql.DB, K string) (bool, error) {
 	i := 0
 
 	row := db.QueryRow(
-		`SELECT 1 FROM BASENAMES WHERE BASENAME=?`,
-		basename,
+		`SELECT 1 FROM BASENAMES WHERE K=?`,
+		K,
 	)
 
 	err := row.Scan(&i)
@@ -52,25 +54,25 @@ func HasExist(db *sql.DB, basename string) (bool, error) {
 
 }
 
-func Insert(db *sql.DB, basename string) error {
+func Insert(db *sql.DB, K string) error {
 	_, err := db.Exec(
-		`INSERT INTO BASENAMES (BASENAME) VALUES (?)`,
-		basename,
+		`INSERT INTO BASENAMES (K) VALUES (?)`,
+		K,
 	)
 
 	return err
 }
 
-func InsertIfItDoesNotExist(db *sql.DB, basename string) error {
-	hasExist, err := HasExist(db, basename)
+func InsertIfItHasNotExist(db *sql.DB, K string) error {
+	hasExist, err := HasExist(db, K)
 
 	if err != nil {
 		return err
 	}
 
 	if hasExist {
-		return fmt.Errorf("basename %s already exists", basename)
+		return fmt.Errorf(HAS_EXIST_ERROR, K)
 	}
 
-	return Insert(db, basename)
+	return Insert(db, K)
 }

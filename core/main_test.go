@@ -15,7 +15,13 @@ func TestAll(t *testing.T) {
 		t.Fatalf("%v: ", err)
 	}
 
-	signatuere, err := Sign(origin, period)
+	signature, err := Sign(origin, period)
+
+	if err != nil {
+		t.Fatalf("%v: ", err)
+	}
+
+	K, err := GetK(signature)
 
 	if err != nil {
 		t.Fatalf("%v: ", err)
@@ -23,19 +29,19 @@ func TestAll(t *testing.T) {
 
 	_, err = Sign(origin, period)
 
-	if err.Error() != fmt.Sprintf("basename %v with period %d already exists", origin, period) {
+	if err.Error() != fmt.Sprintf(HAS_EXIST_ERROR, K) {
 		t.Fatalf("%v: ", "failed to check basename deplication")
 	}
 
-	err = Verify(signatuere, origin, period)
+	err = Verify(signature, origin, period)
 
 	if err != nil {
 		t.Fatalf("%v: ", err)
 	}
 
-	err = Verify(signatuere, origin, period)
+	err = Verify(signature, origin, period)
 
-	if err.Error() != fmt.Sprintf("basename %v with period %d already exists", origin, period) {
+	if err.Error() != fmt.Sprintf(HAS_EXIST_ERROR, K) {
 		t.Fatalf("%v: ", "failed to check basename deplication")
 	}
 }
