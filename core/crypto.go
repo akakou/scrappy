@@ -206,3 +206,21 @@ func CryptoVerify(base64Signature, origin string, period int) error {
 
 	return nil
 }
+
+func GetK(base64Signature string) (string, error) {
+	var signature ecdaa.MiddleEncodedSignature
+
+	attestBuf, err := base64.StdEncoding.DecodeString(base64Signature)
+
+	if err != nil {
+		return "", err
+	}
+
+	err = json.Unmarshal(attestBuf, &signature)
+
+	if err != nil {
+		return "nil", err
+	}
+
+	return signature.Decode().K.ToString(), nil
+}

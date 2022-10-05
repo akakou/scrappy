@@ -7,8 +7,7 @@ import (
 )
 
 func TestDB(t *testing.T) {
-	origin := "aaa"
-	period := 1000
+	basename := "basename"
 
 	db, err := SetupDB(TEST_DB_PATH)
 
@@ -16,19 +15,19 @@ func TestDB(t *testing.T) {
 		panic(err)
 	}
 
-	err = InsertIfItDoesNotExist(db, origin, period)
+	err = InsertIfItHasNotExist(db, basename)
 
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
 
-	hasExist, err := HasExist(db, origin, period)
+	hasExist, err := HasExist(db, basename)
 
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
 
 	if !hasExist {
-		t.Fatalf("basename %s with period %d does not exists", origin, period)
+		t.Fatalf("basename %s does not exists", basename)
 	}
 }

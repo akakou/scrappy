@@ -10,6 +10,8 @@ const CLIENT_DB_PATH = "./client.db"
 const SERVER_DB_PATH = "./server.db"
 const TEST_DB_PATH = ":memory:"
 
+const HAS_EXIST_ERROR = "k %v already exists"
+
 func SetupDB(path string) (*sql.DB, error) {
 	if path != TEST_DB_PATH {
 		exec.Command("touch", path).Run()
@@ -22,7 +24,7 @@ func SetupDB(path string) (*sql.DB, error) {
 	}
 
 	_, err = db.Exec(
-		`CREATE TABLE IF NOT EXISTS "BASENAMES" ("ORIGIN" VARCHAR(1024), "PERIOD" INTEGER);`,
+		`CREATE TABLE IF NOT EXISTS "BASENAMES" ("K" VARCHAR(1024));`,
 	)
 
 	if err != nil {
@@ -32,13 +34,12 @@ func SetupDB(path string) (*sql.DB, error) {
 	return db, nil
 }
 
-func HasExist(db *sql.DB, origin string, period int) (bool, error) {
+func HasExist(db *sql.DB, K string) (bool, error) {
 	i := 0
 
 	row := db.QueryRow(
-		`SELECT 1 FROM BASENAMES WHERE ORIGIN=? AND PERIOD=?`,
-		origin,
-		period,
+		`SELECT 1 FROM BASENAMES WHERE K=?`,
+		K,
 	)
 
 	err := row.Scan(&i)
@@ -53,26 +54,25 @@ func HasExist(db *sql.DB, origin string, period int) (bool, error) {
 
 }
 
-func Insert(db *sql.DB, origin string, period int) error {
+func Insert(db *sql.DB, K string) error {
 	_, err := db.Exec(
-		`INSERT INTO BASENAMES (ORIGIN, PERIOD) VALUES (?, ?)`,
-		origin,
-		period,
+		`INSERT INTO BASENAMES (K) VALUES (?)`,
+		K,
 	)
 
 	return err
 }
 
-func InsertIfItDoesNotExist(db *sql.DB, origin string, period int) error {
-	hasExist, err := HasExist(db, origin, period)
+func InsertIfItHasNotExist(db *sql.DB, K string) error {
+	hasExist, err := HasExist(db, K)
 
 	if err != nil {
 		return err
 	}
 
 	if hasExist {
-		return fmt.Errorf("basename %s with period %d already exists", origin, period)
+		return fmt.Errorf(HAS_EXIST_ERROR, K)
 	}
 
-	return Insert(db, origin, period)
+	return Insert(db, K)
 }
