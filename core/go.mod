@@ -2,20 +2,23 @@ module example.com/m/v2
 
 go 1.18
 
-require github.com/akakou/ecdaa v0.0.0
+require (
+	github.com/akakou/ecdaa v0.0.0
+	github.com/google/go-tpm v0.3.3
+	github.com/mattn/go-sqlite3 v1.14.15
+)
 
 require miracl v0.0.0 // indirect
 
 require (
 	github.com/fxamacker/cbor/v2 v2.4.0 // indirect
-	github.com/gin-contrib/sessions v0.0.5 // indirect
+	github.com/gin-contrib/sessions v0.0.4 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.8.1 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.11.1 // indirect
 	github.com/goccy/go-json v0.9.11 // indirect
-	github.com/google/go-tpm v0.3.3 // indirect
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gorilla/sessions v1.2.1 // indirect
