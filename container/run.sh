@@ -7,6 +7,8 @@ chown attestation -R /home/attestation/.config/
 
 ### build
 export PATH=$PATH:/usr/local/go/bin
+export GOFLAGS='-buildvcs=false'
+
 cd /attestation/client/app
 go build 
 
@@ -24,3 +26,5 @@ su attestation -c 'google-chrome --no-sandbox -user-data-dir="/home/attestation/
 
 cd /attestation/server/
 go build && go run main.go
+
+
