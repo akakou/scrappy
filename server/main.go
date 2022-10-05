@@ -68,7 +68,7 @@ func main() {
 
 	r.POST("/slow_with_attest", func(c *gin.Context) {
 		session := sessions.Default(c)
-		period := session.Get("period").(int64)
+		period := session.Get("period").(int)
 
 		attestation := c.PostForm("attestation")
 
