@@ -7,7 +7,7 @@ func Setup() error {
 }
 
 func Sign(origin string, period int) (string, error) {
-	db, err := SetupDB(CLIENT_DB_PATH)
+	db, err := SetupDB(SIGNER_DB_PATH)
 
 	if err != nil {
 		return "", err
@@ -42,7 +42,7 @@ func Sign(origin string, period int) (string, error) {
 }
 
 func Verify(signature, origin string, period int) error {
-	db, err := SetupDB(SERVER_DB_PATH)
+	db, err := SetupDB(VERIFIER_DB_PATH)
 
 	if err != nil {
 		return err

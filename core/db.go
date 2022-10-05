@@ -6,8 +6,8 @@ import (
 	"os/exec"
 )
 
-const CLIENT_DB_PATH = "./client.db"
-const SERVER_DB_PATH = "./server.db"
+const SIGNER_DB_PATH = "./signer.db"
+const VERIFIER_DB_PATH = "./verifier.db"
 const TEST_DB_PATH = ":memory:"
 
 const HAS_EXIST_ERROR = "k %v already exists"
