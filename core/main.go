@@ -37,11 +37,19 @@ func Sign(origin string, period int) (string, error) {
 		return "", err
 	}
 
-	return signature, nil
+	err = Insert(db, basename)
+
+	return signature, err
 
 }
 
 func Verify(signature, origin string, period int) error {
+	K, err := GetK(signature)
+
+	if err != nil {
+		return err
+	}
+
 	db, err := SetupDB(VERIFIER_DB_CONF, VERIFIER_DB_PATH)
 
 	if err != nil {
@@ -54,7 +62,7 @@ func Verify(signature, origin string, period int) error {
 		return fmt.Errorf("invalid period %d, but now %d", period, Now())
 	}
 
-	hasExist, err := HasExist(db, signature)
+	hasExist, err := HasExist(db, K)
 
 	if err != nil {
 		return fmt.Errorf("has exist: %v", err)
@@ -65,12 +73,6 @@ func Verify(signature, origin string, period int) error {
 	}
 
 	err = CryptoVerify(signature, origin, period)
-
-	if err != nil {
-		return err
-	}
-
-	K, err := GetK(signature)
 
 	if err != nil {
 		return err

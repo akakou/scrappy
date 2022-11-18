@@ -10,7 +10,7 @@ var SIGNER_DB_PATH = "./signer.db"
 var VERIFIER_DB_PATH = "./verifier.db"
 var TEST_DB_PATH = "./test.db"
 
-const HAS_EXIST_ERROR = "k %v already exists"
+const HAS_EXIST_ERROR = "%v already exists in Logs"
 
 type DB struct {
 	Table  string
@@ -71,7 +71,6 @@ func HasExist(db *DB, value string) (bool, error) {
 	}
 
 	return result, err
-
 }
 
 func Insert(db *DB, value string) error {
