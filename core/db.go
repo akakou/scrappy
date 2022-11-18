@@ -6,9 +6,9 @@ import (
 	"os/exec"
 )
 
-const SIGNER_DB_PATH = "./signer.db"
-const VERIFIER_DB_PATH = "./verifier.db"
-const TEST_DB_PATH = ":memory:"
+var SIGNER_DB_PATH = "./signer.db"
+var VERIFIER_DB_PATH = "./verifier.db"
+var TEST_DB_PATH = ":memory:"
 
 const HAS_EXIST_ERROR = "k %v already exists"
 

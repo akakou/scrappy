@@ -222,5 +222,7 @@ func GetK(base64Signature string) (string, error) {
 		return "nil", err
 	}
 
-	return signature.Decode().K.ToString(), nil
+	encoded := signature.Decode()
+
+	return curveToBase64(encoded.K), nil
 }
