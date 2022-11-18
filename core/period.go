@@ -16,5 +16,4 @@ func Now() int {
 	unixPeriod := period.Unix()
 
 	return int(unixPeriod)
-
 }

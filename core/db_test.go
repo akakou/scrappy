@@ -7,27 +7,42 @@ import (
 )
 
 func TestDB(t *testing.T) {
-	basename := "basename"
+	value := "value"
 
-	db, err := SetupDB(TEST_DB_PATH)
+	db := &DB{
+		Table:  "TEST_TABLE",
+		Column: "TEST_COLUMN",
+	}
+
+	db, err := SetupDB(db, ":memory:")
 
 	if err != nil {
 		panic(err)
 	}
 
-	err = InsertIfItHasNotExist(db, basename)
+	hasExist, err := HasExist(db, value)
 
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
 
-	hasExist, err := HasExist(db, basename)
+	if hasExist {
+		t.Fatalf("%v", value)
+	}
+
+	err = Insert(db, value)
 
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
 
-	if !hasExist {
-		t.Fatalf("basename %s does not exists", basename)
+	hasExist, err = HasExist(db, value)
+
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+
+if !hasExist {
+		t.Fatalf("basename %s does not exists", value)
 	}
 }

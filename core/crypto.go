@@ -117,10 +117,8 @@ func CryptoSetup() error {
 	return nil
 }
 
-func CryptoSign(origin string, period int) (string, error) {
+func CryptoSign(basename string) (string, error) {
 	rng := ecdaa.InitRandom()
-
-	basename := fmt.Sprintf("%s_%d", origin, period)
 
 	tpm, err := ecdaa.OpenTPM([]byte(PASSWORD), TPM_PATH)
 	if err != nil {

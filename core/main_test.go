@@ -1,11 +1,13 @@
 package core
 
 import (
-	"fmt"
 	"testing"
 )
 
 func TestAll(t *testing.T) {
+	SIGNER_DB_PATH = "./test_sign.db"
+	VERIFIER_DB_PATH = "./test_verify.db"
+
 	origin := "aaa"
 	period := Now()
 
@@ -21,27 +23,9 @@ func TestAll(t *testing.T) {
 		t.Fatalf("%v: ", err)
 	}
 
-	K, err := GetK(signature)
-
-	if err != nil {
-		t.Fatalf("%v: ", err)
-	}
-
-	_, err = Sign(origin, period)
-
-	if err.Error() != fmt.Sprintf(HAS_EXIST_ERROR, K) {
-		t.Fatalf("%v: ", "failed to check basename deplication")
-	}
-
 	err = Verify(signature, origin, period)
 
 	if err != nil {
 		t.Fatalf("%v: ", err)
-	}
-
-	err = Verify(signature, origin, period)
-
-	if err.Error() != fmt.Sprintf(HAS_EXIST_ERROR, K) {
-		t.Fatalf("%v: ", "failed to check basename deplication")
 	}
 }

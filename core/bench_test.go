@@ -18,14 +18,14 @@ func prepareDB(logSize int) {
 	db_name := fmt.Sprintf(BENCH_DB, logSize)
 	SIGNER_DB_PATH = db_name
 
-	db, err := SetupDB(db_name)
-	defer db.Close()
+	db, err := SetupVerifierDB(db_name)
+	defer db.DB.Close()
 
 	if err != nil {
 		panic(err)
 	}
 
-	res, err := db.Query(
+	res, err := db.DB.Query(
 		`SELECT COUNT (*) FROM BASENAMES`,
 	)
 
@@ -43,14 +43,14 @@ func prepareDB(logSize int) {
 
 	fmt.Print("Delete DB\n")
 
-	_, err = db.Exec("DROP TABLE basenames")
+	_, err = db.DB.Exec("DROP TABLE basenames")
 	if err != nil {
 		panic(err)
 	}
 
-	db.Close()
+	db.DB.Close()
 
-	db, err = SetupDB(db_name)
+	db, err = SetupVerifierDB(db_name)
 
 	if err != nil {
 		panic(err)
@@ -66,8 +66,8 @@ func prepareDB(logSize int) {
 }
 
 func benchmarkOfSignerLog(b *testing.B, logSize int) {
-	db, err := SetupDB(SIGNER_DB_PATH)
-	defer db.Close()
+	db, err := SetupVerifierDB(SIGNER_DB_PATH)
+	defer db.DB.Close()
 
 	if err != nil {
 		b.Fatalf("%v: ", err)
@@ -99,7 +99,7 @@ func benchmarkOfSignerLog(b *testing.B, logSize int) {
 			b.Fatalf("%v: ", err)
 		}
 
-		_, err = db.Exec("DELETE FROM basenames WHERE K = ?", K)
+		_, err = db.DB.Exec("DELETE FROM basenames WHERE K = ?", K)
 
 		if err != nil {
 			b.Fatalf("%v: ", err)

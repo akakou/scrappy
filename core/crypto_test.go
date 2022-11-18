@@ -1,6 +1,9 @@
 package core
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestCrypto(t *testing.T) {
 	origin := "aaa"
@@ -12,7 +15,9 @@ func TestCrypto(t *testing.T) {
 		t.Fatalf("%v: ", err)
 	}
 
-	signatuere, err := CryptoSign(origin, period)
+	basename := fmt.Sprintf("%v_%v", origin, period)
+
+	signatuere, err := CryptoSign(basename)
 
 	if err != nil {
 		t.Fatalf("%v: ", err)
