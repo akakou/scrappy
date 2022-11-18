@@ -9,12 +9,12 @@ import (
 func TestDB(t *testing.T) {
 	value := "value"
 
-	db := &DB{
+	conf := DB{
 		Table:  "TEST_TABLE",
 		Column: "TEST_COLUMN",
 	}
 
-	db, err := SetupDB(db, ":memory:")
+	db, err := SetupDB(conf, ":memory:")
 
 	if err != nil {
 		panic(err)
@@ -42,7 +42,7 @@ func TestDB(t *testing.T) {
 		t.Fatalf("%v", err)
 	}
 
-if !hasExist {
+	if !hasExist {
 		t.Fatalf("basename %s does not exists", value)
 	}
 }
