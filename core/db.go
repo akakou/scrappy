@@ -23,7 +23,7 @@ type DB struct {
 	DB     *sql.DB
 }
 
-var SIGNER_DB_CONF = DB{
+var SIGNER_LOG_DB_CONF = DB{
 	Table:  "SIGNER_LOG",
 	Column: "BASENAME",
 }
@@ -34,7 +34,7 @@ var VERIFIER_LOG_DB_CONF = DB{
 }
 
 var VERIFIER_RL_DB_CONF = DB{
-	Table:  "VERIFIER_RL_LOG",
+	Table:  "VERIFIER_RL",
 	Column: "ROGUE_SK",
 }
 
@@ -130,7 +130,6 @@ func SelectAllRL(db *DB) (ecdaa.RevocationList, error) {
 	}
 
 	for _, r := range rl {
-		// decode base64
 		decode, err := base64.StdEncoding.DecodeString(r)
 		if err != nil {
 			return nil, err

@@ -9,7 +9,7 @@ func Setup() error {
 }
 
 func Sign(origin string, period int) (string, error) {
-	db, err := SetupDB(SIGNER_DB_CONF, SIGNER_LOG_DB_PATH)
+	db, err := SetupDB(SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH)
 
 	if err != nil {
 		return "", err
@@ -66,7 +66,7 @@ func Verify(signature, origin string, period int) error {
 		return err
 	}
 
-	defer logDB.DB.Close()
+	defer rlDB.DB.Close()
 
 	if !IsValidPeriod(period) {
 		return fmt.Errorf("invalid period %d, but now %d", period, Now())
