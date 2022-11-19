@@ -76,68 +76,68 @@ func prepareDB(conf DB, entityType string, logSize int, value string) {
 	db.DB.Close()
 }
 
-func benchSign(b *testing.B, db *DB) {
-	period := Now()
+// func benchSign(b *testing.B, db *DB) {
+// 	period := Now()
 
-	h := fmt.Sprintf("%v_%v", BENCH_ORIGIN, period)
+// 	h := fmt.Sprintf("%v_%v", BENCH_ORIGIN, period)
 
-	b.StartTimer()
-	_, err := Sign(BENCH_ORIGIN, period)
-	b.StopTimer()
+// 	b.StartTimer()
+// 	_, err := Sign(BENCH_ORIGIN, period)
+// 	b.StopTimer()
 
-	if err != nil {
-		b.Fatalf("%v: ", err)
-	}
+// 	if err != nil {
+// 		b.Fatalf("%v: ", err)
+// 	}
 
-	query := fmt.Sprintf("DELETE FROM %v WHERE %v = ?", SIGNER_DB_CONF.Table, SIGNER_DB_CONF.Column)
-	_, err = db.DB.Exec(query, h)
+// 	query := fmt.Sprintf("DELETE FROM %v WHERE %v = ?", SIGNER_DB_CONF.Table, SIGNER_DB_CONF.Column)
+// 	_, err = db.DB.Exec(query, h)
 
-	if err != nil {
-		b.Fatalf("%v: ", err)
-	}
-}
+// 	if err != nil {
+// 		b.Fatalf("%v: ", err)
+// 	}
+// }
 
-func benchVerify(b *testing.B, db *DB) {
-	period := Now()
+// func benchVerify(b *testing.B, db *DB) {
+// 	period := Now()
 
-	signature, err := Sign(BENCH_ORIGIN, period)
+// 	signature, err := Sign(BENCH_ORIGIN, period)
 
-	if err != nil {
-		b.Fatalf("%v: ", err)
-	}
+// 	if err != nil {
+// 		b.Fatalf("%v: ", err)
+// 	}
 
-	b.StartTimer()
-	// err = Verify(signature, BENCH_ORIGIN, period)
+// 	b.StartTimer()
+// 	// err = Verify(signature, BENCH_ORIGIN, period)
 
-	hasExist, err := HasExist(db, signature)
+// 	hasExist, err := HasExist(db, signature)
 
-	if err != nil {
-		b.Fatalf("has exist: %v", err)
-	}
+// 	if err != nil {
+// 		b.Fatalf("has exist: %v", err)
+// 	}
 
-	if hasExist {
-		b.Fatalf(HAS_EXIST_ERROR, signature)
-	}
+// 	if hasExist {
+// 		b.Fatalf(HAS_EXIST_ERROR, signature)
+// 	}
 
-	b.StopTimer()
+// 	b.StopTimer()
 
-	if err != nil {
-		b.Fatalf("%v: ", err)
-	}
+// 	if err != nil {
+// 		b.Fatalf("%v: ", err)
+// 	}
 
-	K, err := GetK(signature)
+// 	K, err := GetK(signature)
 
-	if err != nil {
-		b.Fatalf("%v: ", err)
-	}
+// 	if err != nil {
+// 		b.Fatalf("%v: ", err)
+// 	}
 
-	query := fmt.Sprintf("DELETE FROM %v WHERE %v = ?", VERIFIER_DB_CONF.Table, VERIFIER_DB_CONF.Column)
-	_, err = db.DB.Exec(query, K)
+// 	query := fmt.Sprintf("DELETE FROM %v WHERE %v = ?", VERIFIER_DB_CONF.Table, VERIFIER_DB_CONF.Column)
+// 	_, err = db.DB.Exec(query, K)
 
-	if err != nil {
-		b.Fatalf("%v: ", err)
-	}
-}
+// 	if err != nil {
+// 		b.Fatalf("%v: ", err)
+// 	}
+// }
 
 func benchSearchSignerLog(b *testing.B, db *DB) {
 	b.StartTimer()
@@ -220,6 +220,7 @@ func benchmarkOfLog(b *testing.B, conf DB, entityType string, value string, targ
 	}
 }
 
+// sudo go test -benchmem -run=^$ -bench ^BenchmarkOfLog$ example.com/m/v2
 func BenchmarkOfLog(b *testing.B) {
 	fmt.Println("Ready...")
 
