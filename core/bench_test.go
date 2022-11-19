@@ -11,7 +11,7 @@ const BENCH_ORIGIN = "www.example.com"
 const BENCH_UNIT = 10
 const BENCH_MAX = 100000
 
-type targetFunc = func(b *testing.B, db *DB)
+type targetFunc = func(b *testing.B, db *DB, logSize int)
 
 func prepareDB(conf DB, entityType string, logSize int, value string) {
 	path := fmt.Sprintf(BENCH_DB_PATH, entityType, logSize)
@@ -74,6 +74,23 @@ func prepareDB(conf DB, entityType string, logSize int, value string) {
 	}
 
 	db.DB.Close()
+}
+
+func prepare(b *testing.B, conf DB, path, value string) error {
+	db, err := SetupDB(conf, path)
+
+	if err != nil {
+		b.Fatalf("%v: ", err)
+	}
+
+	query := fmt.Sprintf("DELETE FROM %v WHERE %v = ?", conf.Table, conf.Column)
+	_, err = db.DB.Exec(query, value)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // func benchSign(b *testing.B, db *DB) {
@@ -139,7 +156,9 @@ func prepareDB(conf DB, entityType string, logSize int, value string) {
 // 	}
 // }
 
-func benchSearchSignerLog(b *testing.B, db *DB) {
+func benchSearchSignerLog(b *testing.B, db *DB, logSize int) {
+	SIGNER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "signer_log", logSize)
+
 	b.StartTimer()
 
 	period := Now()
@@ -160,8 +179,14 @@ func benchSearchSignerLog(b *testing.B, db *DB) {
 	b.StopTimer()
 }
 
-func benchSearchVerifierLog(b *testing.B, db *DB) {
+func benchSearchVerifierLog(b *testing.B, db *DB, logSize int) {
+	SIGNER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "signer_log", 1)
+	VERIFIER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "verifier_log", logSize)
+
 	period := Now()
+
+	basename := fmt.Sprintf("%v_%v", BENCH_ORIGIN, period)
+	prepare(b, SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH, basename)
 
 	signature, err := Sign(BENCH_ORIGIN, period)
 
@@ -172,7 +197,12 @@ func benchSearchVerifierLog(b *testing.B, db *DB) {
 	b.StartTimer()
 	// err = Verify(signature, BENCH_ORIGIN, period)
 
-	hasExist, err := HasExist(db, signature)
+	K, err := GetK(signature)
+	if err != nil {
+		b.Fatalf("%v: ", err)
+	}
+
+	hasExist, err := HasExist(db, K)
 
 	if err != nil {
 		b.Fatalf("has exist: %v", err)
@@ -185,7 +215,40 @@ func benchSearchVerifierLog(b *testing.B, db *DB) {
 	b.StopTimer()
 }
 
-func benchmarkOfLogCore(b *testing.B, logSize int, conf DB, path string, target targetFunc) {
+func benchVerifierVerifyRevocation(b *testing.B, db *DB, logSize int) {
+	SIGNER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "signer_log", 1)
+	VERIFIER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "verifier_log", 1)
+	VERIFIER_RL_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "verifier_revocation", logSize)
+
+	period := Now()
+
+	basename := fmt.Sprintf("%v_%v", BENCH_ORIGIN, period)
+	prepare(b, SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH, basename)
+
+	signature, err := Sign(BENCH_ORIGIN, period)
+
+	if err != nil {
+		b.Fatalf("%v: ", err)
+	}
+
+	K, err := GetK(signature)
+	if err != nil {
+		b.Fatalf("%v: ", err)
+	}
+
+	prepare(b, VERIFIER_LOG_DB_CONF, VERIFIER_LOG_DB_PATH, K)
+
+	b.StartTimer()
+	err = Verify(signature, BENCH_ORIGIN, period)
+
+	if err != nil {
+		fmt.Printf("%v\n", err)
+	}
+
+	b.StopTimer()
+}
+
+func benchmarkAllCore(b *testing.B, logSize int, conf DB, path string, target targetFunc) {
 	db, err := SetupDB(conf, path)
 	defer db.DB.Close()
 
@@ -197,11 +260,11 @@ func benchmarkOfLogCore(b *testing.B, logSize int, conf DB, path string, target 
 	b.StopTimer()
 
 	for i := 0; i < b.N; i++ {
-		target(b, db)
+		target(b, db, logSize)
 	}
 }
 
-func benchmarkOfLog(b *testing.B, conf DB, entityType string, value string, target targetFunc) {
+func benchmarkAll(b *testing.B, conf DB, entityType string, value string, target targetFunc) {
 	for i := 1; i < BENCH_MAX; i *= BENCH_UNIT {
 		fmt.Printf("set up db with %d records\n", i)
 		prepareDB(conf, entityType, i, value)
@@ -215,13 +278,13 @@ func benchmarkOfLog(b *testing.B, conf DB, entityType string, value string, targ
 
 		b.Run(name, func(b *testing.B) {
 			path := fmt.Sprintf(BENCH_DB_PATH, entityType, i)
-			benchmarkOfLogCore(b, i, conf, path, target)
+			benchmarkAllCore(b, i, conf, path, target)
 		})
 	}
 }
 
-// sudo go test -benchmem -run=^$ -bench ^BenchmarkOfLog$ example.com/m/v2
-func BenchmarkOfLog(b *testing.B) {
+// sudo go test -benchmem -run=^$ -bench ^BenchmarkAll$ example.com/m/v2 -benchtime 10x
+func BenchmarkAll(b *testing.B) {
 	fmt.Println("Ready...")
 
 	err := Setup()
@@ -229,15 +292,11 @@ func BenchmarkOfLog(b *testing.B) {
 		b.Fatalf("%v: ", err)
 	}
 
-	h := fmt.Sprintf("%v_%v", BENCH_ORIGIN, Now())
+	K := "AxXNV9CJnzDdcJJ+Pm6N8rlLY2zRHYI0g78FqTt1iUYC"
+	h := "www.example.com_1668902640"
+	rogueSK := "/9uRzMxx+phPfrU8qvmxuO7HpfEEF2Ol4Uw84n8VNC8="
 
-	signature, err := Sign(BENCH_ORIGIN, Now())
-	if err != nil {
-		b.Fatalf("%v: ", err)
-	}
-
-	K, _ := GetK(signature)
-
-	benchmarkOfLog(b, SIGNER_DB_CONF, "signer", h, benchSearchSignerLog)
-	benchmarkOfLog(b, VERIFIER_DB_CONF, "verifier", K, benchSearchVerifierLog)
+	benchmarkAll(b, SIGNER_LOG_DB_CONF, "signer_log", h, benchSearchSignerLog)
+	benchmarkAll(b, VERIFIER_LOG_DB_CONF, "verifier_log", K, benchSearchVerifierLog)
+	benchmarkAll(b, VERIFIER_RL_DB_CONF, "verifier_revocation", rogueSK, benchVerifierVerifyRevocation)
 }
