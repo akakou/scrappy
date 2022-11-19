@@ -2,8 +2,6 @@ package core
 
 import (
 	"fmt"
-
-	"github.com/akakou/ecdaa"
 )
 
 func Setup() error {
@@ -11,7 +9,7 @@ func Setup() error {
 }
 
 func Sign(origin string, period int) (string, error) {
-	db, err := SetupDB(SIGNER_DB_CONF, SIGNER_DB_PATH)
+	db, err := SetupDB(SIGNER_DB_CONF, SIGNER_LOG_DB_PATH)
 
 	if err != nil {
 		return "", err
@@ -47,26 +45,34 @@ func Sign(origin string, period int) (string, error) {
 
 }
 
-func Verify(signature, origin string, period int, rl ecdaa.RevocationList) error {
+func Verify(signature, origin string, period int) error {
 	K, err := GetK(signature)
 
 	if err != nil {
 		return err
 	}
 
-	db, err := SetupDB(VERIFIER_DB_CONF, VERIFIER_DB_PATH)
+	logDB, err := SetupDB(VERIFIER_LOG_DB_CONF, VERIFIER_LOG_DB_PATH)
 
 	if err != nil {
 		return err
 	}
 
-	defer db.DB.Close()
+	defer logDB.DB.Close()
+
+	rlDB, err := SetupDB(VERIFIER_RL_DB_CONF, VERIFIER_RL_DB_PATH)
+
+	if err != nil {
+		return err
+	}
+
+	defer logDB.DB.Close()
 
 	if !IsValidPeriod(period) {
 		return fmt.Errorf("invalid period %d, but now %d", period, Now())
 	}
 
-	hasExist, err := HasExist(db, K)
+	hasExist, err := HasExist(logDB, K)
 
 	if err != nil {
 		return fmt.Errorf("has exist: %v", err)
@@ -76,13 +82,19 @@ func Verify(signature, origin string, period int, rl ecdaa.RevocationList) error
 		return fmt.Errorf(HAS_EXIST_ERROR, signature)
 	}
 
+	rl, err := SelectAllRL(rlDB)
+
+	if err != nil {
+		return fmt.Errorf("can't get RL: %v", err)
+	}
+
 	err = CryptoVerify(signature, origin, period, rl)
 
 	if err != nil {
 		return err
 	}
 
-	err = Insert(db, K)
+	err = Insert(logDB, K)
 
 	return err
 }

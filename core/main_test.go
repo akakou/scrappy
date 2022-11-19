@@ -2,13 +2,12 @@ package core
 
 import (
 	"testing"
-
-	"github.com/akakou/ecdaa"
 )
 
 func TestAll(t *testing.T) {
-	SIGNER_DB_PATH = "./test_sign.db"
-	VERIFIER_DB_PATH = "./test_verify.db"
+	SIGNER_LOG_DB_PATH = "./test_log_sign.db"
+	VERIFIER_LOG_DB_PATH = "./test_log_verify.db"
+	VERIFIER_RL_DB_PATH = "./test_rl_verify.db"
 
 	origin := "aaa"
 	period := Now()
@@ -25,7 +24,7 @@ func TestAll(t *testing.T) {
 		t.Fatalf("%v: ", err)
 	}
 
-	err = Verify(signature, origin, period, ecdaa.RevocationList{})
+	err = Verify(signature, origin, period)
 
 	if err != nil {
 		t.Fatalf("%v: ", err)
@@ -33,8 +32,9 @@ func TestAll(t *testing.T) {
 }
 
 func TestFailBecauseOfMultiSignature(t *testing.T) {
-	SIGNER_DB_PATH = "./test_sign.db"
-	VERIFIER_DB_PATH = "./test_verify.db"
+	SIGNER_LOG_DB_PATH = "./test_log_sign.db"
+	VERIFIER_LOG_DB_PATH = "./test_log_verify.db"
+	VERIFIER_RL_DB_PATH = "./test_rl_verify.db"
 
 	origin := "aaa"
 	period := Now()
@@ -51,13 +51,13 @@ func TestFailBecauseOfMultiSignature(t *testing.T) {
 		t.Fatalf("%v: ", err)
 	}
 
-	err = Verify(signature, origin, period, ecdaa.RevocationList{})
+	err = Verify(signature, origin, period)
 
 	if err != nil {
 		t.Fatalf("%v: ", err)
 	}
 
-	err = Verify(signature, origin, period, ecdaa.RevocationList{})
+	err = Verify(signature, origin, period)
 
 	if err == nil {
 		t.Fatalf("%v: ", err)
