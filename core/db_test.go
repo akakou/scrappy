@@ -45,4 +45,13 @@ func TestDB(t *testing.T) {
 	if !hasExist {
 		t.Fatalf("basename %s does not exists", value)
 	}
+
+	strs, err := SelectAll(db)
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+
+	if len(strs) != 1 {
+		t.Fatalf("%v", err)
+	}
 }
