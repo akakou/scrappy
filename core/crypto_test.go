@@ -3,6 +3,8 @@ package core
 import (
 	"fmt"
 	"testing"
+
+	"github.com/akakou/ecdaa"
 )
 
 func TestCrypto(t *testing.T) {
@@ -23,7 +25,7 @@ func TestCrypto(t *testing.T) {
 		t.Fatalf("%v: ", err)
 	}
 
-	err = CryptoVerify(signatuere, origin, period)
+	err = CryptoVerify(signatuere, origin, period, ecdaa.RevocationList{})
 
 	if err != nil {
 		t.Fatalf("%v: ", err)

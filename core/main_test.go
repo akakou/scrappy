@@ -2,6 +2,8 @@ package core
 
 import (
 	"testing"
+
+	"github.com/akakou/ecdaa"
 )
 
 func TestAll(t *testing.T) {
@@ -23,7 +25,7 @@ func TestAll(t *testing.T) {
 		t.Fatalf("%v: ", err)
 	}
 
-	err = Verify(signature, origin, period)
+	err = Verify(signature, origin, period, ecdaa.RevocationList{})
 
 	if err != nil {
 		t.Fatalf("%v: ", err)
@@ -49,13 +51,13 @@ func TestFailBecauseOfMultiSignature(t *testing.T) {
 		t.Fatalf("%v: ", err)
 	}
 
-	err = Verify(signature, origin, period)
+	err = Verify(signature, origin, period, ecdaa.RevocationList{})
 
 	if err != nil {
 		t.Fatalf("%v: ", err)
 	}
 
-	err = Verify(signature, origin, period)
+	err = Verify(signature, origin, period, ecdaa.RevocationList{})
 
 	if err == nil {
 		t.Fatalf("%v: ", err)

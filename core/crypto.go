@@ -168,7 +168,7 @@ func CryptoSign(basename string) (string, error) {
 
 }
 
-func CryptoVerify(base64Signature, origin string, period int) error {
+func CryptoVerify(base64Signature, origin string, period int, rl ecdaa.RevocationList) error {
 	var signature ecdaa.MiddleEncodedSignature
 
 	basename := fmt.Sprintf("%s_%v", origin, period)
@@ -196,6 +196,7 @@ func CryptoVerify(base64Signature, origin string, period int) error {
 		[]byte(basename),
 		signature.Decode(),
 		config.Ipk.Decode(),
+		rl,
 	)
 
 	if err != nil {

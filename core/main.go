@@ -1,6 +1,10 @@
 package core
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/akakou/ecdaa"
+)
 
 func Setup() error {
 	return CryptoSetup()
@@ -43,7 +47,7 @@ func Sign(origin string, period int) (string, error) {
 
 }
 
-func Verify(signature, origin string, period int) error {
+func Verify(signature, origin string, period int, rl ecdaa.RevocationList) error {
 	K, err := GetK(signature)
 
 	if err != nil {
@@ -72,7 +76,7 @@ func Verify(signature, origin string, period int) error {
 		return fmt.Errorf(HAS_EXIST_ERROR, signature)
 	}
 
-	err = CryptoVerify(signature, origin, period)
+	err = CryptoVerify(signature, origin, period, rl)
 
 	if err != nil {
 		return err
