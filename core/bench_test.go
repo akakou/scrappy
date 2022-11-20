@@ -8,8 +8,8 @@ import (
 const BENCH_DB_PATH = "./%v_%v_bench.db"
 const BENCH_ORIGIN = "www.example.com"
 
-const BENCH_UNIT = 10
-const BENCH_MAX = 100000
+const BENCH_UNIT = 1000
+const BENCH_MAX = 10000
 
 type targetFunc = func(b *testing.B, db *DB, logSize int)
 
@@ -265,7 +265,7 @@ func benchmarkAllCore(b *testing.B, logSize int, conf DB, path string, target ta
 }
 
 func benchmarkAll(b *testing.B, conf DB, entityType string, value string, target targetFunc) {
-	for i := 1; i < BENCH_MAX; i *= BENCH_UNIT {
+	for i := 0; i < BENCH_MAX; i += BENCH_UNIT {
 		fmt.Printf("set up db with %d records\n", i)
 		prepareDB(conf, entityType, i, value)
 	}
@@ -273,7 +273,7 @@ func benchmarkAll(b *testing.B, conf DB, entityType string, value string, target
 	fmt.Println("Ready!!")
 	fmt.Println("Start!!")
 
-	for i := 1; i < BENCH_MAX; i *= BENCH_UNIT {
+	for i := 0; i < BENCH_MAX; i += BENCH_UNIT {
 		name := fmt.Sprintf("log_size(%v):%d", entityType, i)
 
 		b.Run(name, func(b *testing.B) {
