@@ -283,7 +283,79 @@ func benchmarkAll(b *testing.B, conf DB, entityType string, value string, target
 	}
 }
 
-// sudo go test -benchmem -run=^$ -bench ^BenchmarkAll$ example.com/m/v2 -benchtime 10x
+// sudo go test -benchmem -run=^$ -bench ^BenchmarkSign$ example.com/m/v2 -benchtime 20x
+func benchmarkSign(b *testing.B) {
+	SIGNER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "signer_log", 0)
+	VERIFIER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "verifier_log", 0)
+	VERIFIER_RL_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "verifier_revocation", 0)
+
+	period := Now()
+
+	basename := fmt.Sprintf("%v_%v", BENCH_ORIGIN, period)
+	b.Run("sign", func(b *testing.B) {
+		b.ResetTimer()
+		b.StopTimer()
+
+		for i := 0; i < b.N; i++ {
+			prepare(b, SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH, basename)
+
+			b.StartTimer()
+
+			_, err := Sign(BENCH_ORIGIN, period)
+
+			if err != nil {
+				b.Fatalf("%v: ", err)
+			}
+
+			b.StopTimer()
+		}
+	})
+}
+
+// sudo go test -benchmem -run=^$ -bench ^BenchmarkVerify$ example.com/m/v2 -benchtime 20x
+func benchmarkVerify(b *testing.B) {
+	SIGNER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "signer_log", 0)
+	VERIFIER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "verifier_log", 0)
+	VERIFIER_RL_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "verifier_revocation", 0)
+
+	period := Now()
+	basename := fmt.Sprintf("%v_%v", BENCH_ORIGIN, period)
+
+	prepare(b, SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH, basename)
+
+	signature, err := Sign(BENCH_ORIGIN, period)
+
+	if err != nil {
+		b.Fatalf("%v: ", err)
+	}
+
+	K, err := GetK(signature)
+
+	if err != nil {
+		b.Fatalf("%v: ", err)
+	}
+
+	b.Run("verify", func(b *testing.B) {
+		b.ResetTimer()
+		b.StopTimer()
+
+		for i := 0; i < b.N; i++ {
+			prepare(b, VERIFIER_LOG_DB_CONF, VERIFIER_LOG_DB_PATH, K)
+
+			b.StartTimer()
+
+			err := Verify(signature, BENCH_ORIGIN, period)
+
+			if err != nil {
+				b.Fatalf("%v: ", err)
+			}
+
+			b.StopTimer()
+		}
+	})
+}
+
+// sudo go test -benchmem -run=^$ -bench ^BenchmarkAll$ example.com/m/v2 -benchtime 20x
 func BenchmarkAll(b *testing.B) {
 	fmt.Println("Ready...")
 
@@ -292,11 +364,14 @@ func BenchmarkAll(b *testing.B) {
 		b.Fatalf("%v: ", err)
 	}
 
-	K := "AxXNV9CJnzDdcJJ+Pm6N8rlLY2zRHYI0g78FqTt1iUYC"
-	h := "www.example.com_1668902640"
-	rogueSK := "/9uRzMxx+phPfrU8qvmxuO7HpfEEF2Ol4Uw84n8VNC8="
+	// K := "AxXNV9CJnzDdcJJ+Pm6N8rlLY2zRHYI0g78FqTt1iUYC"
+	// h := "www.example.com_1668902640"
+	// rogueSK := "/9uRzMxx+phPfrU8qvmxuO7HpfEEF2Ol4Uw84n8VNC8="
 
-	benchmarkAll(b, SIGNER_LOG_DB_CONF, "signer_log", h, benchSearchSignerLog)
-	benchmarkAll(b, VERIFIER_LOG_DB_CONF, "verifier_log", K, benchSearchVerifierLog)
-	benchmarkAll(b, VERIFIER_RL_DB_CONF, "verifier_revocation", rogueSK, benchVerifierVerifyRevocation)
+	benchmarkSign(b)
+	benchmarkVerify(b)
+
+	// benchmarkAll(b, SIGNER_LOG_DB_CONF, "signer_log", h, benchSearchSignerLog)
+	// benchmarkAll(b, VERIFIER_LOG_DB_CONF, "verifier_log", K, benchSearchVerifierLog)
+	// benchmarkAll(b, VERIFIER_RL_DB_CONF, "verifier_revocation", rogueSK, benchVerifierVerifyRevocation)
 }
