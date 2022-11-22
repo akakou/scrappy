@@ -283,7 +283,6 @@ func benchmarkAll(b *testing.B, conf DB, entityType string, value string, target
 	}
 }
 
-// sudo go test -benchmem -run=^$ -bench ^BenchmarkSign$ example.com/m/v2 -benchtime 20x
 func benchmarkSign(b *testing.B) {
 	SIGNER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "signer_log", 0)
 	VERIFIER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "verifier_log", 0)
@@ -301,18 +300,20 @@ func benchmarkSign(b *testing.B) {
 
 			b.StartTimer()
 
-			_, err := Sign(BENCH_ORIGIN, period)
+			signature, err := Sign(BENCH_ORIGIN, period)
 
 			if err != nil {
 				b.Fatalf("%v: ", err)
 			}
 
 			b.StopTimer()
+
+			fmt.Printf("signature: %v\n", signature)
+			fmt.Printf("signature size: %v\n", len(signature))
 		}
 	})
 }
 
-// sudo go test -benchmem -run=^$ -bench ^BenchmarkVerify$ example.com/m/v2 -benchtime 20x
 func benchmarkVerify(b *testing.B) {
 	SIGNER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "signer_log", 0)
 	VERIFIER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "verifier_log", 0)
