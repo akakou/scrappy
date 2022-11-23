@@ -11,9 +11,11 @@ const BENCH_ORIGIN = "www.example.com"
 const BENCH_UNIT = 1000
 const BENCH_MAX = 10000
 
-type targetFunc = func(b *testing.B, db *DB, logSize int)
+const K = "AxXNV9CJnzDdcJJ+Pm6N8rlLY2zRHYI0g78FqTt1iUYC"
+const h = "www.example.com_1668902640"
+const rogueSK = "/9uRzMxx+phPfrU8qvmxuO7HpfEEF2Ol4Uw84n8VNC8="
 
-func prepareDB(conf DB, entityType string, logSize int, value string) {
+func prepareDB(conf DB, entityType string, logSize int, value string) string {
 	path := fmt.Sprintf(BENCH_DB_PATH, entityType, logSize)
 	db, err := SetupDB(conf, path)
 
@@ -47,7 +49,7 @@ func prepareDB(conf DB, entityType string, logSize int, value string) {
 	res.Next()
 
 	if count == logSize {
-		return
+		return path
 	}
 
 	if count > logSize {
@@ -74,9 +76,11 @@ func prepareDB(conf DB, entityType string, logSize int, value string) {
 	}
 
 	db.DB.Close()
+
+	return path
 }
 
-func prepare(b *testing.B, conf DB, path, value string) error {
+func sweepDB(b *testing.B, conf DB, path, value string) error {
 	db, err := SetupDB(conf, path)
 
 	if err != nil {
@@ -93,12 +97,13 @@ func prepare(b *testing.B, conf DB, path, value string) error {
 	return nil
 }
 
-func benchmarkSign(b *testing.B) {
-	SIGNER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "signer_log", 0)
-	VERIFIER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "verifier_log", 0)
-	VERIFIER_RL_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "verifier_revocation", 0)
+func benchmarkSign(b *testing.B, logSize int) {
+	SIGNER_LOG_DB_PATH = prepareDB(SIGNER_LOG_DB_CONF, "signer_log", logSize, h)
 
 	period := Now()
+
+	var signature string
+	var err error
 
 	basename := fmt.Sprintf("%v_%v", BENCH_ORIGIN, period)
 	b.Run("sign", func(b *testing.B) {
@@ -106,11 +111,9 @@ func benchmarkSign(b *testing.B) {
 		b.StopTimer()
 
 		for i := 0; i < b.N; i++ {
-			prepare(b, SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH, basename)
-
 			b.StartTimer()
 
-			signature, err := Sign(BENCH_ORIGIN, period)
+			signature, err = Sign(BENCH_ORIGIN, period)
 
 			if err != nil {
 				b.Fatalf("%v: ", err)
@@ -118,21 +121,24 @@ func benchmarkSign(b *testing.B) {
 
 			b.StopTimer()
 
-			fmt.Printf("signature: %v\n", signature)
-			fmt.Printf("signature size: %v\n", len(signature))
+			sweepDB(b, SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH, basename)
 		}
+
+		fmt.Printf("signature: %v\n", signature)
+		fmt.Printf("encoded signature size: %v\n", len(signature))
+
 	})
 }
 
-func benchmarkVerify(b *testing.B) {
-	SIGNER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "signer_log", 0)
-	VERIFIER_LOG_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "verifier_log", 0)
-	VERIFIER_RL_DB_PATH = fmt.Sprintf(BENCH_DB_PATH, "verifier_revocation", 0)
+func benchmarkVerify(b *testing.B, logSize, rlSize int) {
+	SIGNER_LOG_DB_PATH = prepareDB(SIGNER_LOG_DB_CONF, "signer_log", 0, h)
+	VERIFIER_LOG_DB_PATH = prepareDB(VERIFIER_LOG_DB_CONF, "verifir_log", logSize, K)
+	VERIFIER_RL_DB_PATH = prepareDB(VERIFIER_RL_DB_CONF, "verifier_revocation", rlSize, rogueSK)
 
 	period := Now()
 	basename := fmt.Sprintf("%v_%v", BENCH_ORIGIN, period)
 
-	prepare(b, SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH, basename)
+	sweepDB(b, SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH, basename)
 
 	signature, err := Sign(BENCH_ORIGIN, period)
 
@@ -151,8 +157,6 @@ func benchmarkVerify(b *testing.B) {
 		b.StopTimer()
 
 		for i := 0; i < b.N; i++ {
-			prepare(b, VERIFIER_LOG_DB_CONF, VERIFIER_LOG_DB_PATH, K)
-
 			b.StartTimer()
 
 			err := Verify(signature, BENCH_ORIGIN, period)
@@ -162,6 +166,7 @@ func benchmarkVerify(b *testing.B) {
 			}
 
 			b.StopTimer()
+			sweepDB(b, VERIFIER_LOG_DB_CONF, VERIFIER_LOG_DB_PATH, K)
 		}
 	})
 }
@@ -175,12 +180,9 @@ func BenchmarkAll(b *testing.B) {
 		b.Fatalf("%v: ", err)
 	}
 
-	// K := "AxXNV9CJnzDdcJJ+Pm6N8rlLY2zRHYI0g78FqTt1iUYC"
-	// h := "www.example.com_1668902640"
-	// rogueSK := "/9uRzMxx+phPfrU8qvmxuO7HpfEEF2Ol4Uw84n8VNC8="
-
-	benchmarkSign(b)
-	benchmarkVerify(b)
+	benchmarkSign(b, 1000)
+	benchmarkVerify(b, 10000, 0)
+	benchmarkVerify(b, 0, 50)
 
 	// benchmarkAll(b, SIGNER_LOG_DB_CONF, "signer_log", h, benchSearchSignerLog)
 	// benchmarkAll(b, VERIFIER_LOG_DB_CONF, "verifier_log", K, benchSearchVerifierLog)
