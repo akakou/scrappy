@@ -23,7 +23,7 @@ func Sign(origin string, period int) (string, error) {
 
 	basename := fmt.Sprintf("%v_%v", origin, period)
 
-	hasExist, err := HasExist(db, basename)
+	hasExist, err := HasHashExist(db, basename)
 
 	if err != nil {
 		return "", fmt.Errorf("has exist: %v", err)
@@ -39,7 +39,7 @@ func Sign(origin string, period int) (string, error) {
 		return "", err
 	}
 
-	err = Insert(db, basename)
+	err = InsertHash(db, basename)
 
 	return signature, err
 
@@ -72,7 +72,7 @@ func Verify(signature, origin string, period int) error {
 		return fmt.Errorf("invalid period %d, but now %d", period, Now())
 	}
 
-	hasExist, err := HasExist(logDB, K)
+	hasExist, err := HasHashExist(logDB, K)
 
 	if err != nil {
 		return fmt.Errorf("has exist: %v", err)
@@ -94,7 +94,7 @@ func Verify(signature, origin string, period int) error {
 		return err
 	}
 
-	err = Insert(logDB, K)
+	err = InsertHash(logDB, K)
 
 	return err
 }

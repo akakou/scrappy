@@ -20,7 +20,7 @@ func TestDB(t *testing.T) {
 		panic(err)
 	}
 
-	hasExist, err := HasExist(db, value)
+	hasExist, err := HasHashExist(db, value)
 
 	if err != nil {
 		t.Fatalf("%v", err)
@@ -30,13 +30,13 @@ func TestDB(t *testing.T) {
 		t.Fatalf("%v", value)
 	}
 
-	err = Insert(db, value)
+	err = InsertHash(db, value)
 
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
 
-	hasExist, err = HasExist(db, value)
+	hasExist, err = HasHashExist(db, value)
 
 	if err != nil {
 		t.Fatalf("%v", err)

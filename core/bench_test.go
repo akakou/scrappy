@@ -66,7 +66,7 @@ func prepareDB(conf DB, entityType string, logSize int, value string) string {
 	fmt.Println("insert!")
 
 	for i := count; i < logSize; i++ {
-		err := Insert(db, value)
+		err := InsertHash(db, value)
 
 		if err != nil {
 			panic(err)

@@ -1,6 +1,7 @@
 package core
 
 import (
+	"crypto/sha256"
 	"database/sql"
 	"encoding/base64"
 	"fmt"
@@ -39,7 +40,7 @@ var VERIFIER_RL_DB_CONF = DB{
 }
 
 func SetupDB(db DB, path string) (*DB, error) {
-	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %v (%v VARCHAR(1024))", db.Table, db.Column)
+	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %v (%v VARCHAR(256))", db.Table, db.Column)
 
 	if path != TEST_DB_PATH {
 		exec.Command("touch", path).Run()
@@ -62,14 +63,15 @@ func SetupDB(db DB, path string) (*DB, error) {
 	return &db, nil
 }
 
-func HasExist(db *DB, value string) (bool, error) {
+func HasHashExist(db *DB, value string) (bool, error) {
 	i := 0
+	hash := sha256.New().Sum([]byte(value))
 
 	query := fmt.Sprintf("SELECT 1 FROM %v WHERE %v=?", db.Table, db.Column)
 
 	row := db.DB.QueryRow(
 		query,
-		value,
+		hash,
 	)
 
 	err := row.Scan(&i)
@@ -83,12 +85,14 @@ func HasExist(db *DB, value string) (bool, error) {
 	return result, err
 }
 
-func Insert(db *DB, value string) error {
+func InsertHash(db *DB, value string) error {
+	hash := sha256.New().Sum([]byte(value))
+
 	query := fmt.Sprintf("INSERT INTO %v (%v) VALUES (?)", db.Table, db.Column)
 
 	_, err := db.DB.Exec(
 		query,
-		value,
+		hash,
 	)
 
 	return err
