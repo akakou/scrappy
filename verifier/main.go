@@ -70,7 +70,7 @@ func main() {
 		session := sessions.Default(c)
 		period := session.Get("period").(int)
 
-		attestation := c.PostForm("attestation")
+		attestation := c.PostForm("scrappy")
 
 		err := core.Verify(attestation, HOST_NAME, int(period))
 

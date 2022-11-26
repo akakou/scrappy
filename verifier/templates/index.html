@@ -13,19 +13,10 @@
 
 <p>Slow load with attestation</p>
 <form action='/slow_with_attest' method='post'>
-    <input id="attestation" name='attestation' type='hidden'></input>
-    <input id="period" name='period' type='hidden' value="{{.period}}"></input>
-    <input type='button' id='attest_button' value="attest"></input>
-    <input type='submit' id='submit'></input>
+    <input name='scrappy' type='hidden' period="{{.period}}"></input>
+    <input type='submit' id='_'></input>
 </form>
 
 
 <script>
-    const button = document.getElementById('attest_button')
-    button.onclick = () => {
-        var evt = document.createEvent('Event');
-        evt.initEvent('onAttest', true, true);
-        var some_element = document.getElementById('attestation');
-        some_element.dispatchEvent(evt);
-    }
 </script>
