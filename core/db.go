@@ -85,17 +85,20 @@ func HasHashExist(db *DB, value string) (bool, error) {
 	return result, err
 }
 
-func InsertHash(db *DB, value string) error {
-	hash := sha256.New().Sum([]byte(value))
-
+func Insert(db *DB, value []byte) error {
 	query := fmt.Sprintf("INSERT INTO %v (%v) VALUES (?)", db.Table, db.Column)
 
 	_, err := db.DB.Exec(
 		query,
-		hash,
+		value,
 	)
 
 	return err
+}
+
+func InsertHash(db *DB, value string) error {
+	hash := sha256.New().Sum([]byte(value))
+	return Insert(db, hash)
 }
 
 func SelectAll(db *DB) ([]string, error) {
