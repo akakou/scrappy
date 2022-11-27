@@ -3,7 +3,6 @@ package core
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 
 	"github.com/akakou/ecdaa"
@@ -168,10 +167,8 @@ func CryptoSign(basename string) (string, error) {
 
 }
 
-func CryptoVerify(base64Signature, origin string, period int, rl ecdaa.RevocationList) error {
+func CryptoVerify(base64Signature, basename string, rl ecdaa.RevocationList) error {
 	var signature ecdaa.MiddleEncodedSignature
-
-	basename := fmt.Sprintf("%s_%v", origin, period)
 
 	config, err := readConfig()
 

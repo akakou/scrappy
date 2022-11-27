@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/akakou/ecdaa"
@@ -17,7 +16,7 @@ func TestCrypto(t *testing.T) {
 		t.Fatalf("%v: ", err)
 	}
 
-	basename := fmt.Sprintf("%v_%v", origin, period)
+	basename := getBasename(origin, period)
 
 	signatuere, err := CryptoSign(basename)
 
@@ -25,7 +24,7 @@ func TestCrypto(t *testing.T) {
 		t.Fatalf("%v: ", err)
 	}
 
-	err = CryptoVerify(signatuere, origin, period, ecdaa.RevocationList{})
+	err = CryptoVerify(signatuere, basename, ecdaa.RevocationList{})
 
 	if err != nil {
 		t.Fatalf("%v: ", err)

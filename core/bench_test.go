@@ -1,6 +1,7 @@
 package core
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"testing"
 )
@@ -66,7 +67,7 @@ func prepareDB(conf DB, entityType string, logSize int, value string) string {
 	fmt.Println("insert!")
 
 	for i := count; i < logSize; i++ {
-		err := InsertHash(db, value)
+		err = Insert(db, value)
 
 		if err != nil {
 			panic(err)
@@ -80,11 +81,11 @@ func prepareDB(conf DB, entityType string, logSize int, value string) string {
 	return path
 }
 
-func sweepDB(b *testing.B, conf DB, path, value string) error {
+func sweepDB(conf DB, path, value string) error {
 	db, err := SetupDB(conf, path)
 
 	if err != nil {
-		b.Fatalf("%v: ", err)
+		panic(err)
 	}
 
 	query := fmt.Sprintf("DELETE FROM %v WHERE %v = ?", conf.Table, conf.Column)
@@ -100,34 +101,62 @@ func sweepDB(b *testing.B, conf DB, path, value string) error {
 func benchmarkSign(b *testing.B, logSize int) {
 	SIGNER_LOG_DB_PATH = prepareDB(SIGNER_LOG_DB_CONF, "signer_log", logSize, h)
 
-	period := Now()
-
 	var signature string
-	var err error
 
-	basename := fmt.Sprintf("%v_%v", BENCH_ORIGIN, period)
-	b.Run("sign", func(b *testing.B) {
-		b.ResetTimer()
-		b.StopTimer()
+	db, err := SetupDB(SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH)
+
+	if err != nil {
+		b.Fatalf("%v: ", err)
+	}
+
+	defer db.DB.Close()
+
+	period := Now()
+	hashed_origin := sha256.New().Sum([]byte(BENCH_ORIGIN))
+	basename := fmt.Sprintf("%v_%v", hashed_origin, period)
+
+	b.Run("sign_log", func(b *testing.B) {
+		// if !IsValidPeriod(period) {
+		// 	b.Fatalf("invalid period %d, but now %d", period, Now())
+		// }
 
 		for i := 0; i < b.N; i++ {
-			b.StartTimer()
+			hasExist, err := HasExist(db, basename)
 
-			signature, err = Sign(BENCH_ORIGIN, period)
+			if err != nil {
+				b.Fatalf("has exist: %v", err)
+			}
+
+			if hasExist {
+				b.Fatalf(HAS_EXIST_ERROR, basename)
+			}
+
+			err = Insert(db, basename)
+
+			if err != nil {
+				b.Fatalf("has exist: %v", err)
+			}
+
+			b.StopTimer()
+			sweepDB(SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH, basename)
+			b.StartTimer()
+		}
+	})
+
+	b.Run("sign_crypto", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			signature, err = CryptoSign(basename)
 
 			if err != nil {
 				b.Fatalf("%v: ", err)
 			}
-
-			b.StopTimer()
-
-			sweepDB(b, SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH, basename)
 		}
-
-		fmt.Printf("signature: %v\n", signature)
-		fmt.Printf("encoded signature size: %v\n", len(signature))
-
 	})
+
+	fmt.Printf("basename: %v\n", basename)
+
+	fmt.Printf("signature: %v\n", signature)
+	fmt.Printf("encoded signature size: %v\n", len(signature))
 }
 
 func benchmarkVerify(b *testing.B, logSize, rlSize int) {
@@ -135,10 +164,25 @@ func benchmarkVerify(b *testing.B, logSize, rlSize int) {
 	VERIFIER_LOG_DB_PATH = prepareDB(VERIFIER_LOG_DB_CONF, "verifir_log", logSize, K)
 	VERIFIER_RL_DB_PATH = prepareDB(VERIFIER_RL_DB_CONF, "verifier_revocation", rlSize, rogueSK)
 
-	period := Now()
-	basename := fmt.Sprintf("%v_%v", BENCH_ORIGIN, period)
+	logDB, err := SetupDB(VERIFIER_LOG_DB_CONF, VERIFIER_LOG_DB_PATH)
 
-	sweepDB(b, SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH, basename)
+	if err != nil {
+		b.Fatalf("%v: ", err)
+	}
+
+	rlDB, err := SetupDB(VERIFIER_RL_DB_CONF, VERIFIER_RL_DB_PATH)
+
+	if err != nil {
+		b.Fatalf("%v: ", err)
+	}
+
+	rl, err := SelectAllRL(rlDB)
+	if err != nil {
+		b.Fatalf("%v: ", err)
+	}
+
+	period := Now()
+	basename := getBasename(BENCH_ORIGIN, period)
 
 	signature, err := Sign(BENCH_ORIGIN, period)
 
@@ -146,27 +190,45 @@ func benchmarkVerify(b *testing.B, logSize, rlSize int) {
 		b.Fatalf("%v: ", err)
 	}
 
+	sweepDB(SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH, basename)
+
 	K, err := GetK(signature)
 
 	if err != nil {
 		b.Fatalf("%v: ", err)
 	}
 
-	b.Run("verify", func(b *testing.B) {
-		b.ResetTimer()
-		b.StopTimer()
-
+	b.Run("verify_log", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			b.StartTimer()
-
-			err := Verify(signature, BENCH_ORIGIN, period)
+			hasExist, err := HasExist(logDB, K)
 
 			if err != nil {
-				b.Fatalf("%v: ", err)
+				b.Errorf("has exist: %v", err)
+			}
+
+			if hasExist {
+				b.Errorf(HAS_EXIST_ERROR, signature)
+			}
+
+			err = Insert(logDB, K)
+
+			if err != nil {
+				b.Errorf("insert: %v", err)
 			}
 
 			b.StopTimer()
-			sweepDB(b, VERIFIER_LOG_DB_CONF, VERIFIER_LOG_DB_PATH, K)
+			sweepDB(VERIFIER_LOG_DB_CONF, VERIFIER_LOG_DB_PATH, K)
+			b.StartTimer()
+		}
+	})
+
+	b.Run("verify_crypto", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			err = CryptoVerify(signature, basename, rl)
+
+			if err != nil {
+				b.Errorf("verify: %v", err)
+			}
 		}
 	})
 }
@@ -181,8 +243,8 @@ func BenchmarkAll(b *testing.B) {
 	}
 
 	benchmarkSign(b, 1000)
-	benchmarkVerify(b, 10000, 0)
-	benchmarkVerify(b, 0, 50)
+	// benchmarkVerify(b, 100000, 0)
+	// benchmarkVerify(b, 0, 50)
 
 	// benchmarkAll(b, SIGNER_LOG_DB_CONF, "signer_log", h, benchSearchSignerLog)
 	// benchmarkAll(b, VERIFIER_LOG_DB_CONF, "verifier_log", K, benchSearchVerifierLog)

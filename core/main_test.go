@@ -24,6 +24,9 @@ func TestAll(t *testing.T) {
 		t.Fatalf("%v: ", err)
 	}
 
+	sweepDB(SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH, getBasename(origin, period))
+	sweepDB(VERIFIER_LOG_DB_CONF, VERIFIER_LOG_DB_PATH, getBasename(origin, period))
+
 	err = Verify(signature, origin, period)
 
 	if err != nil {

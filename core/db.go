@@ -1,7 +1,6 @@
 package core
 
 import (
-	"crypto/sha256"
 	"database/sql"
 	"encoding/base64"
 	"fmt"
@@ -22,25 +21,29 @@ type DB struct {
 	Table  string
 	Column string
 	DB     *sql.DB
+	Size   int
 }
 
 var SIGNER_LOG_DB_CONF = DB{
 	Table:  "SIGNER_LOG",
 	Column: "BASENAME",
+	Size:   256, //32 + 8 + 1,
 }
 
 var VERIFIER_LOG_DB_CONF = DB{
-	Table:  "VERIFIER_DB_LOG",
+	Table:  "VERIFIER_LOG",
 	Column: "K",
+	Size:   256, //326*2 + 8 + 1,
 }
 
 var VERIFIER_RL_DB_CONF = DB{
 	Table:  "VERIFIER_RL",
 	Column: "ROGUE_SK",
+	Size:   256, //44 + 1,
 }
 
 func SetupDB(db DB, path string) (*DB, error) {
-	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %v (%v VARCHAR(256))", db.Table, db.Column)
+	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %v (%v VARCHAR(%v))", db.Table, db.Column, db.Size)
 
 	if path != TEST_DB_PATH {
 		exec.Command("touch", path).Run()
@@ -63,15 +66,13 @@ func SetupDB(db DB, path string) (*DB, error) {
 	return &db, nil
 }
 
-func HasHashExist(db *DB, value string) (bool, error) {
-	i := 0
-	hash := sha256.New().Sum([]byte(value))
+func HasExist(db *DB, value string) (bool, error) {
+	var i int
 
 	query := fmt.Sprintf("SELECT 1 FROM %v WHERE %v=?", db.Table, db.Column)
-
 	row := db.DB.QueryRow(
 		query,
-		hash,
+		value,
 	)
 
 	err := row.Scan(&i)
@@ -85,7 +86,7 @@ func HasHashExist(db *DB, value string) (bool, error) {
 	return result, err
 }
 
-func Insert(db *DB, value []byte) error {
+func Insert(db *DB, value string) error {
 	query := fmt.Sprintf("INSERT INTO %v (%v) VALUES (?)", db.Table, db.Column)
 
 	_, err := db.DB.Exec(
@@ -96,10 +97,10 @@ func Insert(db *DB, value []byte) error {
 	return err
 }
 
-func InsertHash(db *DB, value string) error {
-	hash := sha256.New().Sum([]byte(value))
-	return Insert(db, hash)
-}
+// func InsertHash(db *DB, value string) error {
+// 	hash := sha256.New().Sum([]byte(value))
+// 	return Insert(db, hash)
+// }
 
 func SelectAll(db *DB) ([]string, error) {
 	result := []string{}
