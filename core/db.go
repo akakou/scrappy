@@ -27,19 +27,19 @@ type DB struct {
 var SIGNER_LOG_DB_CONF = DB{
 	Table:  "SIGNER_LOG",
 	Column: "BASENAME",
-	Size:   256, //32 + 8 + 1,
+	Size:   55 + 1,
 }
 
 var VERIFIER_LOG_DB_CONF = DB{
 	Table:  "VERIFIER_LOG",
 	Column: "K",
-	Size:   256, //326*2 + 8 + 1,
-}
+	Size:   44 + 1,
+}4
 
 var VERIFIER_RL_DB_CONF = DB{
 	Table:  "VERIFIER_RL",
 	Column: "ROGUE_SK",
-	Size:   256, //44 + 1,
+	Size:   44 + 1,
 }
 
 func SetupDB(db DB, path string) (*DB, error) {

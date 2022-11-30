@@ -192,3 +192,4 @@ config.json
 **/m
 ***/*.db
 ***/*.db-journal
+core/:memory:

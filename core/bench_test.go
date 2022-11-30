@@ -1,7 +1,6 @@
 package core
 
 import (
-	"crypto/sha256"
 	"fmt"
 	"testing"
 )
@@ -9,11 +8,8 @@ import (
 const BENCH_DB_PATH = "./%v_%v_bench.db"
 const BENCH_ORIGIN = "www.example.com"
 
-const BENCH_UNIT = 1000
-const BENCH_MAX = 10000
-
-const K = "AxXNV9CJnzDdcJJ+Pm6N8rlLY2zRHYI0g78FqTt1iUYC"
-const h = "www.example.com_1668902640"
+const k = "AxXNV9CJnzDdcJJ+Pm6N8rlLY2zRHYI0g78FqTt1iUYC"
+const h = "gPwPuSZtt7g/hYUPoOZUi21w7mjItbQS8d7qbr3vBAQ=_1669625460"
 const rogueSK = "/9uRzMxx+phPfrU8qvmxuO7HpfEEF2Ol4Uw84n8VNC8="
 
 func prepareDB(conf DB, entityType string, logSize int, value string) string {
@@ -112,8 +108,7 @@ func benchmarkSign(b *testing.B, logSize int) {
 	defer db.DB.Close()
 
 	period := Now()
-	hashed_origin := sha256.New().Sum([]byte(BENCH_ORIGIN))
-	basename := fmt.Sprintf("%v_%v", hashed_origin, period)
+	basename := getBasename(BENCH_ORIGIN, period)
 
 	b.Run("sign_log", func(b *testing.B) {
 		// if !IsValidPeriod(period) {
@@ -161,7 +156,7 @@ func benchmarkSign(b *testing.B, logSize int) {
 
 func benchmarkVerify(b *testing.B, logSize, rlSize int) {
 	SIGNER_LOG_DB_PATH = prepareDB(SIGNER_LOG_DB_CONF, "signer_log", 0, h)
-	VERIFIER_LOG_DB_PATH = prepareDB(VERIFIER_LOG_DB_CONF, "verifir_log", logSize, K)
+	VERIFIER_LOG_DB_PATH = prepareDB(VERIFIER_LOG_DB_CONF, "verifir_log", logSize, k)
 	VERIFIER_RL_DB_PATH = prepareDB(VERIFIER_RL_DB_CONF, "verifier_revocation", rlSize, rogueSK)
 
 	logDB, err := SetupDB(VERIFIER_LOG_DB_CONF, VERIFIER_LOG_DB_PATH)
@@ -243,8 +238,8 @@ func BenchmarkAll(b *testing.B) {
 	}
 
 	benchmarkSign(b, 1000)
-	// benchmarkVerify(b, 100000, 0)
-	// benchmarkVerify(b, 0, 50)
+	benchmarkVerify(b, 100000, 0)
+	benchmarkVerify(b, 0, 50)
 
 	// benchmarkAll(b, SIGNER_LOG_DB_CONF, "signer_log", h, benchSearchSignerLog)
 	// benchmarkAll(b, VERIFIER_LOG_DB_CONF, "verifier_log", K, benchSearchVerifierLog)
