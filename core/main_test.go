@@ -65,4 +65,7 @@ func TestFailBecauseOfMultiSignature(t *testing.T) {
 	if err == nil {
 		t.Fatalf("%v: ", err)
 	}
+
+	sweepDB(SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH, getBasename(origin, period))
+	sweepDB(VERIFIER_LOG_DB_CONF, VERIFIER_LOG_DB_PATH, getBasename(origin, period))
 }
