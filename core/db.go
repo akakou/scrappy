@@ -34,7 +34,7 @@ var VERIFIER_LOG_DB_CONF = DB{
 	Table:  "VERIFIER_LOG",
 	Column: "K",
 	Size:   44 + 1,
-}4
+}
 
 var VERIFIER_RL_DB_CONF = DB{
 	Table:  "VERIFIER_RL",
