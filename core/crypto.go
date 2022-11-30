@@ -159,15 +159,13 @@ func CryptoSign(basename string) (string, error) {
 
 	encodedSignature := signature.Encode()
 
-	jsonSignature, _ := json.Marshal(encodedSignature)
+	result, _ := json.Marshal(encodedSignature)
 
-	result := base64.StdEncoding.EncodeToString([]byte(jsonSignature))
-
-	return result, nil
+	return string(result), nil
 
 }
 
-func CryptoVerify(base64Signature, basename string, rl ecdaa.RevocationList) error {
+func CryptoVerify(signatureBuf, basename string, rl ecdaa.RevocationList) error {
 	var signature ecdaa.MiddleEncodedSignature
 
 	config, err := readConfig()
@@ -176,13 +174,7 @@ func CryptoVerify(base64Signature, basename string, rl ecdaa.RevocationList) err
 		return err
 	}
 
-	attestBuf, err := base64.StdEncoding.DecodeString(base64Signature)
-
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(attestBuf, &signature)
+	err = json.Unmarshal([]byte(signatureBuf), &signature)
 
 	if err != nil {
 		return err
@@ -203,22 +195,15 @@ func CryptoVerify(base64Signature, basename string, rl ecdaa.RevocationList) err
 	return nil
 }
 
-func GetK(base64Signature string) (string, error) {
+func GetK(signatureBuf string) (string, error) {
 	var signature ecdaa.MiddleEncodedSignature
 
-	attestBuf, err := base64.StdEncoding.DecodeString(base64Signature)
-
-	if err != nil {
-		return "", err
-	}
-
-	err = json.Unmarshal(attestBuf, &signature)
+	err := json.Unmarshal([]byte(signatureBuf), &signature)
 
 	if err != nil {
 		return "nil", err
 	}
 
-	encoded := signature.Decode()
-
-	return curveToBase64(encoded.K), nil
+	result := base64.StdEncoding.EncodeToString(signature.K)
+	return result, nil
 }
