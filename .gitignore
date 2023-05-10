@@ -36,3 +36,4 @@ data
 scrappy/app/src/main/jniLibs/
 
 target
+ndk
