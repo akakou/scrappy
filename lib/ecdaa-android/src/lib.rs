@@ -1,15 +1,8 @@
-use jni::objects::JObject;
-use jni::sys::jstring;
-use jni::JNIEnv;
+pub mod join;
+pub mod utils;
 
-#[no_mangle]
-pub unsafe extern "C" fn Java_com_github_akakou_scrappy_MainActivity_stringFromJNI(
-   env: JNIEnv,
-   _this: JObject,
-) -> jstring {
-   let hello = "Hello from Rust";
+mod android;
+pub use android::*;
 
-   env.new_string(hello)
-       .expect("Couldn't create Java string!")
-       .into_inner()
-}
+#[cfg(test)]
+mod tests;

@@ -10,5 +10,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 jni = "0.19"
-
-
+rand = "0.8.5"
+ecdaa = { git = "https://github.com/akakou/ecdaa-rs", features=["std"] }
+serde_json = "^1.0"
