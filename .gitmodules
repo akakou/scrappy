@@ -1,0 +1,3 @@
+[submodule "lib/thirdparty/ecdaa"]
+	path = crypto/thirdparty/ecdaa
+	url = git@github.com:akakou/ecdaa.git
