@@ -49,7 +49,7 @@ func CryptoSetup() error {
 		return err
 	}
 
-	seed, issuerSession, err := issuer.GenSeedForJoin(rng)
+	seed, issuerB, err := ecdaa.GenJoinSeed(rng)
 	if err != nil {
 		return err
 	}
@@ -62,13 +62,12 @@ func CryptoSetup() error {
 
 	defer tpm.Close()
 
-	member := ecdaa.NewMember(tpm)
-	req, memberSession, err := member.GenReqForJoin(seed, rng)
+	req, handle, err := ecdaa.GenJoinReqWithTPM(seed, tpm, rng)
 	if err != nil {
 		return err
 	}
 
-	cipherCred, err := issuer.MakeCred(req, issuerSession, rng)
+	cipherCred, _, err := issuer.MakeCredEncrypted(req, issuerB, rng)
 	if err != nil {
 		return err
 	}
@@ -76,12 +75,7 @@ func CryptoSetup() error {
 	if err != nil {
 		return err
 	}
-
-	tmp := member
-	member = ecdaa.NewMember(tpm)
-	member.KeyHandles = tmp.KeyHandles
-
-	cred, err := member.ActivateCredential(cipherCred, memberSession, &issuer.Ipk)
+	cred, err := ecdaa.ActivateCredential(cipherCred, req.JoinReq.Proof.B, req.JoinReq.Q, &issuer.Ipk, handle, tpm)
 
 	if err != nil {
 		return err
@@ -91,7 +85,6 @@ func CryptoSetup() error {
 
 	iskBin := issuer.Isk.Encode()
 	ipkBin := issuer.Ipk.Encode()
-	handle := member.KeyHandles.Handle
 
 	config := Config{
 		Cred:       credBin,
@@ -132,24 +125,23 @@ func CryptoSign(basename string) (string, error) {
 		return "", err
 	}
 
-	handle := tpm2.AuthHandle{
+	authHandle := tpm2.AuthHandle{
 		Handle: tpm2.TPMHandle(config.HandleNum),
 		Name: tpm2.TPM2BName{
 			Buffer: config.HandleName,
 		},
 		Auth: tpm2.PasswordAuth([]byte(PASSWORD)),
 	}
-
-	member := ecdaa.NewMember(tpm)
-
-	member.KeyHandles = &ecdaa.KeyHandles{
-		Handle: &handle,
+	handle := ecdaa.KeyHandles{
+		Handle: authHandle,
 	}
 
-	signature, err := member.Sign(
+	signature, err := ecdaa.SignTPM(
 		[]byte{},
 		[]byte(basename),
 		config.Cred.Decode(),
+		handle,
+		tpm,
 		rng,
 	)
 
@@ -204,6 +196,6 @@ func GetK(signatureBuf string) (string, error) {
 		return "nil", err
 	}
 
-	result := base64.StdEncoding.EncodeToString(signature.K)
+	result := base64.StdEncoding.EncodeToString(signature.Proof.K)
 	return result, nil
 }
