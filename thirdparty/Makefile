@@ -5,11 +5,11 @@ all: ./ecdaa64 ./ecdaa32
 
 ./ecdaa64:
 	git clone ${REPOSITORY_URL} ecdaa64 \
-	&& cd ecdaa64/thirdparty && export BITS=64 && make
+	&& cd ecdaa64/thirdparty && make BITS=64
 
 ./ecdaa32:
 	git clone ${REPOSITORY_URL} ecdaa32 \
-	&& cd ecdaa32/thirdparty && export BITS=32 && make
+	&& cd ecdaa32/thirdparty && make BITS=32
  
 clean:
 	rm -rf ./ecdaa64 ./ecdaa32
