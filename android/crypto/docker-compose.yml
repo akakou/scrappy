@@ -1,9 +1,0 @@
-version: '3'
-services:
-  app:
-    build: .
-    command: sh /app/main.sh
-    volumes:
-      - ./:/app
-    command:  bash -c 'go get golang.org/x/mobile/bind && gomobile bind -v -o scrappy_crypto.aar -target=android'
-    working_dir: /app

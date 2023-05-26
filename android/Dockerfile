@@ -68,9 +68,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 VOLUME "/module"
 WORKDIR "/module"
 
-### this is added by akakou
-
-
+### this is added by scrappy author
 
 #ENTRYPOINT ["gomobile"]
 

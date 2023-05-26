@@ -235,3 +235,5 @@ target
 ndk
 *.jar
 *.aar
+
+thirdparty/ecdaa*
