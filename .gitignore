@@ -237,3 +237,6 @@ ndk
 *.aar
 
 thirdparty/ecdaa*
+issuer.json
+signer-tpm.json
+core/verifier.json
