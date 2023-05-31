@@ -1,4 +1,4 @@
-package core
+package scrappy
 
 import (
 	"testing"
@@ -31,7 +31,6 @@ func TestDB(t *testing.T) {
 	}
 
 	err = Insert(db, value)
-
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
