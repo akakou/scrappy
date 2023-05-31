@@ -45,7 +45,7 @@ func TestAndroidAndGin(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	signature, err := AndroidSign("http://localhost:8080", now, signer)
+	signature, err := androidSign("http://localhost:8080", now, signer)
 
 	if err != nil {
 		t.Fatal(err)

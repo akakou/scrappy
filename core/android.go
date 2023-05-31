@@ -1,14 +1,61 @@
 package scrappy
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/akakou/ecdaa"
 	"github.com/akakou/scrappy/crypto"
 )
 
-var AndroidSign = androidSign
-var AndroidJoin = androidJoin
+type AndroidResponse struct {
+	Status string `json:"status"`
+	Buffer []byte `json:"buffer"`
+}
+
+func AndroidJoin(host string, ipk []byte) string {
+	configBuf, err := androidJoin(host, ipk)
+
+	var resp AndroidResponse
+
+	if err != nil {
+		resp = AndroidResponse{
+			Status: "error",
+			Buffer: []byte(err.Error()),
+		}
+	} else {
+		resp = AndroidResponse{
+			Status: "ok",
+			Buffer: configBuf,
+		}
+	}
+
+	r, _ := json.Marshal(&resp)
+
+	return string(r)
+
+}
+
+func AndroidSign(origin string, period int, configBuf []byte) string {
+	signature, err := androidSign(origin, period, configBuf)
+
+	var resp AndroidResponse
+
+	if err != nil {
+		resp = AndroidResponse{
+			Status: "error",
+			Buffer: []byte(err.Error()),
+		}
+	} else {
+		resp = AndroidResponse{
+			Status: "ok",
+			Buffer: []byte(signature),
+		}
+	}
+	r, _ := json.Marshal(&resp)
+
+	return string(r)
+}
 
 func androidJoin(host string, ipk []byte) ([]byte, error) {
 	rng := ecdaa.InitRandom()
