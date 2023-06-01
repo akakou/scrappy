@@ -1,15 +1,26 @@
-package scrappy
+package scrappy_gin
 
 import (
 	"github.com/akakou/ecdaa"
 	"github.com/akakou/scrappy/crypto"
 	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	_ "github.com/mattn/go-sqlite3"
 )
 
-func ServIssuer() {
-	r := ginServ()
+func RunIssuer(template string) {
+	secret := []byte("secret")
+	r := gin.Default()
+	store := cookie.NewStore(secret)
+	r.Use(sessions.Sessions("mysession", store))
+	r.LoadHTMLGlob(template)
+
+	SetupIssuerEndpoints(r)
+
+	r.Run(":8080")
+}
+
+func SetupIssuerEndpoints(r *gin.Engine) {
 	rng := ecdaa.InitRandom()
 	issuer, err := crypto.IssuerFromConfigFile()
 
@@ -46,5 +57,4 @@ func ServIssuer() {
 		c.String(200, "%v", string(cred))
 	})
 
-	r.Run()
 }
