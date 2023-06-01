@@ -7,21 +7,21 @@ import (
 	"github.com/google/go-tpm/tpm2"
 )
 
-func Sign(basename []byte, config *SignerConfig) ([]byte, error) {
+func Sign(basename []byte, config *SignerConfig) (string, error) {
 	rng := ecdaa.InitRandom()
 
 	var cred ecdaa.Credential
 	err := cred.Decode(config.Cred)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	var ipk ecdaa.IPK
 	err = ipk.Decode(config.IPK)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	sk := FP256BN.FromBytes(config.SK)
@@ -35,20 +35,24 @@ func Sign(basename []byte, config *SignerConfig) ([]byte, error) {
 	)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	encodedSignature, err := signature.Encode()
 
-	return encodedSignature, err
+	if err != nil {
+		return "", err
+	}
+
+	return encodeBase64(encodedSignature), err
 }
 
-func SignTPM(basename string, config *SignerConfigTPM) ([]byte, error) {
+func SignTPM(basename string, config *SignerConfigTPM) (string, error) {
 	rng := ecdaa.InitRandom()
 
 	tpm, err := ecdaa.OpenTPM([]byte(PASSWORD), TPM_PATH)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	defer tpm.Close()
@@ -80,20 +84,24 @@ func SignTPM(basename string, config *SignerConfigTPM) ([]byte, error) {
 	)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	encodedSignature, err := signature.Encode()
 
-	return encodedSignature, err
+	if err != nil {
+		return "", err
+	}
+
+	return encodeBase64(encodedSignature), err
 }
 
-func SignTPMWithConfig(basename string) ([]byte, error) {
+func SignTPMWithConfig(basename string) (string, error) {
 	var config SignerConfigTPM
 	err := ReadConfig(&config, SIGNER_TPM_CONFIG_PATH)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	return SignTPM(basename, &config)
