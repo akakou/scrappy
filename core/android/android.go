@@ -1,10 +1,11 @@
-package scrappy
+package android_scrappy
 
 import (
 	"encoding/json"
 	"fmt"
 
 	"github.com/akakou/ecdaa"
+	"github.com/akakou/scrappy"
 	"github.com/akakou/scrappy/crypto"
 )
 
@@ -60,7 +61,7 @@ func AndroidSign(origin string, period int, configBuf []byte) string {
 func androidJoin(host string, ipk []byte) ([]byte, error) {
 	rng := ecdaa.InitRandom()
 
-	config, err := JoinForSigner(host, ipk, rng)
+	config, err := scrappy.JoinForSigner(host, ipk, rng)
 
 	if err != nil {
 		fmt.Printf("err")
@@ -79,17 +80,13 @@ func androidSign(origin string, period int, configBuf []byte) (string, error) {
 		return "", err
 	}
 
-	if !IsValidPeriod(period) {
-		return "", fmt.Errorf("invalid period %d, but now %d", period, Now())
+	if !scrappy.IsValidPeriod(period) {
+		return "", fmt.Errorf("invalid period %d, but now %d", period, scrappy.Now())
 	}
 
-	basename := getBasename(origin, period)
+	basename := scrappy.GetBasename(origin, period)
 
 	signature, err := crypto.Sign([]byte(basename), &config)
 
-	if err != nil {
-		return "", err
-	}
-
-	return encodeBase64(signature), err
+	return signature, err
 }
