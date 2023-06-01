@@ -71,7 +71,7 @@ func Verify(signatureString, origin string, period int) error {
 		return err
 	}
 
-	basename := getBasename(origin, period)
+	basename := GetBasename(origin, period)
 
 	K, err := GetK(signature)
 
@@ -115,7 +115,7 @@ func Verify(signatureString, origin string, period int) error {
 		return fmt.Errorf("can't get RL: %v", err)
 	}
 
-	err = crypto.VerifyWithConfig(signature, []byte(basename), rl)
+	err = crypto.VerifyWithConfig(signatureString, []byte(basename), rl)
 
 	if err != nil {
 		return err
