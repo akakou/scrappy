@@ -1,16 +1,20 @@
-module github.com/akakou/scrappy
+module maingithub.com/akakou/main
 
-go 1.18
+go 1.19
+
+replace github.com/akakou/ecdaa => ../../thirdparty/ecdaa32
+
+replace miracl => ../../thirdparty/ecdaa32/thirdparty/miracl
+
+replace github.com/akakou/scrappy => ../
+
+replace github.com/google/go-tpm => ../../thirdparty/ecdaa32/thirdparty/go-tpm
 
 require (
 	github.com/akakou/ecdaa v0.0.0
-	github.com/google/go-tpm v0.3.3
-)
-
-require (
+	github.com/akakou/scrappy v0.0.0-00010101000000-000000000000
 	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.9.0
-	miracl v0.0.0
 )
 
 require (
@@ -21,6 +25,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.11.2 // indirect
 	github.com/goccy/go-json v0.10.0 // indirect
+	github.com/google/go-tpm v0.3.3 // indirect
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gorilla/sessions v1.2.1 // indirect
@@ -40,10 +45,5 @@ require (
 	golang.org/x/text v0.7.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	miracl v0.0.0 // indirect
 )
-
-replace github.com/akakou/ecdaa => ../thirdparty/ecdaa32
-
-replace miracl => ../thirdparty/ecdaa32/thirdparty/miracl
-
-replace github.com/google/go-tpm => ../thirdparty/ecdaa32/thirdparty/go-tpm
