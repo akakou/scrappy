@@ -33,7 +33,7 @@ services:
     volumes:
       - ./core:/core
       - ./thirdparty:/thirdparty
-    command:  bash -c 'go get golang.org/x/mobile/bind && gomobile bind -v -o scrappy_crypto.aar -target=android'
+    command:  bash -c 'cd /core/android && go get golang.org/x/mobile/bind && gomobile bind -v -o scrappy_crypto.aar -target=android'
     working_dir: /core
     profiles:
       - android_lib
