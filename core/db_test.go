@@ -2,8 +2,6 @@ package scrappy
 
 import (
 	"testing"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func TestDB(t *testing.T) {

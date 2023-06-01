@@ -1,17 +1,20 @@
-package scrappy
+package android_scrappy
 
 import (
 	"testing"
 	"time"
 
 	"github.com/akakou/ecdaa"
+	"github.com/akakou/scrappy"
 	"github.com/akakou/scrappy/crypto"
+	scrappy_gin "github.com/akakou/scrappy/gin"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const WAIT_TIME = 2
 
 func TestAndroidAndGin(t *testing.T) {
-	now := Now()
+	now := scrappy.Now()
 	rng := ecdaa.InitRandom()
 	issuer, err := crypto.SetupIssuer(rng)
 
@@ -35,7 +38,7 @@ func TestAndroidAndGin(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	go ServIssuer()
+	go scrappy_gin.RunIssuer("../templates/*.html")
 
 	time.Sleep(WAIT_TIME * time.Second)
 
@@ -50,7 +53,7 @@ func TestAndroidAndGin(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = Verify(signature, "http://localhost:8080", now)
+	err = scrappy.Verify(signature, "http://localhost:8080", now)
 
 	if err != nil {
 		t.Fatal(err)

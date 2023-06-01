@@ -1,8 +1,9 @@
-package scrappy
+package scrappy_gin
 
 import (
 	"net/http"
 
+	"github.com/akakou/scrappy"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +15,7 @@ func VerifyMiddleware(HOST_NAME string) gin.HandlerFunc {
 
 		attestation := c.PostForm("scrappy")
 
-		err := Verify(attestation, HOST_NAME, int(period))
+		err := scrappy.Verify(attestation, HOST_NAME, int(period))
 
 		if err != nil {
 			c.HTML(http.StatusOK, "error.html", gin.H{

@@ -240,3 +240,6 @@ thirdparty/ecdaa*
 issuer.json
 signer-tpm.json
 core/verifier.json
+core/android/verifier.json
+core/example/main
+core/issuer/main

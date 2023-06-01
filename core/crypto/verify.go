@@ -2,9 +2,14 @@ package crypto
 
 import "github.com/akakou/ecdaa"
 
-func Verify(signatureBuf, basename []byte, rl ecdaa.RevocationList, config *VerifierConfig) error {
+func Verify(signatureString string, basename []byte, rl ecdaa.RevocationList, config *VerifierConfig) error {
+	signatureBuf, err := decodeBase64(signatureString)
+	if err != nil {
+		return err
+	}
+
 	var signature ecdaa.Signature
-	err := signature.Decode(signatureBuf)
+	err = signature.Decode(signatureBuf)
 	if err != nil {
 		return err
 	}
@@ -26,13 +31,13 @@ func Verify(signatureBuf, basename []byte, rl ecdaa.RevocationList, config *Veri
 	return err
 }
 
-func VerifyWithConfig(signatureBuf, basename []byte, rl ecdaa.RevocationList) error {
+func VerifyWithConfig(signatureString string, basename []byte, rl ecdaa.RevocationList) error {
 	var config VerifierConfig
 	err := ReadConfig(&config, VERIFIER_CONFIG_PATH)
 	if err != nil {
 		return err
 	}
 
-	return Verify(signatureBuf, basename, rl, &config)
+	return Verify(signatureString, basename, rl, &config)
 
 }

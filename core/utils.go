@@ -7,15 +7,12 @@ import (
 
 	"github.com/akakou/ecdaa"
 	"github.com/akakou/scrappy/crypto"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
-	"github.com/gin-gonic/gin"
 )
 
 var encodeBase64 = base64.StdEncoding.EncodeToString
 var decodeBase64 = base64.StdEncoding.DecodeString
 
-func getBasename(origin string, period int) string {
+func GetBasename(origin string, period int) string {
 	hashed_origin := hashAndEncodeBase64([]byte(origin))
 	basename := fmt.Sprintf("%v_%v", hashed_origin, period)
 
@@ -44,13 +41,3 @@ func GetK(signatureBuf []byte) (string, error) {
 }
 
 var SetupIssuerAndSave = crypto.SetupIssuerAndSave
-
-func ginServ() *gin.Engine {
-	secret := []byte("secret")
-	r := gin.Default()
-	store := cookie.NewStore(secret)
-	r.Use(sessions.Sessions("mysession", store))
-	r.LoadHTMLGlob("templates/*.html")
-
-	return r
-}
