@@ -1,27 +1,26 @@
 package com.github.akakou.scrappy.stores
 
-import android.security.keystore.KeyGenParameterSpec
-import android.security.keystore.KeyProperties
+import android.content.Context
+import android.security.KeyPairGeneratorSpec
 import android.util.Base64
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
+import java.math.BigInteger
 import java.security.KeyPairGenerator
 import java.security.KeyStore
-import java.security.PrivateKey
+import java.util.*
 import javax.crypto.Cipher
-import javax.crypto.CipherInputStream
-import javax.crypto.CipherOutputStream
+import javax.security.auth.x500.X500Principal
 
-class HighLevelKeyStore (keyAlias: String){
+class HighLevelKeyStore (keyAlias: String, context: Context){
     val KEY_PROVIDER = "AndroidKeyStore"
-    val ALGORITHM = "RSA/ECB/OAEPPadding"
+    val KEY_ALGORITHM = "RSA"
+    val ALGORITHM = "RSA/ECB/PKCS1Padding"
     val keyAlias = keyAlias
+    val context = context
 
     val keyStore = KeyStore.getInstance("AndroidKeyStore")!!
 
     init {
         keyStore.load(null)
-
         createNewKey()
     }
 
@@ -30,20 +29,21 @@ class HighLevelKeyStore (keyAlias: String){
             return
         }
 
-        val keyPairGenerator = KeyPairGenerator.getInstance(
-            KeyProperties.KEY_ALGORITHM_RSA, KEY_PROVIDER
-        )
-        keyPairGenerator.initialize(
-            KeyGenParameterSpec.Builder(
-                keyAlias,
-                KeyProperties.PURPOSE_DECRYPT
-            )
-                .setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_OAEP)
-                .build()
-        )
+        val start = Calendar.getInstance()
+        val end = Calendar.getInstance()
+        end.add(Calendar.YEAR, 100)
 
-        keyPairGenerator.generateKeyPair()
+        val keys = KeyPairGeneratorSpec.Builder(context)
+            .setAlias(keyAlias)
+            .setSubject(X500Principal(String.format("CN=%s", keyAlias)))
+            .setSerialNumber(BigInteger.valueOf(1000000))
+            .setStartDate(start.time)
+            .setEndDate(end.time)
+            .build()
+
+        val keyPairGenerator = KeyPairGenerator.getInstance(KEY_ALGORITHM, KEY_PROVIDER)
+            keyPairGenerator.initialize(keys)
+            keyPairGenerator.generateKeyPair()
     }
 
     fun encrypt(plainText: ByteArray): String {
@@ -51,36 +51,24 @@ class HighLevelKeyStore (keyAlias: String){
 
         val cipher = Cipher.getInstance(ALGORITHM)
         cipher.init(Cipher.ENCRYPT_MODE, publicKey)
+        val bytes = cipher.doFinal(plainText)
 
-        val outputStream = ByteArrayOutputStream()
-        val cipherOutputStream = CipherOutputStream(
-            outputStream, cipher
-        )
-        cipherOutputStream.write(plainText)
-        cipherOutputStream.close()
-
-        val bytes = outputStream.toByteArray()
         return Base64.encodeToString(bytes, Base64.DEFAULT)
     }
 
     fun decrypt(cipherText: String): ByteArray {
-        val privateKey = keyStore.getKey(keyAlias, null) as PrivateKey
+        val keyStore = KeyStore.getInstance(KEY_PROVIDER)
+        keyStore.load(null)
+        if (!keyStore.containsAlias(keyAlias)) {
+            error("there are no ekey")
+        }
 
+        val privateKey = keyStore.getKey(keyAlias, null)
         val cipher = Cipher.getInstance(ALGORITHM)
         cipher.init(Cipher.DECRYPT_MODE, privateKey)
+        val bytes = Base64.decode(cipherText, Base64.DEFAULT)
 
-        val cipherInputStream = CipherInputStream(
-            ByteArrayInputStream(Base64.decode(cipherText, Base64.DEFAULT)), cipher
-        )
-        val outputStream = ByteArrayOutputStream()
-
-        var b: Int
-        while (cipherInputStream.read().also { b = it } != -1) {
-            outputStream.write(b)
-        }
-        outputStream.close()
-
-
-        return outputStream.toByteArray()
+        val b = cipher.doFinal(bytes)
+        return b
     }
 }
