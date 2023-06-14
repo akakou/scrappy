@@ -1,6 +1,8 @@
 package android_scrappy
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -13,20 +15,22 @@ import (
 
 const WAIT_TIME = 2
 
+func checkError(err error, t *testing.T, i int) {
+	if err != nil {
+		t.Fatalf("%d: %v", i, err)
+	}
+}
+
 func TestAndroidAndGin(t *testing.T) {
 	now := scrappy.Now()
 	rng := ecdaa.InitRandom()
 	issuer, err := crypto.SetupIssuer(rng)
 
-	if err != nil {
-		t.Fatal(err)
-	}
+	checkError(err, t, 0)
 
 	err = crypto.WriteConfig(issuer, crypto.ISSUER_CONFIG_PATH)
 
-	if err != nil {
-		t.Fatal(err)
-	}
+	checkError(err, t, 1)
 
 	verifier := crypto.VerifierConfig{
 		IPK: issuer.IPK,
@@ -42,20 +46,29 @@ func TestAndroidAndGin(t *testing.T) {
 
 	time.Sleep(WAIT_TIME * time.Second)
 
-	signer, err := androidJoin("http://127.0.0.1:8080", issuer.IPK)
+	var respJoin AndroidResponse
 
-	if err != nil {
-		t.Fatal(err)
+	base64IPK := base64.StdEncoding.EncodeToString(issuer.IPK)
+
+	respJson := AndroidJoin("http://127.0.0.1:8080", base64IPK)
+	err = json.Unmarshal([]byte(respJson), &respJoin)
+	checkError(err, t, 2)
+	if respJoin.Status != "ok" {
+		t.Fatalf("status should be ok: %v", respJoin.Error)
 	}
 
-	signature, err := androidSign("http://localhost:8080", now, signer)
+	signerConfig := respJoin.Data.(map[string]interface{})
 
-	if err != nil {
-		t.Fatal(err)
+	var respSign AndroidResponse
+	respJson = AndroidSign("http://localhost:8080", now, signerConfig["SK"].(string), signerConfig["Cred"].(string), signerConfig["IPK"].(string))
+	err = json.Unmarshal([]byte(respJson), &respSign)
+	if respSign.Status != "ok" {
+		t.Fatalf("status should be ok: %v", respSign.Error)
 	}
-	err = scrappy.Verify(signature, "http://localhost:8080", now)
+	checkError(err, t, 3)
 
-	if err != nil {
-		t.Fatal(err)
-	}
+	err = scrappy.Verify(respSign.Data.(string), "http://localhost:8080", now)
+
+	checkError(err, t, 4)
+
 }
