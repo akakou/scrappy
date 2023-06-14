@@ -13,6 +13,8 @@ import com.github.akakou.scrappy.stores.Stores
 import kotlinx.coroutines.launch
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+val oneMinute = 60
+val oneSecond = 1000
 
 
 class MainActivity : AppCompatActivity() {
@@ -38,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         val issuerDomain = issuerURLEditText.text.toString()
         val ipk = ipkEditText.text.toString()
 
-        var msg = "ok"
+        var msg = ""
 
          lifecycleScope.launch {
              try {
@@ -47,6 +49,17 @@ class MainActivity : AppCompatActivity() {
                  msg = e.toString()
              }
 
+//             try {
+                 val now = ((System.currentTimeMillis() / oneSecond) / oneMinute) * oneMinute
+                 val msg = scrappySigner.sign("example.com", now)
+//             } catch (e: java.lang.Exception) {
+//                 msg = e.toString()
+//             }
+//
+//             scrappySigner.stores.ipk.store("test")
+//             val msg = scrappySigner.stores.ipk.load()
+//
+////
              resultEditText.setText(msg)
          }
     }
