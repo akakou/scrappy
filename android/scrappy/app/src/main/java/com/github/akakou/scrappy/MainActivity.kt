@@ -49,17 +49,13 @@ class MainActivity : AppCompatActivity() {
                  msg = e.toString()
              }
 
-//             try {
+             try {
                  val now = ((System.currentTimeMillis() / oneSecond) / oneMinute) * oneMinute
                  val msg = scrappySigner.sign("example.com", now)
-//             } catch (e: java.lang.Exception) {
-//                 msg = e.toString()
-//             }
-//
-//             scrappySigner.stores.ipk.store("test")
-//             val msg = scrappySigner.stores.ipk.load()
-//
-////
+             } catch (e: java.lang.Exception) {
+                 msg = e.toString()
+             }
+
              resultEditText.setText(msg)
          }
     }
