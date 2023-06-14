@@ -7,6 +7,7 @@ import (
 	"github.com/akakou/ecdaa"
 	"github.com/akakou/scrappy"
 	"github.com/akakou/scrappy/crypto"
+	"github.com/pkg/errors"
 )
 
 type AndroidResponse struct {
@@ -20,6 +21,7 @@ func AndroidJoin(host string, ipk []byte) string {
 	var resp AndroidResponse
 
 	if err != nil {
+		err = errors.Wrap(err, "android-error")
 		resp = AndroidResponse{
 			Status: "error",
 			Buffer: []byte(err.Error()),
