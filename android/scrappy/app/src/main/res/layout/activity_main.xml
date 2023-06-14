@@ -10,7 +10,43 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:text="IPK"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/ipk_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:minHeight="48dp"
+        android:text="Pv+DAwEBEE1pZGRsZUVuY29kZWRJUEsB/4QAAQUBAVgBCgABAVkBCgABAUMBCgABAlNYAQoAAQJTWQEKAAAA/+//hAFBA7vc8UAgZrWENI8zbFbJFfp7gWYFMjlqFSSVlqdVZSY+CEDkbpwQi1bM8t+YyFuSD451YoIa/Hyif5EH4axF6NUBQQPSFwetCzY+m3muFYJYM+i+TEWkGygz2EEcvnQUK6J30fantPiLdnp32QNlbfO8YQ5+B3MuFlZ1eUqzP5HnPiBAASDf7uHI0eBInUIbT90S5b0TDz8f8IFSZeKQFxQkXZ6CoAEg5+r0xx+0K/+UTUYq65A5Gy1ysckwSNOm4smexqdsB30BIN0o/jVtb1BWVu5epbUa3RD9EWl9WIyCawFM+SiauN26AA==" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Issuer Domain"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/issuer_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:minHeight="48dp"
+        android:text="192.168.10.105:8080" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Result"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,7 +59,8 @@
         android:ems="10"
         android:inputType="textPersonName"
         android:minHeight="48dp"
-        android:text="Name" />
+        android:text="Result shows here" />
+
 
     <Button
         android:id="@+id/button"
