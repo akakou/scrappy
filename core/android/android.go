@@ -1,6 +1,7 @@
 package android_scrappy
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 
@@ -12,65 +13,75 @@ import (
 
 type AndroidResponse struct {
 	Status string `json:"status"`
-	Buffer []byte `json:"buffer"`
+	Error  string `json:"error"`
+	Data   any    `json:"data"`
 }
 
-func buildAndroidMessage(buf []byte, err error) string {
+func buildAndroidMessage(data any, err error) string {
 	var resp AndroidResponse
 
 	if err != nil {
 		err = errors.Wrap(err, "android-error")
 		resp = AndroidResponse{
 			Status: "error",
-			Buffer: []byte(err.Error()),
+			Error:  string(err.Error()),
 		}
 	} else {
 		resp = AndroidResponse{
 			Status: "ok",
-			Buffer: buf,
+			Data:   data,
 		}
 	}
 
 	r, _ := json.Marshal(&resp)
 
 	return string(r)
-
 }
 
-func AndroidJoin(host string, ipk []byte) string {
-	configBuf, err := androidJoin(host, ipk)
-	resp := buildAndroidMessage(configBuf, err)
+func AndroidJoin(host, base64Ipk string) string {
+	config, err := androidJoin(host, base64Ipk)
+	resp := buildAndroidMessage(config, err)
 
 	return resp
 }
 
-func AndroidSign(origin string, period int, configBuf []byte) string {
-	signature, err := androidSign(origin, period, configBuf)
-	resp := buildAndroidMessage([]byte(signature), err)
-
-	return resp
-}
-
-func androidJoin(host string, ipk []byte) ([]byte, error) {
+func androidJoin(host, base64Ipk string) (*crypto.SignerConfig, error) {
 	rng := ecdaa.InitRandom()
 
-	config, err := scrappy.JoinForSigner(host, ipk, rng)
-
+	ipk, err := base64.StdEncoding.DecodeString(base64Ipk)
 	if err != nil {
-		fmt.Printf("err")
 		return nil, err
 	}
 
-	configBuf, err := ecdaa.Encode(config)
-	return configBuf, err
+	config, err := scrappy.JoinForSigner(host, ipk, rng)
+	return config, err
 }
 
-func androidSign(origin string, period int, configBuf []byte) (string, error) {
-	var config crypto.SignerConfig
-	err := ecdaa.Decode(&config, configBuf)
+func AndroidSign(origin string, period int, sk, cred, ipk string) string {
+	signature, err := androidSign(origin, period, sk, cred, ipk)
+	resp := buildAndroidMessage(signature, err)
 
+	return resp
+}
+
+func androidSign(origin string, period int, sk, cred, ipk string) (string, error) {
+	SK, err := base64.StdEncoding.DecodeString(sk)
 	if err != nil {
 		return "", err
+	}
+
+	Cred, err := base64.StdEncoding.DecodeString(cred)
+	if err != nil {
+		return "", err
+	}
+
+	IPK, err := base64.StdEncoding.DecodeString(ipk)
+	if err != nil {
+		return "", err
+	}
+
+	var config = crypto.SignerConfig{
+		IPK: IPK, Cred: Cred, SK: SK,
 	}
 
 	if !scrappy.IsValidPeriod(period) {
