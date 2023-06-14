@@ -15,9 +15,7 @@ type AndroidResponse struct {
 	Buffer []byte `json:"buffer"`
 }
 
-func AndroidJoin(host string, ipk []byte) string {
-	configBuf, err := androidJoin(host, ipk)
-
+func buildAndroidMessage(buf []byte, err error) string {
 	var resp AndroidResponse
 
 	if err != nil {
@@ -29,7 +27,7 @@ func AndroidJoin(host string, ipk []byte) string {
 	} else {
 		resp = AndroidResponse{
 			Status: "ok",
-			Buffer: configBuf,
+			Buffer: buf,
 		}
 	}
 
@@ -39,25 +37,18 @@ func AndroidJoin(host string, ipk []byte) string {
 
 }
 
+func AndroidJoin(host string, ipk []byte) string {
+	configBuf, err := androidJoin(host, ipk)
+	resp := buildAndroidMessage(configBuf, err)
+
+	return resp
+}
+
 func AndroidSign(origin string, period int, configBuf []byte) string {
 	signature, err := androidSign(origin, period, configBuf)
+	resp := buildAndroidMessage([]byte(signature), err)
 
-	var resp AndroidResponse
-
-	if err != nil {
-		resp = AndroidResponse{
-			Status: "error",
-			Buffer: []byte(err.Error()),
-		}
-	} else {
-		resp = AndroidResponse{
-			Status: "ok",
-			Buffer: []byte(signature),
-		}
-	}
-	r, _ := json.Marshal(&resp)
-
-	return string(r)
+	return resp
 }
 
 func androidJoin(host string, ipk []byte) ([]byte, error) {
