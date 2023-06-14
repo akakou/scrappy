@@ -34,13 +34,14 @@ class ScrappySigner(stores: Stores){
         stores.ipk.store(ipk)
     }
 
-    fun sign(origin: String, unixTime: Long): String {
+    suspend fun sign(origin: String, unixTime: Long): String {
         val rawSK = stores.secret.load()
         val cred = stores.cred.load()
         val ipk = stores.ipk.load()
 
         val bytesSK = Base64.encode(rawSK, Base64.DEFAULT)
+        val sk = String(bytesSK)
 
-        return Android_scrappy.androidSign(origin, unixTime, bytesSK.toString(), cred, ipk)
+        return Android_scrappy.androidSign(origin, unixTime, sk, cred, ipk)
     }
 }
