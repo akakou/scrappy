@@ -5,7 +5,7 @@ ENV GO_VERSION 1.20.4
 ENV GOMOBILE_COMMIT e8d11dd
 ENV NDK_LTS_VERSION 23.1.7779620
 ENV SDK_TOOLS_VERSION 8092744
-ENV ANDROID_PLATFORM_VERSION 31
+ENV ANDROID_PLATFORM_VERSION 33
 
 ### Adapted from CircleCI Android docker image ###
 # https://github.com/CircleCI-Public/cimg-android/blob/main/2022.03/Dockerfile
