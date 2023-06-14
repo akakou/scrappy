@@ -5,6 +5,7 @@ import android_scrappy.Android_scrappy
 import com.github.akakou.scrappy.stores.Stores
 import org.json.JSONObject
 
+
 class ScrappySigner(stores: Stores){
     var stores = stores
     var protocol = "https://"
@@ -18,12 +19,12 @@ class ScrappySigner(stores: Stores){
             error("Scrappy not work: $error")
         }
 
-        return jsonObject.getJSONObject("data")
+        return jsonObject
     }
 
     suspend fun join(issuerDomain: String, ipk: String) {
         val response = Android_scrappy.androidJoin("$protocol$issuerDomain", ipk)
-        val config = parseLibraryResponse(response)
+        val config = parseLibraryResponse(response).getJSONObject("data")
 
         val cred = config["Cred"].toString()
         val base64Sk = config["SK"].toString()
@@ -42,6 +43,7 @@ class ScrappySigner(stores: Stores){
         val bytesSK = Base64.encode(rawSK, Base64.DEFAULT)
         val sk = String(bytesSK)
 
-        return Android_scrappy.androidSign(origin, unixTime, sk, cred, ipk)
+        val resp = Android_scrappy.androidSign(origin, unixTime, sk, cred, ipk)
+        return parseLibraryResponse(resp).getString("data")
     }
 }
