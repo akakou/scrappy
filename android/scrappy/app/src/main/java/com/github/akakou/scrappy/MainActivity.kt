@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         resultEditText = findViewById<EditText>(R.id.result_edit_text)
 
         val stores = Stores(this)
-        scrappySigner = ScrappySigner(stores)
+        scrappySigner = ScrappySigner(stores, null)
         scrappySigner.protocol = "http://"
     }
 
@@ -40,18 +40,11 @@ class MainActivity : AppCompatActivity() {
         val issuerDomain = issuerURLEditText.text.toString()
         val ipk = ipkEditText.text.toString()
 
-        var msg = ""
+        var msg = "ok"
 
          lifecycleScope.launch {
              try {
                  scrappySigner.join(issuerDomain, ipk)
-             } catch (e: java.lang.Exception) {
-                 msg = e.toString()
-             }
-
-             try {
-                 val now = ((System.currentTimeMillis() / oneSecond) / oneMinute) * oneMinute
-                 val msg = scrappySigner.sign("example.com", now)
              } catch (e: java.lang.Exception) {
                  msg = e.toString()
              }

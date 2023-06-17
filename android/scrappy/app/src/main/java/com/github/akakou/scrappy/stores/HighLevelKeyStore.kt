@@ -1,5 +1,6 @@
 package com.github.akakou.scrappy.stores
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.security.KeyPairGeneratorSpec
 import android.util.Base64
@@ -24,6 +25,7 @@ class HighLevelKeyStore (keyAlias: String, context: Context){
         createNewKey()
     }
 
+    @SuppressLint("SuspiciousIndentation")
     fun createNewKey() {
         if (keyStore.containsAlias(keyAlias)) {
             return

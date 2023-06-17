@@ -2,13 +2,16 @@ package com.github.akakou.scrappy
 
 import android.util.Base64
 import android_scrappy.Android_scrappy
+import com.github.akakou.scrappy.stores.AppDatabase
+import com.github.akakou.scrappy.stores.SignerLog
 import com.github.akakou.scrappy.stores.Stores
 import org.json.JSONObject
 
 
-class ScrappySigner(stores: Stores){
+class ScrappySigner(stores: Stores, db: AppDatabase?){
     var stores = stores
     var protocol = "https://"
+    var db = db
 
     fun parseLibraryResponse(response: String) : JSONObject {
         val jsonObject = JSONObject(response)
@@ -42,6 +45,19 @@ class ScrappySigner(stores: Stores){
 
         val bytesSK = Base64.encode(rawSK, Base64.DEFAULT)
         val sk = String(bytesSK)
+
+        val basename = "$origin:$unixTime"
+        val logDao = db!!.signerLogDao()
+        val hasExist = logDao.hasExist(basename)
+
+
+        if (hasExist == 1) {
+            error("$basename has exist!")
+        }
+
+        val log = SignerLog(0, basename)
+        logDao.insertAll(log)
+
 
         val resp = Android_scrappy.androidSign(origin, unixTime, sk, cred, ipk)
         return parseLibraryResponse(resp).getString("data")

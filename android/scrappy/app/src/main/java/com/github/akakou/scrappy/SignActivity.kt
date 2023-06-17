@@ -8,8 +8,13 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
+import com.github.akakou.scrappy.stores.AppDatabase
+import com.github.akakou.scrappy.stores.SignerLog
 import com.github.akakou.scrappy.stores.Stores
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlin.concurrent.thread
 
 
 class SignActivity : AppCompatActivity() {
@@ -18,15 +23,24 @@ class SignActivity : AppCompatActivity() {
     var timestamp : Long = 0
     lateinit var scrappySigner: ScrappySigner
 
+    lateinit var db: AppDatabase
+    var allLogs: List<SignerLog>? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign)
+
+        db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "database-name"
+        ).build()
+
 
         val i = intent
         val urlString = i.dataString
 
         val stores = Stores(this)
-        scrappySigner = ScrappySigner(stores)
+        scrappySigner = ScrappySigner(stores, db)
         scrappySigner.protocol = "http://"
 
         val uri = Uri.parse(urlString)
@@ -38,21 +52,41 @@ class SignActivity : AppCompatActivity() {
         timestamp = uri.getQueryParameter("timestamp")?.toLong()!!
 
         button.text = "Do you come from ${callback} ?"
+
+        thread {
+            allLogs = db.signerLogDao().getAll()
+        }
     }
 
     fun onClick(view : View) {
-        lifecycleScope.launch {
+        var msg = ""
+        for(log in allLogs!!) {
+            msg += "log: $log\n"
+        }
+        Toast.makeText(this@SignActivity, msg, Toast.LENGTH_SHORT).show()
+
+
+        GlobalScope.launch {
             var signature = ""
+            var errorMsg = ""
             try {
                 signature = scrappySigner.sign(callback, timestamp)
             } catch (e: java.lang.Exception) {
-                Toast.makeText(this@SignActivity, "error: ${e.toString()}", Toast.LENGTH_LONG).show()
+                errorMsg = e.toString()
             }
 
-            val url = "${scrappySigner.protocol}${callback}#${signature}"
+            lifecycleScope.launch {
+                if (errorMsg != "") {
+                    Toast.makeText(this@SignActivity, "error: $errorMsg", Toast.LENGTH_LONG).show()
+                    return@launch
+                }
 
-            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            startActivity(browserIntent)
+                val url = "${scrappySigner.protocol}${callback}#${signature}"
+
+                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                startActivity(browserIntent)
+            }
+
         }
     }
 }

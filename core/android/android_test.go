@@ -49,7 +49,7 @@ func TestAndroidAndGin(t *testing.T) {
 	var respJoin AndroidResponse
 
 	base64IPK := base64.StdEncoding.EncodeToString(issuer.IPK)
-
+	
 	respJson := AndroidJoin("http://127.0.0.1:8080", base64IPK)
 	err = json.Unmarshal([]byte(respJson), &respJoin)
 	checkError(err, t, 2)
