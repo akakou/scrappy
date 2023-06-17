@@ -14,12 +14,13 @@ import com.github.akakou.scrappy.stores.SignerLog
 import com.github.akakou.scrappy.stores.Stores
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.net.URL
 import kotlin.concurrent.thread
 
 
 class SignActivity : AppCompatActivity() {
     lateinit var callback: String
-    lateinit var parsedCallback: Uri
+    lateinit var parsedCallback: URL
     var timestamp : Long = 0
     lateinit var scrappySigner: ScrappySigner
 
@@ -41,17 +42,15 @@ class SignActivity : AppCompatActivity() {
 
         val stores = Stores(this)
         scrappySigner = ScrappySigner(stores, db)
-        scrappySigner.protocol = "http://"
 
         val uri = Uri.parse(urlString)
         val button = findViewById<Button>(R.id.callback_check_button)
 
         callback = uri.getQueryParameter("callback")!!
-        parsedCallback = Uri.parse(callback)
+        parsedCallback = URL(callback)
 
         timestamp = uri.getQueryParameter("timestamp")?.toLong()!!
-
-        button.text = "Do you come from ${callback} ?"
+        button.text = "Do you come from ${parsedCallback.host} ?"
 
         thread {
             allLogs = db.signerLogDao().getAll()
@@ -81,7 +80,8 @@ class SignActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                val url = "${scrappySigner.protocol}${callback}#${signature}"
+                val url = "${callback}#${signature}"
+                Toast.makeText(this@SignActivity,"url: $url", Toast.LENGTH_SHORT).show()
 
                 val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 startActivity(browserIntent)
