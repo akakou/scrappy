@@ -1,68 +1,100 @@
 package scrappy
 
 import (
+	"encoding/base64"
 	"fmt"
 
 	"github.com/akakou/scrappy/crypto"
 )
 
-// func Sign(origin string, period int, skString, credString, ipkString string) (string, error) {
-// 	ipk, err := base64.RawStdEncoding.DecodeString(skString)
-// 	if err != nil {
-// 		return "", err
-// 	}
+func SignWithoutDB(origin string, period int, sk, cred, ipk string) (string, error) {
+	SK, err := base64.StdEncoding.DecodeString(sk)
+	if err != nil {
+		return "", err
+	}
 
-// 	cred, err := base64.RawStdEncoding.DecodeString(credString)
-// 	if err != nil {
-// 		return "", err
-// 	}
+	Cred, err := base64.StdEncoding.DecodeString(cred)
+	if err != nil {
+		return "", err
+	}
 
-// 	sk, err := base64.RawStdEncoding.DecodeString(ipkString)
-// 	if err != nil {
-// 		return "", err
-// 	}
+	IPK, err := base64.StdEncoding.DecodeString(ipk)
+	if err != nil {
+		return "", err
+	}
 
-// 	config := crypto.SignerConfig{
-// 		IPK:  ipk,
-// 		Cred: cred,
-// 		SK:   sk,
-// 	}
+	var config = crypto.SignerConfig{
+		IPK: IPK, Cred: Cred, SK: SK,
+	}
 
-// 	db, err := SetupDB(SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH)
+	if !IsValidPeriod(period) {
+		return "", fmt.Errorf("invalid period %d, but now %d", period, Now())
+	}
 
-// 	if err != nil {
-// 		return "", err
-// 	}
+	basename := GetBasename(origin, period)
 
-// 	defer db.DB.Close()
+	signature, err := crypto.Sign([]byte(basename), &config)
 
-// 	if !IsValidPeriod(period) {
-// 		return "", fmt.Errorf("invalid period %d, but now %d", period, Now())
-// 	}
+	return signature, err
+}
 
-// 	basename := getBasename(origin, period)
+func Sign(origin string, period int, skString, credString, ipkString string) (string, error) {
+	ipk, err := base64.RawStdEncoding.DecodeString(skString)
+	if err != nil {
+		return "", err
+	}
 
-// 	hasExist, err := HasExist(db, basename)
+	cred, err := base64.RawStdEncoding.DecodeString(credString)
+	if err != nil {
+		return "", err
+	}
 
-// 	if err != nil {
-// 		return "", fmt.Errorf("has exist: %v", err)
-// 	}
+	sk, err := base64.RawStdEncoding.DecodeString(ipkString)
+	if err != nil {
+		return "", err
+	}
 
-// 	if hasExist {
-// 		return "", fmt.Errorf(HAS_EXIST_ERROR, basename)
-// 	}
+	config := crypto.SignerConfig{
+		IPK:  ipk,
+		Cred: cred,
+		SK:   sk,
+	}
 
-// 	signature, err := crypto.Sign(basename, &config)
+	db, err := SetupDB(SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH)
 
-// 	if err != nil {
-// 		return "", err
-// 	}
+	if err != nil {
+		return "", err
+	}
 
-// 	err = Insert(db, basename)
+	defer db.DB.Close()
 
-// 	return signature, err
+	if !IsValidPeriod(period) {
+		return "", fmt.Errorf("invalid period %d, but now %d", period, Now())
+	}
 
-// }
+	basename := GetBasename(origin, period)
+
+	hasExist, err := HasExist(db, basename)
+
+	if err != nil {
+		return "", fmt.Errorf("has exist: %v", err)
+	}
+
+	if hasExist {
+		return "", fmt.Errorf(HAS_EXIST_ERROR, basename)
+	}
+
+	signature, err := crypto.Sign([]byte(basename), &config)
+
+	if err != nil {
+		return "", err
+	}
+
+	err = Insert(db, basename)
+
+	return signature, err
+
+}
 
 func Verify(signatureString, origin string, period int) error {
 	signature, err := decodeBase64(signatureString)

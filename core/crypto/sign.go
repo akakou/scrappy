@@ -4,11 +4,13 @@ import (
 	"miracl/core/FP256BN"
 
 	"github.com/akakou/ecdaa"
+	"github.com/akakou/ecdaa/tpm_utils"
+	"github.com/akakou/mcl_utils"
 	"github.com/google/go-tpm/tpm2"
 )
 
 func Sign(basename []byte, config *SignerConfig) (string, error) {
-	rng := ecdaa.InitRandom()
+	rng := mcl_utils.InitRandom()
 
 	var cred ecdaa.Credential
 	err := cred.Decode(config.Cred)
@@ -26,11 +28,11 @@ func Sign(basename []byte, config *SignerConfig) (string, error) {
 
 	sk := FP256BN.FromBytes(config.SK)
 
-	signature, err := ecdaa.Sign(
+	signer := ecdaa.NewSWSigner(&cred, sk)
+
+	signature, err := signer.Sign(
 		[]byte{},
 		basename,
-		sk,
-		&cred,
 		rng,
 	)
 
@@ -48,9 +50,9 @@ func Sign(basename []byte, config *SignerConfig) (string, error) {
 }
 
 func SignTPM(basename string, config *SignerConfigTPM) (string, error) {
-	rng := ecdaa.InitRandom()
+	rng := mcl_utils.InitRandom()
 
-	tpm, err := ecdaa.OpenTPM([]byte(PASSWORD), TPM_PATH)
+	tpm, err := tpm_utils.OpenTPM([]byte(PASSWORD), TPM_PATH)
 	if err != nil {
 		return "", err
 	}
@@ -74,12 +76,11 @@ func SignTPM(basename string, config *SignerConfigTPM) (string, error) {
 	var cred ecdaa.Credential
 	cred.Decode(config.Cred)
 
-	signature, err := ecdaa.SignTPM(
+	signer := ecdaa.NewTPMSigner(&cred, &handle, tpm)
+
+	signature, err := signer.Sign(
 		[]byte{},
 		[]byte(basename),
-		&cred,
-		&handle,
-		tpm,
 		rng,
 	)
 
@@ -96,13 +97,13 @@ func SignTPM(basename string, config *SignerConfigTPM) (string, error) {
 	return encodeBase64(encodedSignature), err
 }
 
-func SignTPMWithConfig(basename string) (string, error) {
-	var config SignerConfigTPM
-	err := ReadConfig(&config, SIGNER_TPM_CONFIG_PATH)
+// func SignTPMWithConfig(basename string) (string, error) {
+// 	var config SignerConfigTPM
+// 	err := ReadConfig(&config, SIGNER_TPM_CONFIG_PATH)
 
-	if err != nil {
-		return "", err
-	}
+// 	if err != nil {
+// 		return "", err
+// 	}
 
-	return SignTPM(basename, &config)
-}
+// 	return SignTPM(basename, &config)
+// }

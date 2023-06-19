@@ -1,7 +1,7 @@
 package scrappy_gin
 
 import (
-	"github.com/akakou/ecdaa"
+	"github.com/akakou/mcl_utils"
 	"github.com/akakou/scrappy/crypto"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -21,7 +21,7 @@ func RunIssuer(template string) {
 }
 
 func SetupIssuerEndpoints(r *gin.Engine) {
-	rng := ecdaa.InitRandom()
+	rng := mcl_utils.InitRandom()
 	issuer, err := crypto.IssuerFromConfigFile()
 
 	if err != nil {

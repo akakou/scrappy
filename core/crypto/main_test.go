@@ -4,10 +4,11 @@ import (
 	"testing"
 
 	"github.com/akakou/ecdaa"
+	"github.com/akakou/mcl_utils"
 )
 
 func TestSW(t *testing.T) {
-	rng := ecdaa.InitRandom()
+	rng := mcl_utils.InitRandom()
 	issuerConf, err := SetupIssuerAndSave(rng)
 
 	if err != nil {

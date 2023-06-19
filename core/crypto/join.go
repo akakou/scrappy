@@ -6,6 +6,7 @@ import (
 	"miracl/core/FP256BN"
 
 	"github.com/akakou/ecdaa"
+	"github.com/akakou/ecdaa/tpm_utils"
 )
 
 func GenSeed(rng *core.RAND) ([]byte, []byte, error) {
@@ -103,7 +104,7 @@ func MakeCredWithTPM(joinReqBuf []byte, issuerBBuf []byte, rng *core.RAND) ([]by
 }
 
 func JoinTPM(issuer *ecdaa.Issuer, rng *core.RAND) (*SignerConfigTPM, error) {
-	tpm, err := ecdaa.OpenTPM([]byte(PASSWORD), TPM_PATH)
+	tpm, err := tpm_utils.OpenTPM([]byte(PASSWORD), TPM_PATH)
 
 	if err != nil {
 		return nil, err

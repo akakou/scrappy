@@ -8,8 +8,10 @@ require (
 )
 
 require (
+	github.com/akakou/mcl_utils v0.0.0
 	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.9.0
+	// github.com/akakou/ecdaa/tpm_utils v0.0.0
 	miracl v0.0.0
 )
 
@@ -44,6 +46,10 @@ require (
 
 replace github.com/akakou/ecdaa => ../thirdparty/ecdaa32
 
+// replace github.com/akakou/ecdaa/tpm_utils => ../thirdparty/ecdaa32/tpm_utils
+
 replace miracl => ../thirdparty/ecdaa32/thirdparty/miracl
 
 replace github.com/google/go-tpm => ../thirdparty/ecdaa32/thirdparty/go-tpm
+
+replace github.com/akakou/mcl_utils => ../thirdparty/ecdaa32/mcl_utils
