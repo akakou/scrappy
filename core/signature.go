@@ -7,7 +7,7 @@ import (
 	"github.com/akakou/scrappy/ecdaa_helper"
 )
 
-func Sign(origin string, period int, config *ecdaa_helper.SignerConfig) (string, error) {
+func Sign(origin string, period int, signer ecdaa.Signer) (string, error) {
 	db, err := SetupDB(SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH)
 
 	if err != nil {
@@ -23,12 +23,6 @@ func Sign(origin string, period int, config *ecdaa_helper.SignerConfig) (string,
 	basename := GetBasename(origin, period)
 
 	err = CheckBasenameExists(basename, db)
-	if err != nil {
-		return "", err
-	}
-
-	signer, err := ecdaa_helper.PrepareSWSigner(config)
-
 	if err != nil {
 		return "", err
 	}
