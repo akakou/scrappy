@@ -47,16 +47,13 @@ func SetupIssuerAndSave(rng *core.RAND) (*IssuerConfig, error) {
 	return issuerConfig, err
 }
 
-// var SignerSetup = Join
+func VerifierAndSave(isser *IssuerConfig) (*VerifierConfig, error) {
+	verifierConfig := VerifierConfig{
+		IPK: isser.IPK,
+		RL:  [][]byte{},
+	}
 
-// func SignerSetupAndSave(rng *core.RAND, issuer *ecdaa.Issuer) error {
-// 	signerConfig, err := SignerSetup(rng, issuer)
+	err := WriteConfig(verifierConfig, VERIFIER_CONFIG_PATH)
 
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	err = writeConfig(signerConfig, SIGNER_CONFIG_PATH)
-
-// 	return err
-// }
+	return &verifierConfig, err
+}

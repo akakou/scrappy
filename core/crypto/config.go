@@ -50,6 +50,7 @@ type SignerConfig struct {
 
 type VerifierConfig struct {
 	IPK []byte
+	RL  [][]byte
 }
 
 func ReadConfig[T any](config T, path string) error {
