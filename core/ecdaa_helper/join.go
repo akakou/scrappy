@@ -1,4 +1,4 @@
-package crypto
+package ecdaa_helper
 
 import (
 	"fmt"

@@ -2,7 +2,7 @@ package scrappy_gin
 
 import (
 	"github.com/akakou/mcl_utils"
-	"github.com/akakou/scrappy/crypto"
+	"github.com/akakou/scrappy/ecdaa_helper"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -22,7 +22,7 @@ func RunIssuer(template string) {
 
 func SetupIssuerEndpoints(r *gin.Engine) {
 	rng := mcl_utils.InitRandom()
-	issuer, err := crypto.IssuerFromConfigFile()
+	issuer, err := ecdaa_helper.IssuerFromConfigFile()
 
 	if err != nil {
 		panic(err)
@@ -31,7 +31,7 @@ func SetupIssuerEndpoints(r *gin.Engine) {
 	r.GET("/gen_seed", func(c *gin.Context) {
 		session := sessions.Default(c)
 
-		seed, issuerB, err := crypto.GenSeed(rng)
+		seed, issuerB, err := ecdaa_helper.GenSeed(rng)
 		if err != nil {
 			panic(err)
 		}
@@ -49,7 +49,7 @@ func SetupIssuerEndpoints(r *gin.Engine) {
 		joinReq := c.PostForm("join_req")
 		issuerB := session.Get("issuerB").(string)
 
-		cred, err := crypto.MakeCred([]byte(joinReq), []byte(issuerB), issuer, rng)
+		cred, err := ecdaa_helper.MakeCred([]byte(joinReq), []byte(issuerB), issuer, rng)
 		if err != nil {
 			panic(err)
 		}

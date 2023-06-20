@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/akakou/ecdaa"
-	"github.com/akakou/scrappy/crypto"
+	"github.com/akakou/scrappy/ecdaa_helper"
 )
 
 var encodeBase64 = base64.StdEncoding.EncodeToString
@@ -33,7 +33,7 @@ func GetKBytes(signature *ecdaa.Signature) string {
 	return result
 }
 
-var SetupIssuerAndSave = crypto.SetupIssuerAndSave
+var SetupIssuerAndSave = ecdaa_helper.SetupIssuerAndSave
 
 func CheckBasenameExists(basename string, db *DB) error {
 	hasExist, err := HasExist(db, basename)

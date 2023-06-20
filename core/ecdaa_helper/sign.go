@@ -1,4 +1,4 @@
-package crypto
+package ecdaa_helper
 
 import (
 	"miracl/core/FP256BN"

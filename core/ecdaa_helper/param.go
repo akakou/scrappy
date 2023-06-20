@@ -1,4 +1,4 @@
-package crypto
+package ecdaa_helper
 
 var ISSUER_CONFIG_PATH = "../issuer.json"
 var SIGNER_TPM_CONFIG_PATH = "../signer-tpm.json"

@@ -1,4 +1,4 @@
-package crypto
+package ecdaa_helper
 
 import "github.com/akakou/ecdaa"
 
