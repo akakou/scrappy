@@ -1,8 +1,9 @@
-package crypto
+package ecdaa_helper
 
 import (
 	"testing"
 
+	"github.com/akakou/ecdaa"
 	"github.com/akakou/mcl_utils"
 )
 
@@ -74,7 +75,13 @@ func TestSW(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = VerifyWithConfig(signature, []byte("basename"))
+	ipk, rl, err := PrepareVerifierConfig()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = ecdaa.Verify([]byte{}, []byte("basename"), signature, ipk, *rl)
 
 	if err != nil {
 		t.Fatal(err)

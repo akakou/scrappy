@@ -3,10 +3,11 @@ package scrappy
 import (
 	"fmt"
 
-	"github.com/akakou/scrappy/crypto"
+	"github.com/akakou/ecdaa"
+	"github.com/akakou/scrappy/ecdaa_helper"
 )
 
-func Sign(origin string, period int, config *crypto.SignerConfig) (string, error) {
+func Sign(origin string, period int, config *ecdaa_helper.SignerConfig) (string, error) {
 	db, err := SetupDB(SIGNER_LOG_DB_CONF, SIGNER_LOG_DB_PATH)
 
 	if err != nil {
@@ -26,13 +27,13 @@ func Sign(origin string, period int, config *crypto.SignerConfig) (string, error
 		return "", err
 	}
 
-	signer, err := crypto.PrepareSWSigner(config)
+	signer, err := ecdaa_helper.PrepareSWSigner(config)
 
 	if err != nil {
 		return "", err
 	}
 
-	signature, err := crypto.SignWithEncoding(basename, signer)
+	signature, err := ecdaa_helper.SignWithEncoding(basename, signer)
 
 	if err != nil {
 		return "", err
@@ -44,7 +45,7 @@ func Sign(origin string, period int, config *crypto.SignerConfig) (string, error
 }
 
 func Verify(signatureString, origin string, period int) error {
-	signature, err := crypto.DecodeSignature(signatureString)
+	signature, err := ecdaa_helper.DecodeSignature(signatureString)
 
 	if err != nil {
 		return err
@@ -84,7 +85,13 @@ func Verify(signatureString, origin string, period int) error {
 		return fmt.Errorf(HAS_EXIST_ERROR, signature)
 	}
 
-	err = crypto.VerifyWithConfig(signature, []byte(basename))
+	ipk, rl, err := ecdaa_helper.PrepareVerifierConfig()
+
+	if err != nil {
+		return err
+	}
+
+	err = ecdaa.Verify([]byte{}, []byte(basename), signature, ipk, *rl)
 
 	if err != nil {
 		return err

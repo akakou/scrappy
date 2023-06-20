@@ -7,10 +7,10 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 
-	"github.com/akakou/scrappy/crypto"
+	"github.com/akakou/scrappy/ecdaa_helper"
 )
 
-func JoinForSigner(HOST string, IPKBuf []byte, rng *core.RAND) (*crypto.SignerConfig, error) {
+func JoinForSigner(HOST string, IPKBuf []byte, rng *core.RAND) (*ecdaa_helper.SignerConfig, error) {
 	jar, err := cookiejar.New(nil)
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func JoinForSigner(HOST string, IPKBuf []byte, rng *core.RAND) (*crypto.SignerCo
 		return nil, err
 	}
 
-	req, sk, err := crypto.GenJoinReq(seed, rng)
+	req, sk, err := ecdaa_helper.GenJoinReq(seed, rng)
 
 	if err != nil {
 		return nil, err
@@ -53,13 +53,13 @@ func JoinForSigner(HOST string, IPKBuf []byte, rng *core.RAND) (*crypto.SignerCo
 		return nil, err
 	}
 
-	err = crypto.VerifyCred(cred, IPKBuf)
+	err = ecdaa_helper.VerifyCred(cred, IPKBuf)
 
 	if err != nil {
 		return nil, err
 	}
 
-	config := crypto.SignerConfig{
+	config := ecdaa_helper.SignerConfig{
 		IPK:  IPKBuf,
 		Cred: cred,
 		SK:   sk,
