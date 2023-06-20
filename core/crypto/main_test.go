@@ -3,13 +3,18 @@ package crypto
 import (
 	"testing"
 
-	"github.com/akakou/ecdaa"
 	"github.com/akakou/mcl_utils"
 )
 
 func TestSW(t *testing.T) {
 	rng := mcl_utils.InitRandom()
 	issuerConf, err := SetupIssuerAndSave(rng)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = VerifierAndSave(issuerConf)
 
 	if err != nil {
 		t.Fatal(err)
@@ -51,17 +56,25 @@ func TestSW(t *testing.T) {
 		SK:   sk,
 	}
 
-	signature, err := SWSign("basename", &singerConfig)
+	signer, err := PrepareSWSigner(&singerConfig)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	verifierConfig := VerifierConfig{
-		IPK: issuerConf.IPK,
+	sigantureStr, err := SignWithEncoding("basename", signer)
+
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	err = Verify(signature, []byte("basename"), ecdaa.RevocationList{}, &verifierConfig)
+	signature, err := DecodeSignature(sigantureStr)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = VerifyWithConfig(signature, []byte("basename"))
 
 	if err != nil {
 		t.Fatal(err)
