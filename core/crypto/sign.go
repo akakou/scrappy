@@ -9,27 +9,20 @@ import (
 	"github.com/google/go-tpm/tpm2"
 )
 
-func SWSign(basename string, config *SignerConfig) (string, error) {
+func PrepareSWSigner(config *SignerConfig) (*ecdaa.SWSigner, error) {
 	sk := FP256BN.FromBytes(config.SK)
 
 	var cred ecdaa.Credential
 	err := cred.Decode(config.Cred)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	signer := ecdaa.NewSWSigner(&cred, sk)
-	return coreSign(basename, signer)
+	return &signer, nil
 }
 
-func TPMSign(basename string, config *SignerConfigTPM) (string, error) {
-	tpm, err := tpm_utils.OpenTPM([]byte(PASSWORD), TPM_PATH)
-	if err != nil {
-		return "", err
-	}
-
-	defer tpm.Close()
-
+func PrepareTPMSigner(tpm *tpm_utils.TPM, config *SignerConfigTPM) (*ecdaa.TPMSigner, error) {
 	authHandle := tpm2.AuthHandle{
 		Handle: tpm2.TPMHandle(config.HandleNum),
 		Name: tpm2.TPM2BName{
@@ -45,28 +38,27 @@ func TPMSign(basename string, config *SignerConfigTPM) (string, error) {
 	}
 
 	var cred ecdaa.Credential
-	err = cred.Decode(config.Cred)
+	err := cred.Decode(config.Cred)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	signer := ecdaa.NewTPMSigner(&cred, &handle, tpm)
-
-	return coreSign(basename, &signer)
+	return &signer, nil
 }
 
-func TPMSignWithConfig(basename string) (string, error) {
+func PrepareTPMSignerFromFile(tpm *tpm_utils.TPM) (*ecdaa.TPMSigner, error) {
 	var config SignerConfigTPM
 	err := ReadConfig(&config, SIGNER_TPM_CONFIG_PATH)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return TPMSign(basename, &config)
+	return PrepareTPMSigner(tpm, &config)
 }
 
-func coreSign(basename string, signer ecdaa.Signer) (string, error) {
+func SignWithEncoding(basename string, signer ecdaa.Signer) (string, error) {
 	rng := mcl_utils.InitRandom()
 
 	signature, err := signer.Sign(
