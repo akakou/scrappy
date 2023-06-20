@@ -9,49 +9,20 @@ import (
 	"github.com/google/go-tpm/tpm2"
 )
 
-func Sign(basename []byte, config *SignerConfig) (string, error) {
-	rng := mcl_utils.InitRandom()
+func SWSign(basename string, config *SignerConfig) (string, error) {
+	sk := FP256BN.FromBytes(config.SK)
 
 	var cred ecdaa.Credential
 	err := cred.Decode(config.Cred)
-
 	if err != nil {
 		return "", err
 	}
-
-	var ipk ecdaa.IPK
-	err = ipk.Decode(config.IPK)
-
-	if err != nil {
-		return "", err
-	}
-
-	sk := FP256BN.FromBytes(config.SK)
 
 	signer := ecdaa.NewSWSigner(&cred, sk)
-
-	signature, err := signer.Sign(
-		[]byte{},
-		basename,
-		rng,
-	)
-
-	if err != nil {
-		return "", err
-	}
-
-	encodedSignature, err := signature.Encode()
-
-	if err != nil {
-		return "", err
-	}
-
-	return encodeBase64(encodedSignature), err
+	return coreSign(basename, signer)
 }
 
-func SignTPM(basename string, config *SignerConfigTPM) (string, error) {
-	rng := mcl_utils.InitRandom()
-
+func TPMSign(basename string, config *SignerConfigTPM) (string, error) {
 	tpm, err := tpm_utils.OpenTPM([]byte(PASSWORD), TPM_PATH)
 	if err != nil {
 		return "", err
@@ -74,9 +45,29 @@ func SignTPM(basename string, config *SignerConfigTPM) (string, error) {
 	}
 
 	var cred ecdaa.Credential
-	cred.Decode(config.Cred)
+	err = cred.Decode(config.Cred)
+	if err != nil {
+		return "", err
+	}
 
 	signer := ecdaa.NewTPMSigner(&cred, &handle, tpm)
+
+	return coreSign(basename, &signer)
+}
+
+func TPMSignWithConfig(basename string) (string, error) {
+	var config SignerConfigTPM
+	err := ReadConfig(&config, SIGNER_TPM_CONFIG_PATH)
+
+	if err != nil {
+		return "", err
+	}
+
+	return TPMSign(basename, &config)
+}
+
+func coreSign(basename string, signer ecdaa.Signer) (string, error) {
+	rng := mcl_utils.InitRandom()
 
 	signature, err := signer.Sign(
 		[]byte{},
@@ -96,14 +87,3 @@ func SignTPM(basename string, config *SignerConfigTPM) (string, error) {
 
 	return encodeBase64(encodedSignature), err
 }
-
-// func SignTPMWithConfig(basename string) (string, error) {
-// 	var config SignerConfigTPM
-// 	err := ReadConfig(&config, SIGNER_TPM_CONFIG_PATH)
-
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return SignTPM(basename, &config)
-// }

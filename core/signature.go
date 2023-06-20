@@ -33,7 +33,7 @@ func SignWithoutDB(origin string, period int, sk, cred, ipk string) (string, err
 
 	basename := GetBasename(origin, period)
 
-	signature, err := crypto.Sign([]byte(basename), &config)
+	signature, err := crypto.SWSign(basename, &config)
 
 	return signature, err
 }
@@ -84,7 +84,7 @@ func Sign(origin string, period int, skString, credString, ipkString string) (st
 		return "", fmt.Errorf(HAS_EXIST_ERROR, basename)
 	}
 
-	signature, err := crypto.Sign([]byte(basename), &config)
+	signature, err := crypto.SWSign(basename, &config)
 
 	if err != nil {
 		return "", err
@@ -93,7 +93,6 @@ func Sign(origin string, period int, skString, credString, ipkString string) (st
 	err = Insert(db, basename)
 
 	return signature, err
-
 }
 
 func Verify(signatureString, origin string, period int) error {

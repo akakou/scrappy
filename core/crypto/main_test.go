@@ -51,7 +51,7 @@ func TestSW(t *testing.T) {
 		SK:   sk,
 	}
 
-	signature, err := Sign([]byte("basename"), &singerConfig)
+	signature, err := SWSign("basename", &singerConfig)
 
 	if err != nil {
 		t.Fatal(err)
