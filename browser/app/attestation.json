@@ -1,9 +1,0 @@
-{
-    "name": "com.akakou.attestation",
-    "description": "Practically secure \"Not DoS Attack\" attestation.",
-    "path": "/attestation/signer/app/m",
-    "type": "stdio",
-    "allowed_origins": [
-        "chrome-extension://ejladkmnjcpeaiiakeimngfhkaeojdog/"
-    ]
-}

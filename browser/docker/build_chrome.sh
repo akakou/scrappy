@@ -7,6 +7,6 @@ apt-get install -y python3 python3-pip
 #pip3 install selenium chromedriver-binary sqlalchemy
 apt-get install gcc
 
-useradd -m -u 1000 attestation
-mkdir -p /attestation
-chown attestation /attestation -R
+useradd -m -u 1000 scrappy
+mkdir -p /scrappy
+chown scrappy /scrappy -R
