@@ -9,24 +9,24 @@ import (
 	"log"
 
 	"github.com/akakou/ecdaa"
-	"github.com/akakou/scrappy/crypto"
+	"github.com/akakou/scrappy/ecdaa_helper"
 )
 
 func SetupAllTPM() {
 	rng := ecdaa.InitRandom()
-	issuerConfig, err := crypto.SetupIssuerAndSave(rng)
+	issuerConfig, err := ecdaa_helper.SetupIssuerAndSave(rng)
 
 	if err != nil {
 		log.Fatalf("setup issuer: %v\n", err)
 	}
 
-	issuer, err := crypto.IssuerFromConfig(issuerConfig)
+	issuer, err := ecdaa_helper.IssuerFromConfig(issuerConfig)
 
 	if err != nil {
 		log.Fatalf("setup issuer: %v\n", err)
 	}
 
-	err = crypto.SignerTPMSetupAndSave(rng, issuer)
+	err = ecdaa_helper.SignerTPMSetupAndSave(rng, issuer)
 
 	if err != nil {
 		log.Fatalf("setup issuer: %v\n", err)
@@ -59,7 +59,7 @@ func SignTPM(origin string, period int) (string, error) {
 		return "", fmt.Errorf(HAS_EXIST_ERROR, basename)
 	}
 
-	signature, err := crypto.SignTPMWithConfig(basename)
+	signature, err := ecdaa_helper.SignTPMWithConfig(basename)
 
 	if err != nil {
 		return "", err

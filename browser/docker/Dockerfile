@@ -10,5 +10,5 @@ RUN sh build_chrome.sh
 # ADD /dev/tpm0
 # RUN chmod 777 /dev/
 
-USER attestation
-WORKDIR /attestation/
+USER scrappy
+WORKDIR /scrappy/

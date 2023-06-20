@@ -2,14 +2,18 @@ package main
 
 import (
 	"bufio"
-	"core"
 	"encoding/binary"
 	"encoding/json"
 	"io"
 	"os"
 
+	"github.com/akakou/ecdaa/tpm_utils"
+	"github.com/akakou/scrappy"
+	"github.com/akakou/scrappy/ecdaa_helper"
 	_ "github.com/mattn/go-sqlite3"
 )
+
+const PASSWORD = "password"
 
 type Request struct {
 	Period int    `json:"period"`
@@ -53,26 +57,41 @@ func write(resp *Response) error {
 	return nil
 }
 
+func writeError(err error) {
+	var resp Response
+
+	resp.Status = "error"
+	resp.Error = err.Error()
+	write(&resp)
+}
+
 func main() {
 	var resp Response
 
 	req, err := read()
 
 	if err != nil {
-		resp.Status = "error"
-		resp.Error = err.Error()
-		write(&resp)
+		writeError(err)
 		return
 	}
 
-	core.CONFIG_PATH = "/attestation/config.json"
+	tpm, err := tpm_utils.OpenTPM([]byte(PASSWORD), "/dev/tpm0")
+	if err != nil {
+		writeError(err)
+		return
+	}
 
-	signature, err := core.Sign(req.Origin, req.Period)
+	ecdaa_helper.SIGNER_TPM_CONFIG_PATH = "/scrappy/signer-tpm.json"
+	signer, err := ecdaa_helper.PrepareTPMSignerFromFile(tpm)
+	if err != nil {
+		writeError(err)
+		return
+	}
+
+	signature, err := scrappy.Sign(req.Origin, req.Period, signer)
 
 	if err != nil {
-		resp.Status = "error"
-		resp.Error = err.Error()
-		write(&resp)
+		writeError(err)
 		return
 	}
 

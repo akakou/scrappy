@@ -1,6 +1,6 @@
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     chrome.runtime.sendNativeMessage(
-        "com.akakou.attestation",
+        "com.akakou.scrappy",
         { origin: sender.origin, period: Number(request.period) },
         (response) => {
             console.log("origin: ", sender.origin)

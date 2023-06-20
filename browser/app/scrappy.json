@@ -1,0 +1,9 @@
+{
+    "name": "com.akakou.scrappy",
+    "description": "SeCure Rate Assuring Protocol with PrivacY",
+    "path": "/scrappy/browser/app/m",
+    "type": "stdio",
+    "allowed_origins": [
+        "chrome-extension://bfbakdampjagmcncnfpchnemlaelnfbf/"
+    ]
+}

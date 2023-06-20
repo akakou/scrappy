@@ -8,7 +8,7 @@ import (
 
 	"github.com/akakou/ecdaa"
 	"github.com/akakou/scrappy"
-	"github.com/akakou/scrappy/crypto"
+	"github.com/akakou/scrappy/ecdaa_helper"
 	scrappy_gin "github.com/akakou/scrappy/gin"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -24,19 +24,19 @@ func checkError(err error, t *testing.T, i int) {
 func TestAndroidAndGin(t *testing.T) {
 	now := scrappy.Now()
 	rng := ecdaa.InitRandom()
-	issuer, err := crypto.SetupIssuer(rng)
+	issuer, err := ecdaa_helper.SetupIssuer(rng)
 
 	checkError(err, t, 0)
 
-	err = crypto.WriteConfig(issuer, crypto.ISSUER_CONFIG_PATH)
+	err = ecdaa_helper.WriteConfig(issuer, ecdaa_helper.ISSUER_CONFIG_PATH)
 
 	checkError(err, t, 1)
 
-	verifier := crypto.VerifierConfig{
+	verifier := ecdaa_helper.VerifierConfig{
 		IPK: issuer.IPK,
 	}
 
-	err = crypto.WriteConfig(&verifier, crypto.VERIFIER_CONFIG_PATH)
+	err = ecdaa_helper.WriteConfig(&verifier, ecdaa_helper.VERIFIER_CONFIG_PATH)
 
 	if err != nil {
 		t.Fatal(err)

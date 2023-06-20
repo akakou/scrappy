@@ -152,7 +152,7 @@ func JoinTPM(issuer *ecdaa.Issuer, rng *core.RAND) (*SignerConfigTPM, error) {
 	return &config, nil
 }
 
-func JoinTPMWithTPM(rng *core.RAND) (*SignerConfigTPM, error) {
+func InitSignerWithTPM(rng *core.RAND) (*SignerConfigTPM, error) {
 	issuer, err := IssuerFromConfigFile()
 
 	if err != nil {

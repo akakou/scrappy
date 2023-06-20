@@ -2,25 +2,26 @@ module maingithub.com/akakou/main
 
 go 1.19
 
-replace github.com/akakou/ecdaa => ../../thirdparty/ecdaa32
+replace github.com/akakou/ecdaa => ../../thirdparty/ecdaa64
 
-replace miracl => ../../thirdparty/ecdaa32/thirdparty/miracl
+replace miracl => ../../thirdparty/ecdaa64/thirdparty/miracl
 
 replace github.com/akakou/scrappy => ../
 
-replace github.com/google/go-tpm => ../../thirdparty/ecdaa32/thirdparty/go-tpm
+replace github.com/google/go-tpm => ../../thirdparty/ecdaa64/thirdparty/go-tpm
+
+replace github.com/akakou/mcl_utils => ../../thirdparty/ecdaa64/mcl_utils
+
+require github.com/akakou/scrappy v0.0.0-00010101000000-000000000000
 
 require (
-	github.com/akakou/ecdaa v0.0.0
-	github.com/akakou/scrappy v0.0.0-00010101000000-000000000000
-	github.com/gin-contrib/sessions v0.0.5
-	github.com/gin-gonic/gin v1.9.0
-)
-
-require (
+	github.com/akakou/ecdaa v0.0.0 // indirect
+	github.com/akakou/mcl_utils v0.0.0 // indirect
 	github.com/bytedance/sonic v1.8.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
+	github.com/gin-contrib/sessions v0.0.5 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
+	github.com/gin-gonic/gin v1.9.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.11.2 // indirect
