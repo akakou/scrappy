@@ -95,7 +95,7 @@ func androidSign(origin string, period int, sk, cred, ipk string) (string, error
 		return "", err
 	}
 
-	signature, err := crypto.SignWithEncofing(basename, signer)
+	signature, err := crypto.SignWithEncoding(basename, signer)
 
 	return signature, err
 }
