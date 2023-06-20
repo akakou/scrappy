@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/akakou/ecdaa v0.0.0
 	github.com/google/go-tpm v0.3.3
+	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 )
 
 require (

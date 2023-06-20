@@ -2,6 +2,8 @@ package scrappy
 
 import (
 	"testing"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func TestDB(t *testing.T) {
@@ -12,7 +14,7 @@ func TestDB(t *testing.T) {
 		Column: "TEST_COLUMN",
 	}
 
-	db, err := SetupDB(conf, ":memory:")
+	db, err := SetupDB(conf, "test.db")
 
 	if err != nil {
 		panic(err)
