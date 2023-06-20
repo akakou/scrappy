@@ -43,7 +43,15 @@ var VERIFIER_RL_DB_CONF = DB{
 }
 
 func SetupDB(db DB, path string) (*DB, error) {
-	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %v (%v VARCHAR(%v))", db.Table, db.Column, db.Size)
+	query1 := fmt.Sprintf(
+		"CREATE TABLE IF NOT EXISTS %v"+
+			"(id INTEGER PRIMARY KEY AUTOINCREMENT, "+
+			"%v VARCHAR(%v))",
+		db.Table, db.Column, db.Size)
+
+	query2 := fmt.Sprintf(
+		"CREATE UNIQUE INDEX id ON %v(id)",
+		db.Table)
 
 	if path != TEST_DB_PATH {
 		exec.Command("touch", path).Run()
@@ -55,10 +63,16 @@ func SetupDB(db DB, path string) (*DB, error) {
 		return nil, err
 	}
 
-	_, err = _db.Exec(query)
+	_, err = _db.Exec(query1)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create table: %v", err)
+	}
+
+	_, err = _db.Exec(query2)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to set up index: %v", err)
 	}
 
 	db.DB = _db
