@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/akakou/ecdaa"
+	"github.com/akakou/mcl_utils"
 	"github.com/akakou/scrappy"
 	"github.com/akakou/scrappy/ecdaa_helper"
 	scrappy_gin "github.com/akakou/scrappy/gin"
@@ -23,7 +23,7 @@ func checkError(err error, t *testing.T, i int) {
 
 func TestAndroidAndGin(t *testing.T) {
 	now := scrappy.Now()
-	rng := ecdaa.InitRandom()
+	rng := mcl_utils.InitRandom()
 	issuer, err := ecdaa_helper.SetupIssuer(rng)
 
 	checkError(err, t, 0)
@@ -49,7 +49,7 @@ func TestAndroidAndGin(t *testing.T) {
 	var respJoin AndroidResponse
 
 	base64IPK := base64.StdEncoding.EncodeToString(issuer.IPK)
-	
+
 	respJson := AndroidJoin("http://127.0.0.1:8080", base64IPK)
 	err = json.Unmarshal([]byte(respJson), &respJoin)
 	checkError(err, t, 2)
