@@ -9,11 +9,12 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const LOOP_NUM = 1000000000
 
-const HOST_NAME = "http://localhost:8080"
+const HOST_NAME = "http://server:8081"
 
 func somethingHeavy() int {
 	num := 0
@@ -26,12 +27,12 @@ func somethingHeavy() int {
 	return num
 }
 
-func Main() {
+func runServer() {
 	secret := []byte("secret")
 	r := gin.Default()
 	store := cookie.NewStore(secret)
 	r.Use(sessions.Sessions("mysession", store))
-	r.LoadHTMLGlob("../gin/templates/*.html")
+	r.LoadHTMLGlob("../core/gin/templates/*.html")
 
 	r.GET("/", func(c *gin.Context) {
 		period := scrappy.Now()
@@ -62,8 +63,4 @@ func Main() {
 	})
 
 	r.Run(":8081")
-}
-
-func main() {
-	Main()
 }
