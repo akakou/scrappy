@@ -17,21 +17,21 @@ func DecodeSignature(signatureString string) (*ecdaa.Signature, error) {
 	return &signature, nil
 }
 
-func VerifyWithConfig(signature *ecdaa.Signature, basename []byte) error {
+func PrepareVerifierConfig() (*ecdaa.IPK, *ecdaa.RevocationList, error) {
 	var config VerifierConfig
 	err := ReadConfig(&config, VERIFIER_CONFIG_PATH)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 
 	var ipk ecdaa.IPK
 	err = ipk.Decode(config.IPK)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 
 	rl := ecdaa.DecodeRevocationList(config.RL)
 
-	return ecdaa.Verify([]byte{}, basename, signature, &ipk, rl)
+	return &ipk, &rl, nil
 
 }

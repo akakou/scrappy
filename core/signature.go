@@ -3,6 +3,7 @@ package scrappy
 import (
 	"fmt"
 
+	"github.com/akakou/ecdaa"
 	"github.com/akakou/scrappy/crypto"
 )
 
@@ -84,7 +85,13 @@ func Verify(signatureString, origin string, period int) error {
 		return fmt.Errorf(HAS_EXIST_ERROR, signature)
 	}
 
-	err = crypto.VerifyWithConfig(signature, []byte(basename))
+	ipk, rl, err := crypto.PrepareVerifierConfig()
+
+	if err != nil {
+		return err
+	}
+
+	err = ecdaa.Verify([]byte{}, []byte(basename), signature, ipk, *rl)
 
 	if err != nil {
 		return err
