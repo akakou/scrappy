@@ -7,7 +7,7 @@ import (
 
 	"github.com/akakou/mcl_utils"
 	"github.com/akakou/scrappy"
-	"github.com/akakou/scrappy/crypto"
+	"github.com/akakou/scrappy/ecdaa_helper"
 	"github.com/pkg/errors"
 )
 
@@ -45,7 +45,7 @@ func AndroidJoin(host, base64Ipk string) string {
 	return resp
 }
 
-func androidJoin(host, base64Ipk string) (*crypto.SignerConfig, error) {
+func androidJoin(host, base64Ipk string) (*ecdaa_helper.SignerConfig, error) {
 	rng := mcl_utils.InitRandom()
 
 	ipk, err := base64.StdEncoding.DecodeString(base64Ipk)
@@ -80,7 +80,7 @@ func androidSign(origin string, period int, sk, cred, ipk string) (string, error
 		return "", err
 	}
 
-	var config = crypto.SignerConfig{
+	var config = ecdaa_helper.SignerConfig{
 		IPK: IPK, Cred: Cred, SK: SK,
 	}
 
@@ -90,12 +90,12 @@ func androidSign(origin string, period int, sk, cred, ipk string) (string, error
 
 	basename := scrappy.GetBasename(origin, period)
 
-	signer, err := crypto.PrepareSWSigner(&config)
+	signer, err := ecdaa_helper.PrepareSWSigner(&config)
 	if err != nil {
 		return "", err
 	}
 
-	signature, err := crypto.SignWithEncoding(basename, signer)
+	signature, err := ecdaa_helper.SignWithEncoding(basename, signer)
 
 	return signature, err
 }
