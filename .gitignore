@@ -243,3 +243,5 @@ core/verifier.json
 core/android/verifier.json
 core/example/main
 core/issuer/main
+
+verifier.json

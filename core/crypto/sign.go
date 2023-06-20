@@ -9,56 +9,20 @@ import (
 	"github.com/google/go-tpm/tpm2"
 )
 
-func Sign(basename []byte, config *SignerConfig) (string, error) {
-	rng := mcl_utils.InitRandom()
+func PrepareSWSigner(config *SignerConfig) (*ecdaa.SWSigner, error) {
+	sk := FP256BN.FromBytes(config.SK)
 
 	var cred ecdaa.Credential
 	err := cred.Decode(config.Cred)
-
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-
-	var ipk ecdaa.IPK
-	err = ipk.Decode(config.IPK)
-
-	if err != nil {
-		return "", err
-	}
-
-	sk := FP256BN.FromBytes(config.SK)
 
 	signer := ecdaa.NewSWSigner(&cred, sk)
-
-	signature, err := signer.Sign(
-		[]byte{},
-		basename,
-		rng,
-	)
-
-	if err != nil {
-		return "", err
-	}
-
-	encodedSignature, err := signature.Encode()
-
-	if err != nil {
-		return "", err
-	}
-
-	return encodeBase64(encodedSignature), err
+	return &signer, nil
 }
 
-func SignTPM(basename string, config *SignerConfigTPM) (string, error) {
-	rng := mcl_utils.InitRandom()
-
-	tpm, err := tpm_utils.OpenTPM([]byte(PASSWORD), TPM_PATH)
-	if err != nil {
-		return "", err
-	}
-
-	defer tpm.Close()
-
+func PrepareTPMSigner(tpm *tpm_utils.TPM, config *SignerConfigTPM) (*ecdaa.TPMSigner, error) {
 	authHandle := tpm2.AuthHandle{
 		Handle: tpm2.TPMHandle(config.HandleNum),
 		Name: tpm2.TPM2BName{
@@ -74,9 +38,28 @@ func SignTPM(basename string, config *SignerConfigTPM) (string, error) {
 	}
 
 	var cred ecdaa.Credential
-	cred.Decode(config.Cred)
+	err := cred.Decode(config.Cred)
+	if err != nil {
+		return nil, err
+	}
 
 	signer := ecdaa.NewTPMSigner(&cred, &handle, tpm)
+	return &signer, nil
+}
+
+func PrepareTPMSignerFromFile(tpm *tpm_utils.TPM) (*ecdaa.TPMSigner, error) {
+	var config SignerConfigTPM
+	err := ReadConfig(&config, SIGNER_TPM_CONFIG_PATH)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return PrepareTPMSigner(tpm, &config)
+}
+
+func SignWithEncoding(basename string, signer ecdaa.Signer) (string, error) {
+	rng := mcl_utils.InitRandom()
 
 	signature, err := signer.Sign(
 		[]byte{},
@@ -96,14 +79,3 @@ func SignTPM(basename string, config *SignerConfigTPM) (string, error) {
 
 	return encodeBase64(encodedSignature), err
 }
-
-// func SignTPMWithConfig(basename string) (string, error) {
-// 	var config SignerConfigTPM
-// 	err := ReadConfig(&config, SIGNER_TPM_CONFIG_PATH)
-
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return SignTPM(basename, &config)
-// }
