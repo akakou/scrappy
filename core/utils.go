@@ -25,17 +25,18 @@ func hashAndEncodeBase64(data []byte) string {
 	return encoded
 }
 
-func GetKBytes(signature *ecdaa.Signature) []byte {
-	var result [33]byte
-	signature.Proof.K.ToBytes(result[:], true)
+func GetKBytes(signature *ecdaa.Signature) string {
+	var KBuf [33]byte
+	signature.Proof.K.ToBytes(KBuf[:], true)
 
-	return result[:]
+	result := encodeBase64(KBuf[:])
+	return result
 }
 
 var SetupIssuerAndSave = ecdaa_helper.SetupIssuerAndSave
 
 func CheckBasenameExists(basename string, db *DB) error {
-	hasExist, err := HasHashExist(db, []byte(basename))
+	hasExist, err := HasExist(db, basename)
 
 	if err != nil {
 		return fmt.Errorf("has exist: %v", err)

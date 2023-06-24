@@ -33,7 +33,7 @@ func Sign(origin string, period int, signer ecdaa.Signer) (string, error) {
 		return "", err
 	}
 
-	err = InsertHash(db, basename)
+	err = Insert(db, basename)
 
 	return signature, err
 }
@@ -91,7 +91,7 @@ func Verify(signatureString, origin string, period int) error {
 		return err
 	}
 
-	err = Insert(logDB, []byte(K))
+	err = Insert(logDB, K)
 
 	return err
 }
