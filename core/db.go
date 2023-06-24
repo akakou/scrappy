@@ -50,7 +50,7 @@ func SetupDB(db DB, path string) (*DB, error) {
 		db.Table, db.Column, db.Size)
 
 	query2 := fmt.Sprintf(
-		"CREATE UNIQUE INDEX id ON %v(id)",
+		"CREATE UNIQUE INDEX IF NOT EXISTS id ON %v(id)",
 		db.Table)
 
 	if path != TEST_DB_PATH {
@@ -110,11 +110,6 @@ func Insert(db *DB, value string) error {
 
 	return err
 }
-
-// func InsertHash(db *DB, value string) error {
-// 	hash := sha256.New().Sum([]byte(value))
-// 	return Insert(db, hash)
-// }
 
 func SelectAll(db *DB) ([]string, error) {
 	result := []string{}
