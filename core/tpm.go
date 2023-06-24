@@ -49,7 +49,7 @@ func SignTPM(origin string, period int) (string, error) {
 
 	basename := getBasename(origin, period)
 
-	hasExist, err := HasExist(db, basename)
+	hasExist, err := HasHashExist(db, basename)
 
 	if err != nil {
 		return "", fmt.Errorf("has exist: %v", err)
@@ -65,7 +65,7 @@ func SignTPM(origin string, period int) (string, error) {
 		return "", err
 	}
 
-	err = Insert(db, basename)
+	err = InsertHash(db, basename)
 
 	if err != nil {
 		return "", err

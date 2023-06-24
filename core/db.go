@@ -1,6 +1,7 @@
 package scrappy
 
 import (
+	"crypto/sha256"
 	"database/sql"
 	"encoding/base64"
 	"fmt"
@@ -27,19 +28,19 @@ type DB struct {
 var SIGNER_LOG_DB_CONF = DB{
 	Table:  "SIGNER_LOG",
 	Column: "BASENAME",
-	Size:   55 + 1,
+	Size:   32 + 1,
 }
 
 var VERIFIER_LOG_DB_CONF = DB{
 	Table:  "VERIFIER_LOG",
 	Column: "K",
-	Size:   44 + 1,
+	Size:   32 + 1,
 }
 
 var VERIFIER_RL_DB_CONF = DB{
 	Table:  "VERIFIER_RL",
 	Column: "ROGUE_SK",
-	Size:   44 + 1,
+	Size:   32 + 1,
 }
 
 func SetupDB(db DB, path string) (*DB, error) {
@@ -50,7 +51,7 @@ func SetupDB(db DB, path string) (*DB, error) {
 		db.Table, db.Column, db.Size)
 
 	query2 := fmt.Sprintf(
-		"CREATE UNIQUE INDEX id ON %v(id)",
+		"CREATE UNIQUE INDEX IF NOT EXISTS id ON %v(id)",
 		db.Table)
 
 	if path != TEST_DB_PATH {
@@ -80,7 +81,7 @@ func SetupDB(db DB, path string) (*DB, error) {
 	return &db, nil
 }
 
-func HasExist(db *DB, value string) (bool, error) {
+func HasExist(db *DB, value []byte) (bool, error) {
 	var i int
 
 	query := fmt.Sprintf("SELECT 1 FROM %v WHERE %v=?", db.Table, db.Column)
@@ -100,7 +101,12 @@ func HasExist(db *DB, value string) (bool, error) {
 	return result, err
 }
 
-func Insert(db *DB, value string) error {
+func HasHashExist(db *DB, value []byte) (bool, error) {
+	hash := sha256.New().Sum(value)
+	return HasExist(db, hash)
+}
+
+func Insert(db *DB, value []byte) error {
 	query := fmt.Sprintf("INSERT INTO %v (%v) VALUES (?)", db.Table, db.Column)
 
 	_, err := db.DB.Exec(
@@ -111,10 +117,10 @@ func Insert(db *DB, value string) error {
 	return err
 }
 
-// func InsertHash(db *DB, value string) error {
-// 	hash := sha256.New().Sum([]byte(value))
-// 	return Insert(db, hash)
-// }
+func InsertHash(db *DB, value string) error {
+	hash := sha256.New().Sum([]byte(value))
+	return Insert(db, hash)
+}
 
 func SelectAll(db *DB) ([]string, error) {
 	result := []string{}

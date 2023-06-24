@@ -7,7 +7,7 @@ import (
 )
 
 func TestDB(t *testing.T) {
-	value := "value"
+	value := "valuea"
 
 	conf := DB{
 		Table:  "TEST_TABLE",
@@ -20,7 +20,7 @@ func TestDB(t *testing.T) {
 		panic(err)
 	}
 
-	hasExist, err := HasExist(db, value)
+	hasExist, err := HasHashExist(db, []byte(value))
 
 	if err != nil {
 		t.Fatalf("%v", err)
@@ -30,12 +30,12 @@ func TestDB(t *testing.T) {
 		t.Fatalf("%v", value)
 	}
 
-	err = Insert(db, value)
+	err = InsertHash(db, value)
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
 
-	hasExist, err = HasExist(db, value)
+	hasExist, err = HasHashExist(db, []byte(value))
 
 	if err != nil {
 		t.Fatalf("%v", err)
