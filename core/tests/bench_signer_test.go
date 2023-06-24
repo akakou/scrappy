@@ -47,5 +47,5 @@ func benchmarkSignLog(b *testing.B, logSize int) {
 
 func BenchmarkSignLog(b *testing.B) {
 	benchmarkSignLog(b, 0)
-	benchmarkSignLog(b, 10000)
+	benchmarkSignLog(b, 1000)
 }
