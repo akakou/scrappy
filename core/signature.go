@@ -38,7 +38,7 @@ func Sign(origin string, period int, signer ecdaa.Signer) (string, error) {
 	return signature, err
 }
 
-func Verify(signatureString, origin string, period int) error {
+func Verify(signatureString, origin string, period int, ipk *ecdaa.IPK, rl *ecdaa.RevocationList) error {
 	signature, err := ecdaa_helper.DecodeSignature(signatureString)
 
 	if err != nil {
@@ -77,12 +77,6 @@ func Verify(signatureString, origin string, period int) error {
 
 	if hasExist {
 		return fmt.Errorf(HAS_EXIST_ERROR, signature)
-	}
-
-	ipk, rl, err := ecdaa_helper.PrepareVerifierConfig()
-
-	if err != nil {
-		return err
 	}
 
 	err = ecdaa.Verify([]byte{}, []byte(basename), signature, ipk, *rl)
