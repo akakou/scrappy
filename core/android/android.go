@@ -38,6 +38,9 @@ func buildAndroidMessage(data any, err error) string {
 	return string(r)
 }
 
+func Hello() {
+}
+
 func AndroidJoin(host, base64Ipk string) string {
 	config, err := androidJoin(host, base64Ipk)
 	resp := buildAndroidMessage(config, err)
