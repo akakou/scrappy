@@ -15,6 +15,8 @@ import (
 const BENCH_DB_PATH = "./%v_%v_bench.db"
 const BENCH_ORIGIN = "www.example.com"
 
+var unixtime = 1560000000
+
 var signer *ecdaa.SWSigner
 var rng *core.RAND
 
@@ -31,7 +33,9 @@ func sign() (string, string) {
 		}
 	}
 
-	signature, err := ecdaa_helper.SignWithEncoding("hello", signer)
+	basename := scrappy.GetBasename("www.example.com", unixtime)
+
+	signature, err := ecdaa_helper.SignWithEncoding(basename, signer)
 
 	if err != nil {
 		panic(err)
@@ -42,6 +46,8 @@ func sign() (string, string) {
 	if err != nil {
 		panic(err)
 	}
+
+	unixtime++
 
 	return signature, scrappy.GetKBytes(decoded)
 }

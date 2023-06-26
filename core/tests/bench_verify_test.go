@@ -71,5 +71,5 @@ func benchmarkVerifyLog(b *testing.B, logSize, rlSize int) {
 func BenchmarkVerifyLog(b *testing.B) {
 	benchmarkVerifyLog(b, 0, 0)
 	benchmarkVerifyLog(b, 0, 50)
-	benchmarkVerifyLog(b, 10000, 0)
+	benchmarkVerifyLog(b, 100000, 0)
 }
