@@ -19,5 +19,18 @@ func setup() error {
 	}
 
 	ecdaa_helper.VerifierAndSave(issuer)
+
+	signer, err := ecdaa_helper.ExampleInitSigner(rng)
+
+	if err != nil {
+		return err
+	}
+
+	err = ecdaa_helper.WriteConfig(&signer, ecdaa_helper.SIGNER_CONFIG_PATH)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -103,6 +103,47 @@ func MakeCredWithTPM(joinReqBuf []byte, issuerBBuf []byte, rng *core.RAND) ([]by
 	return MakeCred(joinReqBuf, issuerBBuf, issuer, rng)
 }
 
+func Join(issuer *ecdaa.Issuer, rng *core.RAND) (*SignerConfig, error) {
+	seed, issuerB, err := ecdaa.GenJoinSeed(rng)
+	if err != nil {
+		return nil, err
+	}
+
+	req, sk, err := ecdaa.GenJoinReq(seed, rng)
+	if err != nil {
+		return nil, err
+	}
+
+	cred, err := issuer.MakeCred(req, issuerB, rng)
+	if err != nil {
+		return nil, err
+	}
+
+	credBin, err := cred.Encode()
+	if err != nil {
+		return nil, err
+	}
+
+	ipkBin, err := issuer.Ipk.Encode()
+	if err != nil {
+		return nil, err
+	}
+
+	skBin := [32]byte{}
+	sk.ToBytes(skBin[:])
+	if err != nil {
+		return nil, err
+	}
+
+	config := SignerConfig{
+		Cred: credBin,
+		IPK:  ipkBin,
+		SK:   skBin[:],
+	}
+
+	return &config, nil
+}
+
 func JoinTPM(issuer *ecdaa.Issuer, rng *core.RAND) (*SignerConfigTPM, error) {
 	tpm, err := tpm_utils.OpenTPM([]byte(PASSWORD), TPM_PATH)
 
@@ -150,6 +191,24 @@ func JoinTPM(issuer *ecdaa.Issuer, rng *core.RAND) (*SignerConfigTPM, error) {
 	}
 
 	return &config, nil
+}
+
+func ExampleInitSigner(rng *core.RAND) (*SignerConfig, error) {
+	issuer, err := IssuerFromConfigFile()
+
+	if err != nil {
+		return nil, err
+	}
+
+	tpmConfig, err := Join(issuer, rng)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = WriteConfig(tpmConfig, SIGNER_CONFIG_PATH)
+
+	return tpmConfig, err
 }
 
 func InitSignerWithTPM(rng *core.RAND) (*SignerConfigTPM, error) {
