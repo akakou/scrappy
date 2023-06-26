@@ -16,6 +16,8 @@ const LOOP_NUM = 1000000000
 
 const HOST_NAME = "http://server:8081"
 
+// const HOST_NAME = "http://192.168.10.105:8081"
+
 func somethingHeavy() int {
 	num := 0
 
@@ -60,6 +62,10 @@ func runServer() {
 	r.POST("/slow_with_attest", scrappy_gin.VerifyMiddleware(HOST_NAME), func(c *gin.Context) {
 		fmt.Printf("%v", somethingHeavy())
 		c.HTML(http.StatusOK, "hello.html", gin.H{})
+	})
+
+	r.GET("/callback", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "callback.html", gin.H{})
 	})
 
 	r.Run(":8081")
