@@ -3,9 +3,11 @@ package com.github.akakou.scrappy
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
+import android_scrappy.Android_scrappy
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
@@ -21,7 +23,7 @@ import kotlin.concurrent.thread
 class SignActivity : AppCompatActivity() {
     lateinit var callback: String
     lateinit var parsedCallback: URL
-    var timestamp : Long = 0
+    var period : Long = 0
     lateinit var scrappySigner: ScrappySigner
 
     lateinit var db: AppDatabase
@@ -36,7 +38,6 @@ class SignActivity : AppCompatActivity() {
             AppDatabase::class.java, "database-name"
         ).build()
 
-
         val i = intent
         val urlString = i.dataString
 
@@ -49,27 +50,38 @@ class SignActivity : AppCompatActivity() {
         callback = uri.getQueryParameter("callback")!!
         parsedCallback = URL(callback)
 
-        timestamp = uri.getQueryParameter("timestamp")?.toLong()!!
-        button.text = "Do you come from ${parsedCallback.host} ?"
+        period = uri.getQueryParameter("period")?.toLong()!!
+        button.text = "Do you come from ${parsedCallback.host}:${parsedCallback.port} ?"
 
         thread {
+            allLogs = db.signerLogDao().getAll()
+
+            for(log in allLogs!!) {
+                db.signerLogDao().delete(log)
+            }
+
             allLogs = db.signerLogDao().getAll()
         }
     }
 
     fun onClick(view : View) {
         var msg = ""
+
         for(log in allLogs!!) {
             msg += "log: $log\n"
         }
-        Toast.makeText(this@SignActivity, msg, Toast.LENGTH_SHORT).show()
 
+        Toast.makeText(this@SignActivity, msg, Toast.LENGTH_SHORT).show()
 
         GlobalScope.launch {
             var signature = ""
             var errorMsg = ""
+//            var beforeTime = System.currentTimeMillis()
+//            var afterTime :Long = 0
+            val origin = "http://${parsedCallback.host}:${parsedCallback.port}"
             try {
-                signature = scrappySigner.sign(callback, timestamp)
+                signature = scrappySigner.sign(origin, period)
+                Log.d("SIGNATYRE", "${origin}, ${period}")
             } catch (e: java.lang.Exception) {
                 errorMsg = e.toString()
             }
