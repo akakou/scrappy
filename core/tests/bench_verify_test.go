@@ -1,6 +1,7 @@
 package scrappy_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/akakou/ecdaa"
@@ -8,7 +9,7 @@ import (
 	"github.com/akakou/scrappy"
 )
 
-func benchmarkVerifyLog(b *testing.B, logSize, rlSize int) {
+func benchmarkVerifyLog(b *testing.B, logSize int) {
 	rng := mcl_utils.InitRandom()
 
 	scrappy.SIGNER_LOG_DB_PATH = prepareDB(scrappy.SIGNER_LOG_DB_CONF, "signer_log", 0, func() string { return "" })
@@ -42,7 +43,8 @@ func benchmarkVerifyLog(b *testing.B, logSize, rlSize int) {
 
 	k2 := onlyKBytes()
 
-	b.Run("verify_log", func(b *testing.B) {
+	name := fmt.Sprint("verify_log (%v)", logSize)
+	b.Run(name, func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			hasExist, err := scrappy.HasExist(logDB, k2)
 
@@ -69,7 +71,6 @@ func benchmarkVerifyLog(b *testing.B, logSize, rlSize int) {
 }
 
 func BenchmarkVerifyLog(b *testing.B) {
-	benchmarkVerifyLog(b, 0, 0)
-	benchmarkVerifyLog(b, 0, 50)
-	benchmarkVerifyLog(b, 100000, 0)
+	benchmarkVerifyLog(b, 0)
+	benchmarkVerifyLog(b, 100000)
 }
