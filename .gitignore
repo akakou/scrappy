@@ -247,3 +247,4 @@ core/issuer/main
 verifier.json
 signer_tpm.json
 example/main
+signer.json
