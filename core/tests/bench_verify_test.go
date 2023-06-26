@@ -43,7 +43,7 @@ func benchmarkVerifyLog(b *testing.B, logSize int) {
 
 	k2 := onlyKBytes()
 
-	name := fmt.Sprint("verify_log (%v)", logSize)
+	name := fmt.Sprintf("verify_log (%v)", logSize)
 	b.Run(name, func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			hasExist, err := scrappy.HasExist(logDB, k2)
