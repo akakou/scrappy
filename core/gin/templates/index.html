@@ -1,0 +1,31 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+
+<h1>Hello!</h1>
+<p>Fast load (without proof)</p>
+<form action='/fast' method='get'>
+    <input type='submit'></input>
+</form>
+
+<p>Slow load without proof</p>
+<form action='/slow_without_attest' method='post'>
+    <input type='submit' id='submit'></input>
+</form>
+
+<p>Slow load with proof</p>
+<form action='/slow_with_attest' method='post'>
+    <input name='scrappy' type='hidden' period="{{.period}}"></input>
+    <input type='submit' id='_'></input>
+</form>
+
+<p>Slow load with proof mobile</p>
+<button>
+    <a id="scrappy" href="" period="{{.period}}">Submit</a>
+</button>
+
+<script>
+    const base = "scrappy://scrappy"
+    const tag = document.getElementById('scrappy')
+    const domain = window.location.origin + "/callback"
+    const period = tag.getAttribute('period')
+    tag.href = `${base}?period=${period}&callback=${domain}`
+</script>

@@ -1,0 +1,14 @@
+<p>Slow load with proof</p>
+<form id="form" action='/slow_with_attest' method='post'>
+    <input name='scrappy' type='hidden' period="{{.period}}"></input>
+    <input type='submit' id='_'></input>
+</form>
+
+<script>
+    const formTag = document.getElementById('form')
+
+    const inputTag = document.getElementsByName('scrappy')[0]
+    inputTag.value = location.hash.slice(1,)
+
+    formTag.submit()
+</script>

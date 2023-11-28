@@ -1,0 +1,51 @@
+version: "3.3"
+services:
+  browser:
+    user: root
+    build: browser/docker
+    working_dir: "/scrappy/"
+    volumes:
+      - ./:/scrappy/:z
+      - /sys/class/tpm/tpm0/:/sys/class/tpm/tpm0/
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /dev/tpm0:/dev/tpm0
+      - /dev/tpmrm0:/dev/tpmrm0
+    environment:
+      - DISPLAY=${DISPLAY}
+      - TPM2TOOLS_TCTI="device:/dev/tpm0"
+
+    command: sh -c "/scrappy/browser/docker/run.sh"
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+    profiles:
+      - default
+      - browser
+
+  server:
+    build: ./example
+    working_dir: /scrappy/example
+    volumes:
+      - ./:/scrappy/:z
+      - /dev/tpm0:/dev/tpm0
+      - /dev/tpmrm0:/dev/tpmrm0
+    command: sh -c 'CGO_ENABLED=1 go build -buildvcs=false && ./main'
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+    profiles:
+      - default
+      - server
+    ports:
+      - 8081:8081
+
+  android_lib:
+    build: ./android
+    volumes:
+      - ./core:/core
+      - ./thirdparty:/thirdparty
+    command: bash -c 'cd /core/android && go get golang.org/x/mobile/bind && gomobile bind -v -o scrappy_crypto.aar -target=android'
+    working_dir: /core
+    profiles:
+      - android_lib

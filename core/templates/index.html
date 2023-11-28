@@ -1,0 +1,22 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+
+<h1>Hello!</h1>
+<p>Fast load (without attestation)</p>
+<form action='/fast' method='get'>
+    <input type='submit'></input>
+</form>
+
+<p>Slow load without attestation</p>
+<form action='/slow_without_attest' method='post'>
+    <input type='submit' id='submit'></input>
+</form>
+
+<p>Slow load with attestation</p>
+<form action='/slow_with_attest' method='post'>
+    <input name='scrappy' type='hidden' period="{{.period}}"></input>
+    <input type='submit' id='_'></input>
+</form>
+
+
+<script>
+</script>
