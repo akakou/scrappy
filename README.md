@@ -23,16 +23,24 @@ sudo tpm2_clear
 ```sh
 xhost + 
 ```
+
+### 3. Download libraries
+
+```
+cd thirdparty
+make
+cd ..
+```
   
-### 2. Run docker-compose
+### 4. Run docker-compose
   
 The run follows the command, then the Chrome browser opens.
   
 ```
-docker-compose up
+docker-compose --profile default up
 ```
   
-### 3. Configure chrome extension
+### 5. Configure chrome extension
   
 1. Open new tabs and jump to "chrome://extensions/" on the browser.
 2. Turn on the toggle of "Developer mode".

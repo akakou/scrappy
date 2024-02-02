@@ -1,4 +1,4 @@
-REPOSITORY_URL = git@github.com:akakou/ecdaa.git
+REPOSITORY_URL = https://github.com/akakou/ecdaa
 
 all: ./ecdaa64 ./ecdaa32
 	echo "Done"
