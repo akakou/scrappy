@@ -1,0 +1,4 @@
+[submodule "thirdparty/ecdaa-go"]
+	path = thirdparty/ecdaa
+	url = git@github.com:akakou/ecdaa.git
+    branch = "develop"

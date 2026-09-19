@@ -1,0 +1,24 @@
+{
+    "name": "Scrappy",
+    "description": "SeCure Rate Assuring Protocol with PrivacY",
+    "version": "0.1",
+    "manifest_version": 2,
+    "content_scripts": [
+        {
+            "matches": [
+                "http://server:8081/*"
+            ],
+            "js": [
+                "frontend.js"
+            ]
+        }
+    ],
+    "background": {
+        "scripts": [
+            "background.js"
+        ]
+    },
+    "permissions": [
+        "nativeMessaging"
+    ]
+}
