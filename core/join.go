@@ -2,7 +2,7 @@ package scrappy
 
 import (
 	"io"
-	"miracl/core"
+	"github.com/akakou-fork/amcl-go/miracl/core"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"

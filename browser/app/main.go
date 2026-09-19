@@ -81,7 +81,8 @@ func main() {
 		return
 	}
 
-	ecdaa_helper.SIGNER_TPM_CONFIG_PATH = "/scrappy/signer-tpm.json"
+	defer tpm.Close()
+
 	signer, err := ecdaa_helper.PrepareTPMSignerFromFile(tpm)
 	if err != nil {
 		writeError(err)

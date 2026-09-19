@@ -10,13 +10,13 @@ replace github.com/akakou/scrappy => ../
 
 replace github.com/google/go-tpm => ../../thirdparty/ecdaa64/thirdparty/go-tpm
 
-replace github.com/akakou/mcl_utils => ../../thirdparty/ecdaa64/mcl_utils
+replace github.com/akakou/fp256bn-amcl-utils => ../../thirdparty/ecdaa64/amclutils
 
 require github.com/akakou/scrappy v0.0.0-00010101000000-000000000000
 
 require (
-	github.com/akakou/ecdaa v0.0.0 // indirect
-	github.com/akakou/mcl_utils v0.0.0 // indirect
+	github.com/akakou/ecdaa v0.0.2 // indirect
+	github.com/akakou/fp256bn-amcl-utils v0.0.0 // indirect
 	github.com/bytedance/sonic v1.8.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/gin-contrib/sessions v0.0.5 // indirect
@@ -46,5 +46,5 @@ require (
 	golang.org/x/text v0.7.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	miracl v0.0.0 // indirect
+	 // indirect
 )

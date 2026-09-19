@@ -1,28 +1,21 @@
 module github.com/akakou/scrappy_android
 
-go 1.19
-
-replace github.com/akakou/ecdaa => ../../thirdparty/ecdaa32
-
-replace miracl => ../../thirdparty/ecdaa32/thirdparty/miracl
+go 1.22.0
 
 replace github.com/akakou/scrappy => ../
 
 replace github.com/akakou/scrappy_issuer => ../issuer
 
-replace github.com/google/go-tpm => ../../thirdparty/ecdaa32/thirdparty/go-tpm
-
-replace github.com/akakou/mcl_utils => ../../thirdparty/ecdaa32/mcl_utils
-
 require (
-	github.com/akakou/ecdaa v0.0.0
-	github.com/akakou/mcl_utils v0.0.0
+	github.com/akakou/fp256bn-amcl-utils v0.0.2
 	github.com/akakou/scrappy v0.0.0-00010101000000-000000000000
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/pkg/errors v0.9.1
 )
 
 require (
+	github.com/akakou-fork/amcl-go/miracl v0.0.0-20240206094909-344c847a50cc // indirect
+	github.com/akakou/ecdaa v0.0.2 // indirect
 	github.com/bytedance/sonic v1.8.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/gin-contrib/sessions v0.0.5 // indirect
@@ -32,7 +25,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.11.2 // indirect
 	github.com/goccy/go-json v0.10.0 // indirect
-	github.com/google/go-tpm v0.3.3 // indirect
+	github.com/google/go-tpm v0.9.1-0.20240206213016-638c2b803c16 // indirect
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gorilla/sessions v1.2.1 // indirect
@@ -47,13 +40,11 @@ require (
 	github.com/ugorji/go/codec v1.2.9 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
-	golang.org/x/mobile v0.0.0-20230531173138-3c911d8e3eda // indirect
-	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
+	golang.org/x/mobile v0.0.0-20241213221354-a87c1cf6cf46 // indirect
 	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
-	golang.org/x/tools v0.1.12 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	miracl v0.0.0 // indirect
+// indirect
 )

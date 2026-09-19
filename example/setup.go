@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/akakou/mcl_utils"
+	amclutils "github.com/akakou/fp256bn-amcl-utils"
 	"github.com/akakou/scrappy/ecdaa_helper"
 )
 
 func setup() error {
-	rng := mcl_utils.InitRandom()
+	rng := amclutils.InitRandom()
 
 	issuer, err := ecdaa_helper.SetupIssuerAndSave(rng)
 	if err != nil {

@@ -1,19 +1,20 @@
 module github.com/akakou/scrappy
 
-go 1.18
+go 1.21.4
 
 require (
-	github.com/akakou/ecdaa v0.0.0
-	github.com/google/go-tpm v0.3.3
+	github.com/akakou/ecdaa v0.0.2
+	github.com/google/go-tpm v0.9.1-0.20240206213016-638c2b803c16
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 )
 
 require (
-	github.com/akakou/mcl_utils v0.0.0
+	github.com/akakou-fork/amcl-go/miracl v0.0.0-20240206094909-344c847a50cc
+	github.com/akakou/fp256bn-amcl-utils v0.0.2
 	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.9.0
-	// github.com/akakou/ecdaa/tpm_utils v0.0.0
-	miracl v0.0.0
+// github.com/akakou/ecdaa/tpm_utils v0.0.0
+
 )
 
 require (
@@ -39,18 +40,8 @@ require (
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/akakou/ecdaa => ../thirdparty/ecdaa32
-
-// replace github.com/akakou/ecdaa/tpm_utils => ../thirdparty/ecdaa32/tpm_utils
-
-replace miracl => ../thirdparty/ecdaa32/thirdparty/miracl
-
-replace github.com/google/go-tpm => ../thirdparty/ecdaa32/thirdparty/go-tpm
-
-replace github.com/akakou/mcl_utils => ../thirdparty/ecdaa32/mcl_utils

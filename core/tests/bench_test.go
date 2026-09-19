@@ -2,11 +2,11 @@ package scrappy_test
 
 import (
 	"fmt"
-	"miracl/core"
 	"testing"
 
+	"github.com/akakou-fork/amcl-go/miracl/core"
 	"github.com/akakou/ecdaa"
-	"github.com/akakou/mcl_utils"
+	amclutils "github.com/akakou/fp256bn-amcl-utils"
 	"github.com/akakou/scrappy"
 	"github.com/akakou/scrappy/ecdaa_helper"
 	_ "github.com/mattn/go-sqlite3"
@@ -24,7 +24,7 @@ func sign() (string, string) {
 	var err error
 
 	if signer == nil || rng == nil {
-		rng = mcl_utils.InitRandom()
+		rng = amclutils.InitRandom()
 
 		_, signer, err = ecdaa.ExampleInitialize(rng)
 
@@ -65,10 +65,10 @@ func onlyKBytes() string {
 func randomBasename() string {
 	now := scrappy.Now()
 	if signer == nil || rng == nil {
-		rng = mcl_utils.InitRandom()
+		rng = amclutils.InitRandom()
 	}
 
-	origin := mcl_utils.RandomBytes(rng, 32)
+	origin := amclutils.RandomBytes(rng, 32)
 	return string(scrappy.GetBasename(string(origin), now))
 }
 

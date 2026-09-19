@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/akakou/mcl_utils"
+	amclutils "github.com/akakou/fp256bn-amcl-utils"
 	"github.com/akakou/scrappy"
 	"github.com/akakou/scrappy/ecdaa_helper"
 	scrappy_gin "github.com/akakou/scrappy/gin"
@@ -23,7 +23,7 @@ func checkError(err error, t *testing.T, i int) {
 
 func TestAndroidAndGin(t *testing.T) {
 	now := scrappy.Now()
-	rng := mcl_utils.InitRandom()
+	rng := amclutils.InitRandom()
 	issuer, err := ecdaa_helper.SetupIssuer(rng)
 
 	checkError(err, t, 0)

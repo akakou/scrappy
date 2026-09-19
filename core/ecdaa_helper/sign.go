@@ -1,11 +1,11 @@
 package ecdaa_helper
 
 import (
-	"miracl/core/FP256BN"
-
+	"github.com/akakou-fork/amcl-go/miracl/core/FP256BN"
+	
 	"github.com/akakou/ecdaa"
 	"github.com/akakou/ecdaa/tpm_utils"
-	"github.com/akakou/mcl_utils"
+	amclutils "github.com/akakou/fp256bn-amcl-utils"
 	"github.com/google/go-tpm/tpm2"
 )
 
@@ -59,7 +59,7 @@ func PrepareTPMSignerFromFile(tpm *tpm_utils.TPM) (*ecdaa.TPMSigner, error) {
 }
 
 func SignWithEncoding(basename string, signer ecdaa.Signer) (string, error) {
-	rng := mcl_utils.InitRandom()
+	rng := amclutils.InitRandom()
 
 	signature, err := signer.Sign(
 		[]byte{},
