@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/akakou/ecdaa"
-	"github.com/akakou/mcl_utils"
+	amclutils "github.com/akakou/fp256bn-amcl-utils"
 	"github.com/akakou/scrappy"
 )
 
@@ -16,7 +16,7 @@ func TestAll(t *testing.T) {
 	origin := "aaa"
 	period := scrappy.Now()
 
-	rng := mcl_utils.InitRandom()
+	rng := amclutils.InitRandom()
 	issuer, signer, err := ecdaa.ExampleInitialize(rng)
 
 	if err != nil {
@@ -47,7 +47,7 @@ func TestFailBecauseOfMultiSignature(t *testing.T) {
 	origin := "aaa"
 	period := scrappy.Now()
 
-	rng := mcl_utils.InitRandom()
+	rng := amclutils.InitRandom()
 	issuer, signer, err := ecdaa.ExampleInitialize(rng)
 
 	if err != nil {

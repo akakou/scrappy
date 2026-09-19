@@ -1,75 +1,91 @@
 # SeCure Rate Assuring Protocol with PrivacY
-  
-## Dependencies
 
-Scrappy is support Linux environments, and the work checked on  NixOS 23.05pre4.
-Also, Scrappy needs the dependecies as follows:
+## Development environment
 
-- docker and docker-compose
-- tpm-tools (https://github.com/tpm2-software/tpm2-tools)
+Scrappy runs on Linux with [Nix](https://nixos.org/download/). The demo needs
+a TPM that supports the protocol and read/write access to `/dev/tpm0` for your
+normal user. Configure that access through your host's TPM device permissions.
+The browser also needs a graphical desktop session.
 
+The shells share a revision and content hash pinned in `nix/pkgs.nix`; they do
+not use your machine's `<nixpkgs>` channel. Nix downloads dependencies on first
+use and reuses them across shells. Go dependencies are recorded in each module's
+`go.mod` and `go.sum`. No container images are needed.
 
-## How to use
-### 1. Reset TPM
+| Command (from the repository root) | Environment |
+| --- | --- |
+| `nix-shell` | Go, C compiler, pkg-config, SQLite, TPM tools |
+| `nix-shell example/shell.nix` | Same environment, for the demo server |
+| `nix-shell browser/shell.nix` | Base environment plus Chromium and jq |
+| `nix-shell android/shell.nix` | Base environment plus JDK 11, Android SDK/NDK and gomobile |
 
-**WARNING: TO DEPLOY CORRECTLY, WE RECOMMEND RESETTING YOUR TPM FIRST. BUT IT MAY REMOVE YOUR IMPORTANT KEYS.**
+Entering a shell only sets up the environment. It does not start applications
+or initialize the TPM. The C compiler supplied by `mkShell` supports CGO
+directly, so `steam-run` is unnecessary. Android tools are only downloaded when
+you use the Android shell; that shell accepts the Android SDK license.
+
+## Run the demo
+
+### 1. Start the server
+
+From the repository root:
 
 ```sh
-sudo tpm2_clear
+nix-shell --run scrappy-server
 ```
-  
-### 2. Set up X configuration
-  
+
+This builds and runs the server from `example/`, where its template and
+configuration paths resolve correctly. Startup initializes the demo's issuer
+and signer, including TPM state. Keep it running during the browser demo.
+
+If an existing TPM state prevents initialization, investigate it before clearing
+the TPM: `tpm2_clear` removes keys and is not an automatic setup step.
+
+### 2. Register the browser extension
+
+Open another terminal at the repository root:
+
 ```sh
-xhost + 
+nix-shell browser/shell.nix
+chromium --user-data-dir="$SCRAPPY_ROOT/.cache/chromium" chrome://extensions
 ```
-  
-### 2. Run docker-compose
-  
-The run follows the command, then the Chrome browser opens.
-  
-```
-docker-compose up
-```
-  
-### 3. Configure chrome extension
-  
-1. Open new tabs and jump to "chrome://extensions/" on the browser.
-2. Turn on the toggle of "Developer mode".
-3. Push the button labeled and open "/scrappy/browser/extension/" to install the extension.
-  
-## Demo
-  
-"http://server:8081/" is a demo that protects heavy endpoints using the Scrappy.
-  
-## Benchmark
-  
-You can run the "go test" with some commands to measure benchmarks.
-  
-### Cryptographic process of Sign TPM
-  
+
+Enable **Developer mode**, choose **Load unpacked**, and select this checkout's
+`browser/extension/` directory. Copy the extension ID displayed on the page,
+then close that Chromium window and run:
+
 ```sh
-cd /scrappy/ecdaa
-/usr/local/go/bin/go test ./bench -benchmem -run=^$ -bench SignTPM -benchtime 20x
+scrappy-browser YOUR_EXTENSION_ID
 ```
-  
-### Sign Log
-  
+
+Replace `YOUR_EXTENSION_ID` with the actual 32-character ID. The command builds
+the native messaging host, registers its absolute path and the extension ID in
+the checkout's dedicated Chromium profile, and opens `http://localhost:8081/`.
+Repeat registration if you move the checkout. The launcher and server use the
+same working directory so they share the signer configuration.
+
+Use `localhost` consistently: the verifier checks the exact origin, including
+the hostname and port. No `/etc/hosts` entry, `xhost` change, root browser, or
+disabled browser sandbox is needed.
+
+## Android library
+
 ```sh
-cd /scrappy/core
-/usr/local/go/bin/go test ./tests -benchmem -run=^$ -bench BenchmarkSignLog -benchtime 20x
+nix-shell android/shell.nix --run scrappy-android
 ```
-  
-### Cryptographic process of Verification
-  
+
+This replaces the Compose `android_lib` service and writes
+`core/android/scrappy_crypto.aar`. See [android/README.md](android/README.md).
+
+## Benchmarks
+
+Enter `nix-shell` at the repository root, then:
+
 ```sh
-cd /scrappy/ecdaa
-go test ./bench -benchmem -run=^$ -bench BenchmarkVerify -benchtime 20x
+cd core
+go test ./tests -benchmem -run='^$' -bench BenchmarkSignLog -benchtime 20x
+go test ./tests -benchmem -run='^$' -bench BenchmarkVerifyLog -benchtime 20x
 ```
-  
-### Verify Log
-  
-```sh
-cd /scrappy/core
-go test ./tests -benchmem -run=^$ -bench BenchmarkVerifyLog -benchtime 20x
-```
+
+The lower-level ECDAA benchmarks belong to the separate
+[`github.com/akakou/ecdaa`](https://github.com/akakou/ecdaa) repository.

@@ -1,8 +1,7 @@
 package ecdaa_helper
 
 import (
-	"miracl/core"
-
+	"github.com/akakou-fork/amcl-go/miracl/core"
 	"github.com/akakou/ecdaa"
 )
 

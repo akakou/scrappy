@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/akakou/mcl_utils"
+	amclutils "github.com/akakou/fp256bn-amcl-utils"
 	"github.com/akakou/scrappy"
 	"github.com/akakou/scrappy/ecdaa_helper"
 	"github.com/pkg/errors"
@@ -49,7 +49,7 @@ func AndroidJoin(host, base64Ipk string) string {
 }
 
 func androidJoin(host, base64Ipk string) (*ecdaa_helper.SignerConfig, error) {
-	rng := mcl_utils.InitRandom()
+	rng := amclutils.InitRandom()
 
 	ipk, err := base64.StdEncoding.DecodeString(base64Ipk)
 	if err != nil {

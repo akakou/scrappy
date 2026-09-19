@@ -5,12 +5,12 @@ import (
 	"testing"
 
 	"github.com/akakou/ecdaa"
-	"github.com/akakou/mcl_utils"
+	amclutils "github.com/akakou/fp256bn-amcl-utils"
 	"github.com/akakou/scrappy"
 )
 
 func benchmarkVerifyLog(b *testing.B, logSize int) {
-	rng := mcl_utils.InitRandom()
+	rng := amclutils.InitRandom()
 
 	scrappy.SIGNER_LOG_DB_PATH = prepareDB(scrappy.SIGNER_LOG_DB_CONF, "signer_log", 0, func() string { return "" })
 	scrappy.VERIFIER_LOG_DB_PATH = prepareDB(scrappy.VERIFIER_LOG_DB_CONF, "verifir_log", logSize, onlyKBytes)

@@ -1,7 +1,7 @@
 package scrappy_gin
 
 import (
-	"github.com/akakou/mcl_utils"
+amclutils "github.com/akakou/fp256bn-amcl-utils"
 	"github.com/akakou/scrappy/ecdaa_helper"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -21,7 +21,7 @@ func RunIssuer(template string) {
 }
 
 func SetupIssuerEndpoints(r *gin.Engine) {
-	rng := mcl_utils.InitRandom()
+	rng := amclutils.InitRandom()
 	issuer, err := ecdaa_helper.IssuerFromConfigFile()
 
 	if err != nil {

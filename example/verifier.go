@@ -14,7 +14,7 @@ import (
 
 const LOOP_NUM = 1000000000
 
-const HOST_NAME = "http://server:8081"
+const HOST_NAME = "http://localhost:8081"
 
 // const HOST_NAME = "http://192.168.10.105:8081"
 

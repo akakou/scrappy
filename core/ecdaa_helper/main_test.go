@@ -4,11 +4,11 @@ import (
 	"testing"
 
 	"github.com/akakou/ecdaa"
-	"github.com/akakou/mcl_utils"
+	amclutils "github.com/akakou/fp256bn-amcl-utils"
 )
 
 func TestSW(t *testing.T) {
-	rng := mcl_utils.InitRandom()
+	rng := amclutils.InitRandom()
 	issuerConf, err := SetupIssuerAndSave(rng)
 
 	if err != nil {
