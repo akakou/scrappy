@@ -12,11 +12,16 @@ import (
 var encodeBase64 = base64.StdEncoding.EncodeToString
 var decodeBase64 = base64.StdEncoding.DecodeString
 
-func GetBasename(origin string, period int) string {
-	hashed_origin := hashAndEncodeBase64([]byte(origin))
-	basename := fmt.Sprintf("%v_%v", hashed_origin, period)
+func HashBasename(origin string) string {
+	return hashAndEncodeBase64([]byte(origin))
+}
 
-	return basename
+func GetBasename(origin string, period int) string {
+	return fmt.Sprintf("%v_%v", HashBasename(origin), period)
+}
+
+func GetBasenameWithIndex(origin string, period, i int) string {
+	return fmt.Sprintf("%v_%v_%v", HashBasename(origin), period, i)
 }
 
 func hashAndEncodeBase64(data []byte) string {

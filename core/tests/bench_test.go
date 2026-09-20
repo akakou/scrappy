@@ -63,13 +63,12 @@ func onlyKBytes() string {
 }
 
 func randomBasename() string {
-	now := scrappy.Now()
 	if signer == nil || rng == nil {
 		rng = amclutils.InitRandom()
 	}
 
 	origin := amclutils.RandomBytes(rng, 32)
-	return string(scrappy.GetBasename(string(origin), now))
+	return scrappy.HashBasename(string(origin))
 }
 
 func prepareDB(conf scrappy.DB, entityType string, logSize int, data func() string) string {
@@ -123,7 +122,11 @@ func prepareDB(conf scrappy.DB, entityType string, logSize int, data func() stri
 	fmt.Println("insert!")
 
 	for i := count; i < logSize; i++ {
-		err = scrappy.Insert(db, data())
+		if conf.Table == scrappy.SIGNER_LOG_DB_CONF.Table {
+			err = scrappy.InsertSignerLog(db, i%scrappy.RateLimitK, scrappy.Now(), data())
+		} else {
+			err = scrappy.Insert(db, data())
+		}
 
 		if err != nil {
 			panic(err)

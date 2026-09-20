@@ -41,6 +41,14 @@ func buildAndroidMessage(data any, err error) string {
 func Hello() {
 }
 
+func RateLimitK() int {
+	return scrappy.RateLimitK
+}
+
+func HashBasename(origin string) string {
+	return scrappy.HashBasename(origin)
+}
+
 func AndroidJoin(host, base64Ipk string) string {
 	config, err := androidJoin(host, base64Ipk)
 	resp := buildAndroidMessage(config, err)
@@ -60,14 +68,14 @@ func androidJoin(host, base64Ipk string) (*ecdaa_helper.SignerConfig, error) {
 	return config, err
 }
 
-func AndroidSign(origin string, period int, sk, cred, ipk string) string {
-	signature, err := androidSign(origin, period, sk, cred, ipk)
+func AndroidSign(origin string, period, i int, sk, cred, ipk string) string {
+	signature, err := androidSign(origin, period, i, sk, cred, ipk)
 	resp := buildAndroidMessage(signature, err)
 
 	return resp
 }
 
-func androidSign(origin string, period int, sk, cred, ipk string) (string, error) {
+func androidSign(origin string, period, i int, sk, cred, ipk string) (string, error) {
 	SK, err := base64.StdEncoding.DecodeString(sk)
 	if err != nil {
 		return "", err
@@ -90,8 +98,11 @@ func androidSign(origin string, period int, sk, cred, ipk string) (string, error
 	if !scrappy.IsValidPeriod(period) {
 		return "", fmt.Errorf("invalid period %d, but now %d", period, scrappy.Now())
 	}
+	if i < 0 || i >= scrappy.RateLimitK {
+		return "", fmt.Errorf("invalid proof index %d for rate limit %d", i, scrappy.RateLimitK)
+	}
 
-	basename := scrappy.GetBasename(origin, period)
+	basename := scrappy.GetBasenameWithIndex(origin, period, i)
 
 	signer, err := ecdaa_helper.PrepareSWSigner(&config)
 	if err != nil {
@@ -99,6 +110,9 @@ func androidSign(origin string, period int, sk, cred, ipk string) (string, error
 	}
 
 	signature, err := ecdaa_helper.SignWithEncoding(basename, signer)
+	if err != nil {
+		return "", err
+	}
 
-	return signature, err
+	return fmt.Sprintf("%d:%s", i, signature), nil
 }
