@@ -55,24 +55,22 @@ class ScrappySigner(stores: Stores, db: AppDatabase?){
 
 
 
-        val basename = "$origin:$unixTime"
-
         val beforeTime1 = System.currentTimeMillis()
         val logDao = db!!.signerLogDao()
-        val hasExist = logDao.hasExist(basename)
+        val basename = Android_scrappy.hashBasename(origin)
+        val k = Android_scrappy.rateLimitK().toInt()
+        val used = logDao.getUsedIndexes(unixTime, basename).toSet()
+        val i = (0 until k).filterNot { it in used }.randomOrNull()
+            ?: error("rate limit reached for $origin in period $unixTime")
 
-        if (hasExist == 1) {
-            error("$basename has exist!")
-        }
-
-        val log = SignerLog(0, basename)
+        val log = SignerLog(0, i, unixTime, basename)
         logDao.insertAll(log)
         val afterTime1 = System.currentTimeMillis()
 
         Log.d("PERFORMANCE DB", "signing cost: ${afterTime1 - beforeTime1}")
 
         val beforeTime2 = System.currentTimeMillis()
-        val resp = Android_scrappy.androidSign(origin, unixTime, sk, cred, ipk)
+        val resp = Android_scrappy.androidSign(origin, unixTime, i.toLong(), sk, cred, ipk)
 
         val afterTime2 = System.currentTimeMillis()
         Log.d("PERFORMANCE ECDAA", "signing cost: ${afterTime2 - beforeTime2}")

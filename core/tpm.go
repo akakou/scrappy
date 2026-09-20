@@ -47,25 +47,19 @@ func SignTPM(origin string, period int) (string, error) {
 		return "", fmt.Errorf("invalid period %d, but now %d", period, Now())
 	}
 
-	basename := getBasename(origin, period)
-
-	hasExist, err := HasExist(db, basename)
-
+	i, err := pickUnusedIndex(origin, period, db)
 	if err != nil {
-		return "", fmt.Errorf("has exist: %v", err)
+		return "", err
 	}
 
-	if hasExist {
-		return "", fmt.Errorf(HAS_EXIST_ERROR, basename)
-	}
-
+	basename := GetBasenameWithIndex(origin, period, i)
 	signature, err := ecdaa_helper.SignTPMWithConfig(basename)
 
 	if err != nil {
 		return "", err
 	}
 
-	err = Insert(db, basename)
+	err = InsertSignerLog(db, i, period, HashBasename(origin))
 
 	if err != nil {
 		return "", err
@@ -73,6 +67,6 @@ func SignTPM(origin string, period int) (string, error) {
 
 	encoded := base64.StdEncoding.EncodeToString(signature[:])
 
-	return encoded, err
+	return encodeProof(i, encoded), nil
 
 }

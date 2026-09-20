@@ -18,11 +18,12 @@ func benchmarkSignLog(b *testing.B, logSize int) {
 	defer db.DB.Close()
 
 	period := scrappy.Now()
-	basename := scrappy.GetBasename(BENCH_ORIGIN, period)
+	basename := scrappy.HashBasename(BENCH_ORIGIN)
 
 	b.Run("sign_log", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			hasExist, err := scrappy.HasExist(db, basename)
+			usedIndexes, err := scrappy.SelectUsedIndexes(db, period, basename)
+			hasExist := len(usedIndexes) > 0
 
 			if err != nil {
 				b.Fatalf("has exist: %v", err)
@@ -32,10 +33,10 @@ func benchmarkSignLog(b *testing.B, logSize int) {
 				b.Fatalf(scrappy.HAS_EXIST_ERROR, basename)
 			}
 
-			err = scrappy.Insert(db, basename)
+			err = scrappy.InsertSignerLog(db, 0, period, basename)
 
 			if err != nil {
-				b.Fatalf("has exist: %v", err)
+				b.Fatalf("insert: %v", err)
 			}
 
 			b.StopTimer()

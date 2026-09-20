@@ -36,7 +36,7 @@ class SignActivity : AppCompatActivity() {
         db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "database-name"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
 
         val i = intent
         val urlString = i.dataString
@@ -54,12 +54,6 @@ class SignActivity : AppCompatActivity() {
         button.text = "Do you come from ${parsedCallback.host}:${parsedCallback.port} ?"
 
         thread {
-            allLogs = db.signerLogDao().getAll()
-
-            for(log in allLogs!!) {
-                db.signerLogDao().delete(log)
-            }
-
             allLogs = db.signerLogDao().getAll()
         }
     }

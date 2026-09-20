@@ -35,7 +35,7 @@ func benchmarkVerifyLog(b *testing.B, logSize int) {
 		b.Fatalf("%v: ", err)
 	}
 
-	sweepDB(scrappy.SIGNER_LOG_DB_CONF, scrappy.SIGNER_LOG_DB_PATH, basename)
+	sweepDB(scrappy.SIGNER_LOG_DB_CONF, scrappy.SIGNER_LOG_DB_PATH, scrappy.HashBasename(BENCH_ORIGIN))
 
 	if err != nil {
 		b.Fatalf("%v: ", err)
